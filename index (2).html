@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>해빗클럽 출결 시스템</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0a0f1e; --surface: #111827; --surface2: #1a2235;
+    --accent: #3b82f6; --accent2: #60a5fa;
+    --success: #10b981; --error: #ef4444;
+    --text: #f1f5f9; --muted: #64748b;
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; top: -20%; left: 50%;
+    transform: translateX(-50%); width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(59,130,246,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .container { width: 100%; max-width: 480px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .brand { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 4px; color: var(--accent2); text-align: center; }
+  .brand span { color: var(--text); }
+  .datetime-box { background: var(--surface); border: 1px solid rgba(59,130,246,0.2); border-radius: 16px; padding: 16px 24px; text-align: center; }
+  #date-display { font-size: 0.9rem; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+  #time-display { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 4px; color: var(--text); line-height: 1; }
+  .mode-toggle { display: flex; background: var(--surface); border-radius: 12px; padding: 4px; border: 1px solid rgba(59,130,246,0.15); }
+  .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-family: 'Noto Sans KR', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .mode-btn.active { background: var(--accent); color: white; }
+  .pin-display { background: var(--surface); border: 2px solid rgba(59,130,246,0.2); border-radius: 16px; padding: 24px; text-align: center; }
+  .pin-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; font-weight: 500; }
+  .pin-dots { display: flex; justify-content: center; gap: 20px; }
+  .pin-dot { width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(59,130,246,0.3); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: var(--accent2); transition: all 0.15s; }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); color: white; transform: scale(1.05); }
+  .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .num-btn { background: var(--surface); border: 1px solid rgba(59,130,246,0.15); border-radius: 14px; height: 72px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 1.6rem; font-weight: 700; cursor: pointer; transition: all 0.1s; }
+  .num-btn:active { transform: scale(0.94); background: var(--surface2); border-color: var(--accent); }
+  .num-btn.del { font-size: 1rem; color: var(--muted); }
+  .num-btn.confirm { background: var(--accent); border-color: var(--accent); font-size: 1rem; color: white; font-weight: 700; }
+  .result-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .result-overlay.show { opacity: 1; pointer-events: all; }
+  .result-card { background: var(--surface); border-radius: 24px; padding: 40px; text-align: center; max-width: 320px; width: 90%; border: 2px solid transparent; transform: scale(0.9); transition: transform 0.25s; }
+  .result-overlay.show .result-card { transform: scale(1); }
+  .result-card.success { border-color: var(--success); }
+  .result-card.error { border-color: var(--error); }
+  .result-icon { font-size: 3rem; margin-bottom: 12px; }
+  .result-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
+  .result-sub { font-size: 0.9rem; color: var(--muted); }
+  .result-time { font-size: 0.85rem; color: var(--accent2); margin-top: 8px; font-weight: 500; }
+  .spinner { width: 40px; height: 40px; border: 3px solid rgba(59,130,246,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .config-toggle { position: fixed; bottom: 16px; right: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; color: var(--muted); cursor: pointer; }
+  .config-panel { position: fixed; bottom: 50px; right: 16px; background: var(--surface2); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 16px; width: 300px; display: none; z-index: 200; }
+  .config-panel.open { display: block; }
+  .config-panel label { font-size: 0.75rem; color: var(--muted); display: block; margin-bottom: 4px; }
+  .config-panel input { width: 100%; background: var(--bg); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 0.75rem; margin-bottom: 10px; }
+  .config-save { background: var(--accent); border: none; border-radius: 8px; padding: 8px 16px; color: white; font-size: 0.8rem; cursor: pointer; width: 100%; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">HAVIT<span>CLUB</span></div>
+  <div class="datetime-box">
+    <div id="date-display"></div>
+    <div id="time-display">00:00</div>
+  </div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('등원')" id="btn-arrive">🏃 등원</button>
+    <button class="mode-btn" onclick="setMode('하원')" id="btn-depart">🏠 하원</button>
+  </div>
+  <div class="pin-display">
+    <div class="pin-label">4자리 학생 번호를 입력하세요</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+    </div>
+  </div>
+  <div class="numpad">
+    <button class="num-btn" onclick="input('1')">1</button>
+    <button class="num-btn" onclick="input('2')">2</button>
+    <button class="num-btn" onclick="input('3')">3</button>
+    <button class="num-btn" onclick="input('4')">4</button>
+    <button class="num-btn" onclick="input('5')">5</button>
+    <button class="num-btn" onclick="input('6')">6</button>
+    <button class="num-btn" onclick="input('7')">7</button>
+    <button class="num-btn" onclick="input('8')">8</button>
+    <button class="num-btn" onclick="input('9')">9</button>
+    <button class="num-btn del" onclick="del()">⌫ 지우기</button>
+    <button class="num-btn" onclick="input('0')">0</button>
+    <button class="num-btn confirm" onclick="confirm_input()">확인 ✓</button>
+  </div>
+</div>
+
+<div class="result-overlay" id="result-overlay">
+  <div class="result-card" id="result-card">
+    <div class="result-icon" id="result-icon">⏳</div>
+    <div class="result-name" id="result-name">처리 중...</div>
+    <div class="result-sub" id="result-sub"></div>
+    <div class="result-time" id="result-time"></div>
+  </div>
+</div>
+
+<div class="config-toggle" onclick="toggleConfig()">⚙ 설정</div>
+<div class="config-panel" id="config-panel">
+  <label>n8n Webhook URL</label>
+  <input type="text" id="webhook-url" placeholder="https://havit.app.n8n.cloud/webhook/attendance">
+  <button class="config-save" onclick="saveConfig()">저장</button>
+</div>
+
+<script>
+let pin = '';
+let mode = '등원';
+let webhookUrl = localStorage.getItem('habitclub_webhook') || '';
+document.getElementById('webhook-url').value = webhookUrl;
+
+function saveConfig() {
+  webhookUrl = document.getElementById('webhook-url').value.trim();
+  localStorage.setItem('habitclub_webhook', webhookUrl);
+  document.getElementById('config-panel').classList.remove('open');
+  alert('저장되었습니다.');
+}
+function toggleConfig() { document.getElementById('config-panel').classList.toggle('open'); }
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-arrive').classList.toggle('active', m === '등원');
+  document.getElementById('btn-depart').classList.toggle('active', m === '하원');
+}
+function updateClock() {
+  const now = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-display').textContent =
+    `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
+  document.getElementById('time-display').textContent =
+    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+setInterval(updateClock, 1000); updateClock();
+
+function input(digit) {
+  if (pin.length >= 4) return;
+  pin += digit; updateDots();
+  if (pin.length === 4) setTimeout(confirm_input, 200);
+}
+function del() { pin = pin.slice(0, -1); updateDots(); }
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    dot.classList.toggle('filled', i < pin.length);
+    dot.textContent = i < pin.length ? '●' : '';
+  }
+}
+async function confirm_input() {
+  if (pin.length !== 4) { alert('4자리를 입력해주세요'); return; }
+  const now = new Date();
+  const payload = {
+    student_code: pin, mode: mode,
+    timestamp: now.toISOString(),
+    date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`,
+    time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+  };
+  showResult('loading', '', '처리 중...', '학생 정보 확인 중', '');
+  if (!webhookUrl) {
+    await new Promise(r => setTimeout(r, 800));
+    showResult('success', '✅', `학번 ${pin}`, `${mode} 처리 완료 (데모)`, payload.time);
+    resetAfter(2500); return;
+  }
+  try {
+    const res = await fetch(webhookUrl, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json().catch(() => ({}));
+    showResult('success', data.is_late ? '⚠️' : '✅', data.name || `학번 ${pin}`, data.message || `${mode} 완료`, payload.time);
+  } catch (e) {
+    showResult('error', '❌', '연결 오류', 'Webhook URL을 확인해주세요', '');
+  }
+  resetAfter(2500);
+}
+function showResult(type, icon, name, sub, time) {
+  const card = document.getElementById('result-card');
+  card.className = `result-card ${type}`;
+  document.getElementById('result-icon').innerHTML = type === 'loading' ? '<div class="spinner"></div>' : icon;
+  document.getElementById('result-name').textContent = name;
+  document.getElementById('result-sub').textContent = sub;
+  document.getElementById('result-time').textContent = time;
+  document.getElementById('result-overlay').classList.add('show');
+}
+function resetAfter(ms) {
+  setTimeout(() => {
+    document.getElementById('result-overlay').classList.remove('show');
+    pin = ''; updateDots();
+  }, ms);
+}
+</script>
+</body>
+</html>
