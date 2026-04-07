@@ -120,7 +120,7 @@
 <script>
 let pin = '';
 let mode = '등원';
-let webhookUrl = localStorage.getItem('habitclub_webhook') || '';
+let webhookUrl = localStorage.getItem('habitclub_webhook') || 'https://havit.app.n8n.cloud/webhook/attendance';
 document.getElementById('webhook-url').value = webhookUrl;
 
 function saveConfig() {
