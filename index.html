@@ -44,6 +44,7 @@
   .pin-dot.filled { background: var(--accent); border-color: var(--accent); color: white; transform: scale(1.05); }
   .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .num-btn { background: var(--surface); border: 1px solid rgba(59,130,246,0.15); border-radius: 14px; height: 72px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 1.6rem; font-weight: 700; cursor: pointer; transition: all 0.1s; }
+   touch-action: manipulation; /* ← 이 줄 추가 */
   .num-btn:active { transform: scale(0.94); background: var(--surface2); border-color: var(--accent); }
   .num-btn.del { font-size: 1rem; color: var(--muted); }
   .num-btn.confirm { background: var(--accent); border-color: var(--accent); font-size: 1rem; color: white; font-weight: 700; }
