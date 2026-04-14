@@ -289,6 +289,26 @@ function minsToStr(m) {
   return h > 0 ? `${h}시간 ${min > 0 ? min + '분' : ''}`.trim() : `${min}분`;
 }
 
+// 공부시간: 노션 실공부시간 우선, 없으면 등원~하원 시각으로 자동 계산
+function computeStudyMins(rec) {
+  const fromNotion = parseStudyMins(rec.study_time);
+  if (fromNotion > 0) return fromNotion;
+  if (rec.arrival && rec.departure) {
+    const [ah, am] = rec.arrival.split(':').map(Number);
+    const [dh, dm] = rec.departure.split(':').map(Number);
+    if (!isNaN(ah) && !isNaN(dh)) {
+      const diff = (dh * 60 + dm) - (ah * 60 + am);
+      if (diff > 0 && diff < 720) return diff; // 12시간 이내만 유효
+    }
+  }
+  return 0;
+}
+
+function studyLabel(rec) {
+  const m = computeStudyMins(rec);
+  return m > 0 ? minsToStr(m) : '-';
+}
+
 // ============================================================
 //  렌더링
 // ============================================================
@@ -305,7 +325,7 @@ function render(records, isError) {
       if (r.status === '정상출석') nPresent++;
       else if (r.status === '지각') nLate++;
       else if (r.status === '결석') nAbsent++;
-      const m = parseStudyMins(r.study_time);
+      const m = computeStudyMins(r);
       if (m > 0) { totalStudyMins += m; studyDays++; }
     });
   }
@@ -355,7 +375,8 @@ function render(records, isError) {
         <span class="day-status-dot dot-${rec.status}"></span>${rec.status}
       </span>`;
       if (rec.arrival)     inner += `<div class="day-arrival">▶ ${rec.arrival}</div>`;
-      if (rec.study_time)  inner += `<div class="day-study">⏱ ${rec.study_time}</div>`;
+      const st = studyLabel(rec);
+      if (st !== '-')      inner += `<div class="day-study">⏱ ${st}</div>`;
     }
 
     const onclick = rec ? `onclick="showDetail('${dateStr}')"` : '';
@@ -446,7 +467,7 @@ function showDetail(dateStr) {
     ['등원시각', rec.arrival || '-'],
     ['하원시각', rec.departure || '-'],
     ['약속하원', rec.scheduled_departure || '-'],
-    ['공부시간', rec.study_time || '-'],
+    ['공부시간', studyLabel(rec)],
     ['메모',     rec.memo || '-'],
   ];
   content.innerHTML = rows.map(([lbl, val]) =>
