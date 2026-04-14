@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>출결 현황</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      padding: 16px;
+      font-size: 14px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ── 헤더 ── */
+    .header { margin-bottom: 14px; }
+    .student-name {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .class-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: #e8f0fe;
+      color: #3c6bc1;
+    }
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .month-nav button {
+      border: 1px solid #e0e0e0;
+      background: #fff;
+      cursor: pointer;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #555;
+    }
+    .month-nav button:hover { background: #f5f5f5; }
+    .month-label { font-size: 15px; font-weight: 600; }
+
+    /* ── 통계 카드 ── */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .summary-card {
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .summary-card .val {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .summary-card .lbl {
+      font-size: 10px;
+      color: #999;
+      margin-top: 3px;
+      letter-spacing: -0.2px;
+    }
+
+    /* ── 범례 ── */
+    .legend {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #777;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── 달력 ── */
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .day-header {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #aaa;
+      padding: 4px 0;
+    }
+    .day-header.sun { color: #e53935; }
+    .day-header.sat { color: #1e88e5; }
+
+    .day {
+      border-radius: 8px;
+      padding: 6px 4px 5px;
+      min-height: 58px;
+      cursor: default;
+      position: relative;
+      border: 1px solid transparent;
+      transition: box-shadow 0.1s;
+    }
+    .day.has-record { cursor: pointer; }
+    .day.has-record:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+
+    .day.empty { background: transparent; border: none; }
+    .day.weekend-empty { background: transparent; border: none; }
+    .day.weekday-empty { background: #fafafa; border-color: #f0f0f0; }
+
+    /* 상태별 배경 */
+    .day.정상출석 { background: #e8f5e9; border-color: #c8e6c9; }
+    .day.지각      { background: #fff8e1; border-color: #ffe082; }
+    .day.결석      { background: #fce4ec; border-color: #f8bbd0; }
+
+    /* 오늘 강조 */
+    .day.today { outline: 2px solid #333; outline-offset: -2px; }
+
+    .day-num {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      line-height: 1;
+    }
+    .day-num.sun { color: #e53935; }
+    .day-num.sat { color: #1e88e5; }
+
+    .day-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 2px;
+      vertical-align: middle;
+    }
+    .dot-정상출석 { background: #43a047; }
+    .dot-지각      { background: #fb8c00; }
+    .dot-결석      { background: #e53935; }
+
+    .day-status-text {
+      font-size: 9px;
+      color: #666;
+      margin-top: 4px;
+      display: block;
+    }
+    .day-arrival {
+      font-size: 9px;
+      color: #888;
+      margin-top: 2px;
+    }
+    .day-study {
+      font-size: 9px;
+      color: #43a047;
+      margin-top: 1px;
+    }
+
+    /* ── 상세 패널 ── */
+    .detail-panel {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 3px solid #ccc;
+      display: none;
+      animation: fadeIn 0.15s ease;
+    }
+    .detail-panel.active { display: block; }
+    .detail-panel.정상출석 { border-color: #43a047; }
+    .detail-panel.지각      { border-color: #fb8c00; }
+    .detail-panel.결석      { border-color: #e53935; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .detail-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 4px 8px;
+    }
+    .detail-label { font-size: 12px; color: #999; }
+    .detail-val   { font-size: 12px; color: #333; }
+
+    /* ── 상태/에러 메시지 ── */
+    .loading, .error-msg {
+      text-align: center;
+      padding: 40px;
+      color: #aaa;
+      font-size: 13px;
+    }
+    .error-msg { color: #e53935; }
+
+    /* ── 데모 배너 ── */
+    .demo-banner {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #795548;
+      margin-bottom: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading">로딩 중...</div>
+</div>
+
+<script>
+// ============================================================
+//  설정값 — n8n 워크플로우 배포 후 아래 URL을 교체하세요
+// ============================================================
+const N8N_WEBHOOK_URL = 'https://havit.app.n8n.cloud/webhook/attendance';
+
+// ============================================================
+//  전역 상태
+// ============================================================
+const urlParams  = new URLSearchParams(window.location.search);
+const STUDENT    = (urlParams.get('student') || '').trim();
+const today      = new Date();
+const todayStr   = today.toISOString().slice(0, 10);
+
+let curYear  = parseInt(urlParams.get('year')  || today.getFullYear());
+let curMonth = parseInt(urlParams.get('month') || (today.getMonth() + 1));
+
+let recordMap = {}; // { "YYYY-MM-DD": record }
+
+// ============================================================
+//  데이터 로딩
+// ============================================================
+async function fetchData(year, month) {
+  const url = `${N8N_WEBHOOK_URL}?student=${encodeURIComponent(STUDENT)}&year=${year}&month=${month}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json(); // [{date, status, arrival, departure, ...}]
+}
+
+// ============================================================
+//  유틸
+// ============================================================
+function parseStudyMins(str) {
+  if (!str) return 0;
+  let m = 0;
+  const h = str.match(/(\d+)\s*시간/); if (h) m += parseInt(h[1]) * 60;
+  const mi = str.match(/(\d+)\s*분/);  if (mi) m += parseInt(mi[1]);
+  const c = str.match(/^(\d+):(\d+)$/); if (c) m = parseInt(c[1]) * 60 + parseInt(c[2]);
+  return m;
+}
+
+function minsToStr(m) {
+  if (!m) return '-';
+  const h = Math.floor(m / 60);
+  const min = m % 60;
+  return h > 0 ? `${h}시간 ${min > 0 ? min + '분' : ''}`.trim() : `${min}분`;
+}
+
+// ============================================================
+//  렌더링
+// ============================================================
+function render(records, isError) {
+  const app = document.getElementById('app');
+
+  recordMap = {};
+  if (records) records.forEach(r => { if (r.date) recordMap[r.date] = r; });
+
+  // 통계 계산
+  let nPresent = 0, nLate = 0, nAbsent = 0, totalStudyMins = 0, studyDays = 0;
+  if (records) {
+    records.forEach(r => {
+      if (r.status === '정상출석') nPresent++;
+      else if (r.status === '지각') nLate++;
+      else if (r.status === '결석') nAbsent++;
+      const m = parseStudyMins(r.study_time);
+      if (m > 0) { totalStudyMins += m; studyDays++; }
+    });
+  }
+  const nTotal = nPresent + nLate + nAbsent;
+  const attendRate = nTotal > 0 ? Math.round((nPresent + nLate) / nTotal * 100) : 0;
+  const avgStudy = studyDays > 0 ? Math.round(totalStudyMins / studyDays) : 0;
+
+  // 달력 계산
+  const daysInMonth   = new Date(curYear, curMonth, 0).getDate();
+  const firstDayOfWeek = new Date(curYear, curMonth - 1, 1).getDay(); // 0=일
+
+  // 요일 헤더
+  const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+  const headers = DAY_NAMES.map((d, i) =>
+    `<div class="day-header ${i===0?'sun':i===6?'sat':''}">${d}</div>`
+  ).join('');
+
+  // 빈 칸 + 날짜 칸
+  let cells = '';
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    cells += '<div class="day empty"></div>';
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${curYear}-${String(curMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const rec = recordMap[dateStr];
+    const dow = new Date(curYear, curMonth - 1, d).getDay();
+    const isSun = dow === 0, isSat = dow === 6;
+    const isToday = dateStr === todayStr;
+    const isWeekend = isSun || isSat;
+
+    let cls = 'day';
+    if (rec) {
+      cls += ' has-record ' + rec.status;
+    } else if (isWeekend) {
+      cls += ' weekend-empty';
+    } else {
+      cls += ' weekday-empty';
+    }
+    if (isToday) cls += ' today';
+
+    const numCls = 'day-num' + (isSun ? ' sun' : isSat ? ' sat' : '');
+
+    let inner = `<div class="${numCls}">${d}</div>`;
+    if (rec) {
+      inner += `<span class="day-status-text">
+        <span class="day-status-dot dot-${rec.status}"></span>${rec.status}
+      </span>`;
+      if (rec.arrival)     inner += `<div class="day-arrival">▶ ${rec.arrival}</div>`;
+      if (rec.study_time)  inner += `<div class="day-study">⏱ ${rec.study_time}</div>`;
+    }
+
+    const onclick = rec ? `onclick="showDetail('${dateStr}')"` : '';
+    cells += `<div class="${cls}" data-date="${dateStr}" ${onclick}>${inner}</div>`;
+  }
+
+  const isDemo = (N8N_WEBHOOK_URL === 'YOUR_N8N_WEBHOOK_URL');
+
+  app.innerHTML = `
+    ${isDemo ? '<div class="demo-banner" style="display:block">⚠️ 데모 모드 — n8n 웹훅 URL을 설정하면 실제 Notion 데이터가 표시됩니다</div>' : ''}
+    ${isError ? '<div class="error-msg">⚠️ 데이터 로드 실패. n8n 웹훅 URL과 Notion 토큰을 확인해주세요.</div>' : ''}
+
+    <div class="header">
+      <div class="student-name">
+        📋 ${STUDENT || '학생'} 출결 현황
+      </div>
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">◀</button>
+        <span class="month-label">${curYear}년 ${curMonth}월</span>
+        <button onclick="changeMonth(1)">▶</button>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="summary-card">
+        <div class="val" style="color:#43a047">${nPresent}</div>
+        <div class="lbl">정상출석</div>
+      </div>
+      <div class="summary-card">
+        <div class="val" style="color:#fb8c00">${nLate}</div>
+        <div class="lbl">지각</div>
+      </div>
+      <div class="summary-card">
+        <div class="val" style="color:#e53935">${nAbsent}</div>
+        <div class="lbl">결석</div>
+      </div>
+      <div class="summary-card">
+        <div class="val">${nTotal > 0 ? attendRate + '%' : '-'}</div>
+        <div class="lbl">출석률</div>
+      </div>
+      <div class="summary-card">
+        <div class="val" style="font-size:15px">${avgStudy > 0 ? minsToStr(avgStudy) : '-'}</div>
+        <div class="lbl">평균공부</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#43a047"></div>정상출석</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fb8c00"></div>지각</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e53935"></div>결석</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e0e0e0"></div>기록없음</div>
+    </div>
+
+    <div class="calendar">
+      ${headers}
+      ${cells}
+    </div>
+
+    <div class="detail-panel" id="detail-panel">
+      <div class="detail-title" id="detail-title"></div>
+      <div class="detail-grid" id="detail-content"></div>
+    </div>
+  `;
+}
+
+// ============================================================
+//  상세 패널
+// ============================================================
+function showDetail(dateStr) {
+  const rec = recordMap[dateStr];
+  const panel   = document.getElementById('detail-panel');
+  const title   = document.getElementById('detail-title');
+  const content = document.getElementById('detail-content');
+
+  const d = new Date(dateStr + 'T00:00:00');
+  const DAY_NAMES = ['일','월','화','수','목','금','토'];
+  title.textContent = `${dateStr} (${DAY_NAMES[d.getDay()]})`;
+
+  panel.className = 'detail-panel active' + (rec ? ' ' + rec.status : '');
+
+  if (!rec) {
+    content.innerHTML = '<div class="detail-label" style="grid-column:span 2;color:#bbb">기록 없음</div>';
+    return;
+  }
+
+  const rows = [
+    ['상태',     rec.status || '-'],
+    ['등원시각', rec.arrival || '-'],
+    ['하원시각', rec.departure || '-'],
+    ['약속하원', rec.scheduled_departure || '-'],
+    ['공부시간', rec.study_time || '-'],
+    ['메모',     rec.memo || '-'],
+  ];
+  content.innerHTML = rows.map(([lbl, val]) =>
+    `<div class="detail-label">${lbl}</div><div class="detail-val">${val}</div>`
+  ).join('');
+}
+
+// ============================================================
+//  월 이동
+// ============================================================
+async function changeMonth(delta) {
+  curMonth += delta;
+  if (curMonth > 12) { curMonth = 1; curYear++; }
+  if (curMonth < 1)  { curMonth = 12; curYear--; }
+
+  document.getElementById('app').innerHTML = '<div class="loading">로딩 중...</div>';
+  await loadAndRender();
+}
+
+// ============================================================
+//  메인
+// ============================================================
+async function loadAndRender() {
+  if (!STUDENT) {
+    document.getElementById('app').innerHTML =
+      '<div class="error-msg">URL에 <code>?student=학생명</code> 파라미터를 추가해주세요.<br>예: attendance.html?student=정다현</div>';
+    return;
+  }
+
+  // 데모 모드: n8n URL 미설정 시 더미 데이터 렌더링
+  if (N8N_WEBHOOK_URL === 'YOUR_N8N_WEBHOOK_URL') {
+    render(generateDemoData(curYear, curMonth), false);
+    return;
+  }
+
+  try {
+    const records = await fetchData(curYear, curMonth);
+    render(Array.isArray(records) ? records : [], false);
+  } catch (e) {
+    console.error('출결 데이터 로드 실패:', e);
+    render([], true);
+  }
+}
+
+// ============================================================
+//  데모 데이터 생성 (n8n 미연결 시 UI 미리보기용)
+// ============================================================
+function generateDemoData(year, month) {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const statuses = ['정상출석','정상출석','정상출석','정상출석','정상출석','지각','결석'];
+  const arrivals = { '정상출석': '15:30', '지각': '16:55', '결석': '' };
+  const records = [];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dow = new Date(year, month - 1, d).getDay();
+    if (dow === 0 || dow === 6) continue;
+    if (Math.random() > 0.75) continue;
+
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const studyMins = status === '결석' ? 0 : (90 + Math.floor(Math.random() * 8) * 15);
+
+    records.push({
+      date:                 `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
+      status,
+      arrival:              arrivals[status],
+      departure:            status === '결석' ? '' : '20:00',
+      scheduled_departure:  '20:00',
+      study_time:           studyMins > 0 ? minsToStr(studyMins) : '',
+      memo:                 '',
+      class:                '고등'
+    });
+  }
+  return records;
+}
+
+// 초기 실행
+loadAndRender();
+</script>
+</body>
+</html>
