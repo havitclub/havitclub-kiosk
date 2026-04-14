@@ -264,7 +264,10 @@ async function fetchData(year, month) {
   const url = `${N8N_WEBHOOK_URL}?student=${encodeURIComponent(STUDENT)}&year=${year}&month=${month}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return await res.json(); // [{date, status, arrival, departure, ...}]
+  let text = await res.text();
+  // n8n Text 모드가 '=' 접두어를 붙이는 경우 제거
+  if (text.startsWith('=')) text = text.slice(1);
+  return JSON.parse(text);
 }
 
 // ============================================================
