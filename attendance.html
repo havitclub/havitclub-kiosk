@@ -255,7 +255,8 @@ const todayStr   = today.toISOString().slice(0, 10);
 let curYear  = parseInt(urlParams.get('year')  || today.getFullYear());
 let curMonth = parseInt(urlParams.get('month') || (today.getMonth() + 1));
 
-let recordMap = {}; // { "YYYY-MM-DD": record }
+let recordMap = {};       // { "YYYY-MM-DD": record }
+let virtualAbsences = new Set(); // 기록 없는 등원 예정일
 
 // ============================================================
 //  데이터 로딩
@@ -376,7 +377,7 @@ function render(records, isError) {
 
   // 가상 결석: 스케줄 있는 과거 날짜에 기록 없는 경우
   const studentSched = SCHEDULE[STUDENT] || {};
-  const virtualAbsences = new Set();
+  virtualAbsences = new Set();
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = `${curYear}-${String(curMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     if (ds >= todayStr) continue;       // 오늘 이후는 제외
@@ -527,5 +528,4 @@ function showDetail(dateStr) {
   const title   = document.getElementById('detail-title');
   const content = document.getElementById('detail-content');
 
-  const d = new Date(dateStr + 'T00:00:00');
-  const DAY_NAMES = ['일','월','화','수','목','금','토'];
+  const d = new Date(dateStr + 'T00:00:00'
