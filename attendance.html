@@ -310,6 +310,58 @@ function studyLabel(rec) {
 }
 
 // ============================================================
+//  학생별 등원 스케줄 (요일: 0=일 1=월 2=화 3=수 4=목 5=금 6=토)
+// ============================================================
+const SCHEDULE = {
+  '김기호':  { 1:'15:30', 3:'16:30', 5:'15:30', 6:'15:00', 0:'09:00' },
+  '김서윤':  { 1:'19:00', 2:'16:00', 3:'19:00', 4:'16:00', 5:'19:00' },
+  '길찬':    { 1:'19:00', 2:'19:00', 3:'19:00', 4:'19:00', 5:'19:00', 6:'14:00', 0:'14:00' },
+  '민세화':  { 1:'16:00', 2:'20:00', 3:'16:00', 4:'20:00', 5:'19:30', 6:'16:00', 0:'17:00' },
+  '변우석':  { 1:'15:00', 2:'15:00', 3:'15:00', 4:'10:00', 5:'10:00' },
+  '오유빈':  { 2:'18:00', 5:'18:00' },
+  '원하린':  { 1:'18:00', 2:'17:00', 3:'18:00', 4:'17:00', 5:'18:00', 6:'12:00', 0:'12:00' },
+  '여준영':  { 1:'18:00', 3:'18:00', 5:'18:00', 6:'11:00', 0:'11:00' },
+  '이준민':  { 2:'17:00', 3:'17:00', 4:'17:00', 6:'16:00', 0:'18:00' },
+  '임이라':  { 1:'17:00', 3:'20:00', 5:'17:00', 6:'10:00' },
+  '전민희':  { 2:'17:00', 3:'17:00', 4:'17:00', 6:'12:00', 0:'10:00' },
+  '전민재':  { 1:'16:00', 3:'16:00', 6:'16:00' },
+  '서윤호':  { 3:'16:00', 5:'16:00', 6:'12:00', 0:'10:00' },
+  '정다현':  { 1:'16:00', 2:'16:00', 3:'16:00', 4:'16:00', 5:'20:30', 6:'18:00', 0:'13:00' },
+  '주승효':  { 6:'19:30' },
+  '한규빈':  { 1:'19:00', 4:'19:00', 5:'19:00' },
+  '한준결':  { 6:'18:00', 0:'12:00' },
+};
+
+// 지각 허용 범위 (분) — 0이면 1분이라도 늦으면 지각
+const LATE_GRACE_MINUTES = 0;
+
+function timeToMins(t) {
+  if (!t) return null;
+  const parts = t.split(':').map(Number);
+  if (isNaN(parts[0])) return null;
+  return parts[0] * 60 + (parts[1] || 0);
+}
+
+function getScheduledTime(student, dateStr) {
+  const sched = SCHEDULE[student];
+  if (!sched) return null;
+  const dow = new Date(dateStr + 'T00:00:00').getDay();
+  return sched[dow] || null;
+}
+
+// 최종 상태 결정: 지각 여부를 스케줄 기준으로 오버라이드
+function resolveStatus(rec, dateStr) {
+  if (!rec) return '결석';
+  if (rec.status === '결석') return '결석';
+  const scheduledTime = getScheduledTime(STUDENT, dateStr);
+  if (!scheduledTime || !rec.arrival) return rec.status;
+  const sMins = timeToMins(scheduledTime);
+  const aMins = timeToMins(rec.arrival);
+  if (aMins === null) return rec.status;
+  return (aMins > sMins + LATE_GRACE_MINUTES) ? '지각' : '정상출석';
+}
+
+// ============================================================
 //  렌더링
 // ============================================================
 function render(records, isError) {
@@ -318,24 +370,40 @@ function render(records, isError) {
   recordMap = {};
   if (records) records.forEach(r => { if (r.date) recordMap[r.date] = r; });
 
+  // 달력 기본값
+  const daysInMonth    = new Date(curYear, curMonth, 0).getDate();
+  const firstDayOfWeek = new Date(curYear, curMonth - 1, 1).getDay();
+
+  // 가상 결석: 스케줄 있는 과거 날짜에 기록 없는 경우
+  const studentSched = SCHEDULE[STUDENT] || {};
+  const virtualAbsences = new Set();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${curYear}-${String(curMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if (ds >= todayStr) continue;       // 오늘 이후는 제외
+    if (recordMap[ds]) continue;        // 기록 있으면 제외
+    const dow = new Date(ds + 'T00:00:00').getDay();
+    if (studentSched[dow]) virtualAbsences.add(ds);
+  }
+
   // 통계 계산
   let nPresent = 0, nLate = 0, nAbsent = 0, totalStudyMins = 0, studyDays = 0;
   if (records) {
     records.forEach(r => {
-      if (r.status === '정상출석') nPresent++;
-      else if (r.status === '지각') nLate++;
-      else if (r.status === '결석') nAbsent++;
-      const m = computeStudyMins(r);
-      if (m > 0) { totalStudyMins += m; studyDays++; }
+      const st = resolveStatus(r, r.date);
+      if (st === '정상출석') nPresent++;
+      else if (st === '지각') nLate++;
+      else if (st === '결석') nAbsent++;
+      if (st !== '결석') {
+        const m = computeStudyMins(r);
+        if (m > 0) { totalStudyMins += m; studyDays++; }
+      }
     });
   }
+  nAbsent += virtualAbsences.size;
+
   const nTotal = nPresent + nLate + nAbsent;
   const attendRate = nTotal > 0 ? Math.round((nPresent + nLate) / nTotal * 100) : 0;
   const avgStudy = studyDays > 0 ? Math.round(totalStudyMins / studyDays) : 0;
-
-  // 달력 계산
-  const daysInMonth   = new Date(curYear, curMonth, 0).getDate();
-  const firstDayOfWeek = new Date(curYear, curMonth - 1, 1).getDay(); // 0=일
 
   // 요일 헤더
   const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -352,14 +420,20 @@ function render(records, isError) {
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${curYear}-${String(curMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const rec = recordMap[dateStr];
+    const isVirtualAbsent = !rec && virtualAbsences.has(dateStr);
     const dow = new Date(curYear, curMonth - 1, d).getDay();
     const isSun = dow === 0, isSat = dow === 6;
     const isToday = dateStr === todayStr;
     const isWeekend = isSun || isSat;
 
+    // 실제 표시 상태 결정
+    const displayStatus = rec
+      ? resolveStatus(rec, dateStr)
+      : (isVirtualAbsent ? '결석' : null);
+
     let cls = 'day';
-    if (rec) {
-      cls += ' has-record ' + rec.status;
+    if (displayStatus) {
+      cls += ' has-record ' + displayStatus;
     } else if (isWeekend) {
       cls += ' weekend-empty';
     } else {
@@ -370,16 +444,18 @@ function render(records, isError) {
     const numCls = 'day-num' + (isSun ? ' sun' : isSat ? ' sat' : '');
 
     let inner = `<div class="${numCls}">${d}</div>`;
-    if (rec) {
+    if (displayStatus) {
       inner += `<span class="day-status-text">
-        <span class="day-status-dot dot-${rec.status}"></span>${rec.status}
+        <span class="day-status-dot dot-${displayStatus}"></span>${displayStatus}
       </span>`;
-      if (rec.arrival)     inner += `<div class="day-arrival">▶ ${rec.arrival}</div>`;
-      const st = studyLabel(rec);
-      if (st !== '-')      inner += `<div class="day-study">⏱ ${st}</div>`;
+      if (rec && rec.arrival) inner += `<div class="day-arrival">▶ ${rec.arrival}</div>`;
+      if (rec) {
+        const st = studyLabel(rec);
+        if (st !== '-') inner += `<div class="day-study">⏱ ${st}</div>`;
+      }
     }
 
-    const onclick = rec ? `onclick="showDetail('${dateStr}')"` : '';
+    const onclick = displayStatus ? `onclick="showDetail('${dateStr}')"` : '';
     cells += `<div class="${cls}" data-date="${dateStr}" ${onclick}>${inner}</div>`;
   }
 
@@ -453,98 +529,3 @@ function showDetail(dateStr) {
 
   const d = new Date(dateStr + 'T00:00:00');
   const DAY_NAMES = ['일','월','화','수','목','금','토'];
-  title.textContent = `${dateStr} (${DAY_NAMES[d.getDay()]})`;
-
-  panel.className = 'detail-panel active' + (rec ? ' ' + rec.status : '');
-
-  if (!rec) {
-    content.innerHTML = '<div class="detail-label" style="grid-column:span 2;color:#bbb">기록 없음</div>';
-    return;
-  }
-
-  const rows = [
-    ['상태',     rec.status || '-'],
-    ['등원시각', rec.arrival || '-'],
-    ['하원시각', rec.departure || '-'],
-    ['약속하원', rec.scheduled_departure || '-'],
-    ['공부시간', studyLabel(rec)],
-    ['메모',     rec.memo || '-'],
-  ];
-  content.innerHTML = rows.map(([lbl, val]) =>
-    `<div class="detail-label">${lbl}</div><div class="detail-val">${val}</div>`
-  ).join('');
-}
-
-// ============================================================
-//  월 이동
-// ============================================================
-async function changeMonth(delta) {
-  curMonth += delta;
-  if (curMonth > 12) { curMonth = 1; curYear++; }
-  if (curMonth < 1)  { curMonth = 12; curYear--; }
-
-  document.getElementById('app').innerHTML = '<div class="loading">로딩 중...</div>';
-  await loadAndRender();
-}
-
-// ============================================================
-//  메인
-// ============================================================
-async function loadAndRender() {
-  if (!STUDENT) {
-    document.getElementById('app').innerHTML =
-      '<div class="error-msg">URL에 <code>?student=학생명</code> 파라미터를 추가해주세요.<br>예: attendance.html?student=정다현</div>';
-    return;
-  }
-
-  // 데모 모드: n8n URL 미설정 시 더미 데이터 렌더링
-  if (N8N_WEBHOOK_URL === 'YOUR_N8N_WEBHOOK_URL') {
-    render(generateDemoData(curYear, curMonth), false);
-    return;
-  }
-
-  try {
-    const records = await fetchData(curYear, curMonth);
-    render(Array.isArray(records) ? records : [], false);
-  } catch (e) {
-    console.error('출결 데이터 로드 실패:', e);
-    render([], true);
-  }
-}
-
-// ============================================================
-//  데모 데이터 생성 (n8n 미연결 시 UI 미리보기용)
-// ============================================================
-function generateDemoData(year, month) {
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const statuses = ['정상출석','정상출석','정상출석','정상출석','정상출석','지각','결석'];
-  const arrivals = { '정상출석': '15:30', '지각': '16:55', '결석': '' };
-  const records = [];
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dow = new Date(year, month - 1, d).getDay();
-    if (dow === 0 || dow === 6) continue;
-    if (Math.random() > 0.75) continue;
-
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const studyMins = status === '결석' ? 0 : (90 + Math.floor(Math.random() * 8) * 15);
-
-    records.push({
-      date:                 `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
-      status,
-      arrival:              arrivals[status],
-      departure:            status === '결석' ? '' : '20:00',
-      scheduled_departure:  '20:00',
-      study_time:           studyMins > 0 ? minsToStr(studyMins) : '',
-      memo:                 '',
-      class:                '고등'
-    });
-  }
-  return records;
-}
-
-// 초기 실행
-loadAndRender();
-</script>
-</body>
-</html>
