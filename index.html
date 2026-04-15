@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<\!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,7 +12,7 @@
   :root {
     --bg: #0a0f1e; --surface: #111827; --surface2: #1a2235;
     --accent: #3b82f6; --accent2: #60a5fa;
-    --success: #10b981; --error: #ef4444;
+    --success: #10b981; --error: #ef4444; --warn: #f59e0b;
     --text: #f1f5f9; --muted: #64748b;
   }
   body {
@@ -35,7 +35,7 @@
   #date-display { font-size: 0.9rem; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
   #time-display { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 4px; color: var(--text); line-height: 1; }
   .mode-toggle { display: flex; background: var(--surface); border-radius: 12px; padding: 4px; border: 1px solid rgba(59,130,246,0.15); }
-  .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-family: 'Noto Sans KR', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-family: 'Noto Sans KR', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; touch-action: manipulation; }
   .mode-btn.active { background: var(--accent); color: white; }
   .pin-display { background: var(--surface); border: 2px solid rgba(59,130,246,0.2); border-radius: 16px; padding: 24px; text-align: center; }
   .pin-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; font-weight: 500; }
@@ -43,23 +43,36 @@
   .pin-dot { width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(59,130,246,0.3); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: var(--accent2); transition: all 0.15s; }
   .pin-dot.filled { background: var(--accent); border-color: var(--accent); color: white; transform: scale(1.05); }
   .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .num-btn { background: var(--surface); border: 1px solid rgba(59,130,246,0.15); border-radius: 14px; height: 72px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 1.6rem; font-weight: 700; cursor: pointer; transition: all 0.1s; }
-   touch-action: manipulation; /* ← 이 줄 추가 */
+  .num-btn { background: var(--surface); border: 1px solid rgba(59,130,246,0.15); border-radius: 14px; height: 72px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 1.6rem; font-weight: 700; cursor: pointer; transition: all 0.1s; touch-action: manipulation; }
   .num-btn:active { transform: scale(0.94); background: var(--surface2); border-color: var(--accent); }
   .num-btn.del { font-size: 1rem; color: var(--muted); }
   .num-btn.confirm { background: var(--accent); border-color: var(--accent); font-size: 1rem; color: white; font-weight: 700; }
+
+  /* 결과 오버레이 */
   .result-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
   .result-overlay.show { opacity: 1; pointer-events: all; }
-  .result-card { background: var(--surface); border-radius: 24px; padding: 40px; text-align: center; max-width: 320px; width: 90%; border: 2px solid transparent; transform: scale(0.9); transition: transform 0.25s; }
+  .result-card { background: var(--surface); border-radius: 24px; padding: 40px; text-align: center; max-width: 340px; width: 90%; border: 2px solid transparent; transform: scale(0.9); transition: transform 0.25s; }
   .result-overlay.show .result-card { transform: scale(1); }
   .result-card.success { border-color: var(--success); }
   .result-card.error { border-color: var(--error); }
+  .result-card.warning { border-color: var(--warn); }
   .result-icon { font-size: 3rem; margin-bottom: 12px; }
   .result-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
-  .result-sub { font-size: 0.9rem; color: var(--muted); }
+  .result-sub { font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
   .result-time { font-size: 0.85rem; color: var(--accent2); margin-top: 8px; font-weight: 500; }
   .spinner { width: 40px; height: 40px; border: 3px solid rgba(59,130,246,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 확인 팝업 버튼 */
+  .confirm-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+  .confirm-btns button { padding: 10px 24px; border: none; border-radius: 12px; font-family: 'Noto Sans KR', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.15s; touch-action: manipulation; }
+  .confirm-btns .btn-yes { background: var(--accent); color: white; }
+  .confirm-btns .btn-yes:active { transform: scale(0.95); }
+  .confirm-btns .btn-no { background: var(--surface2); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+  .confirm-btns .btn-no:active { transform: scale(0.95); }
+  .confirm-btns .btn-switch { background: var(--warn); color: #1a1a1a; }
+  .confirm-btns .btn-switch:active { transform: scale(0.95); }
+
   .config-toggle { position: fixed; bottom: 16px; right: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; color: var(--muted); cursor: pointer; }
   .config-panel { position: fixed; bottom: 50px; right: 16px; background: var(--surface2); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 16px; width: 300px; display: none; z-index: 200; }
   .config-panel.open { display: block; }
@@ -110,6 +123,7 @@
     <div class="result-name" id="result-name">처리 중...</div>
     <div class="result-sub" id="result-sub"></div>
     <div class="result-time" id="result-time"></div>
+    <div class="confirm-btns" id="confirm-btns" style="display:none;"></div>
   </div>
 </div>
 
@@ -123,9 +137,106 @@
 <script>
 let pin = '';
 let mode = '등원';
+let isProcessing = false;
 let webhookUrl = localStorage.getItem('habitclub_webhook') || 'https://havit.app.n8n.cloud/webhook/attendance';
 document.getElementById('webhook-url').value = webhookUrl;
 
+// ─── 등하원 기록 추적 (localStorage) ───
+function getTodayKey() {
+  const now = new Date();
+  return `hc_att_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+
+function getTodayRecords(studentCode) {
+  try {
+    const data = JSON.parse(localStorage.getItem(getTodayKey()) || '{}');
+    return data[studentCode] || [];
+  } catch(e) { return []; }
+}
+
+function saveTodayRecord(studentCode, recordMode, time) {
+  try {
+    const key = getTodayKey();
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    if (\!data[studentCode]) data[studentCode] = [];
+    data[studentCode].push({ mode: recordMode, time: time });
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch(e) { console.error('저장 오류:', e); }
+}
+
+function cleanOldRecords() {
+  const todayKey = getTodayKey();
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('hc_att_') && k \!== todayKey) {
+      localStorage.removeItem(k);
+    }
+  }
+}
+cleanOldRecords();
+
+// ─── 위트있는 경고 메시지 (짧고 임팩트있게) ───
+// 마지막이 등원인데 또 등원 → 하원 아닌지 확인
+const MSG_DOUBLE_ARRIVE = [
+  "엥? 아까 등원했는데? 🤨",
+  "또 등원? 하원 아니야? 🫣",
+  "등원 두 번째인데~? 🧐",
+  "분신술? 이미 왔잖아 😏",
+  "카톡 두 번 간다~ 진짜? 📱"
+];
+
+// 등원 기록 없이 하원
+const MSG_NO_ARRIVE = [
+  "엥? 등원 안 했는데? 👻",
+  "먼저 등원부터~ 😎",
+  "등원이 먼저 아닐까? 🤭",
+  "투명인간이었어? 👀",
+  "순서: 등원 → 하원 📋"
+];
+
+// 마지막이 하원인데 또 하원 → 등원 아닌지 확인
+const MSG_DOUBLE_DEPART = [
+  "엥? 아까 하원했는데? 🤨",
+  "또 하원? 등원 아니야? 🫣",
+  "하원 두 번째인데~? 🧐",
+  "혹시 등원 맞지? 🤔",
+  "다시 한번 확인! ✋"
+];
+
+function randomPick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function checkAttendanceStatus(studentCode, currentMode) {
+  const records = getTodayRecords(studentCode);
+
+  if (records.length === 0) {
+    // 첫 기록인데 하원 → 등원 먼저 해야지
+    if (currentMode === '하원') {
+      return { warn: true, type: 'no_arrive', msg: randomPick(MSG_NO_ARRIVE) };
+    }
+    return { warn: false };
+  }
+
+  const lastRecord = records[records.length - 1];
+
+  // 핵심 로직: 마지막 기록과 같은 모드면 경고
+  // 등원 → 등원: 두 번째는 하원일 가능성 높음
+  // 하원 → 하원: 첫 번째가 등원이었을 가능성 있음 (또는 재등원 후 하원)
+
+  if (currentMode === '등원' && lastRecord.mode === '등원') {
+    return { warn: true, type: 'double_arrive', msg: randomPick(MSG_DOUBLE_ARRIVE), lastTime: lastRecord.time };
+  }
+
+  if (currentMode === '하원' && lastRecord.mode === '하원') {
+    return { warn: true, type: 'double_depart', msg: randomPick(MSG_DOUBLE_DEPART), lastTime: lastRecord.time };
+  }
+
+  // 등원 → 하원, 하원 → 등원(재등원) → 정상
+  return { warn: false };
+}
+
+// ─── 설정 ───
 function saveConfig() {
   webhookUrl = document.getElementById('webhook-url').value.trim();
   localStorage.setItem('habitclub_webhook', webhookUrl);
@@ -133,11 +244,13 @@ function saveConfig() {
   alert('저장되었습니다.');
 }
 function toggleConfig() { document.getElementById('config-panel').classList.toggle('open'); }
+
 function setMode(m) {
   mode = m;
   document.getElementById('btn-arrive').classList.toggle('active', m === '등원');
   document.getElementById('btn-depart').classList.toggle('active', m === '하원');
 }
+
 function updateClock() {
   const now = new Date();
   const days = ['일','월','화','수','목','금','토'];
@@ -149,11 +262,14 @@ function updateClock() {
 setInterval(updateClock, 1000); updateClock();
 
 function input(digit) {
-  if (pin.length >= 4) return;
+  if (pin.length >= 4 || isProcessing) return;
   pin += digit; updateDots();
   if (pin.length === 4) setTimeout(confirm_input, 200);
 }
-function del() { pin = pin.slice(0, -1); updateDots(); }
+function del() { 
+  if (isProcessing) return;
+  pin = pin.slice(0, -1); updateDots(); 
+}
 function updateDots() {
   for (let i = 0; i < 4; i++) {
     const dot = document.getElementById(`dot-${i}`);
@@ -161,30 +277,109 @@ function updateDots() {
     dot.textContent = i < pin.length ? '●' : '';
   }
 }
+
+// ─── 경고 팝업 표시 ───
+function showWarning(status, onConfirm, onSwitch, onCancel) {
+  const card = document.getElementById('result-card');
+  card.className = 'result-card warning';
+  document.getElementById('result-icon').textContent = status.msg;
+  document.getElementById('result-name').textContent = '';
+  document.getElementById('result-sub').textContent = status.lastTime ? `이전 기록: ${status.lastTime}` : '';
+  document.getElementById('result-time').textContent = '';
+
+  const btnsDiv = document.getElementById('confirm-btns');
+  btnsDiv.style.display = 'flex';
+
+  // 모든 경우: "전환" + "맞아" + "취소"
+  const switchLabel = status.type === 'double_arrive' ? '🔄 하원으로'
+                    : status.type === 'double_depart' ? '🔄 등원으로'
+                    : '🔄 등원으로';
+  const confirmLabel = status.type === 'double_arrive' ? '등원 맞아'
+                     : status.type === 'no_arrive' ? '하원 맞아'
+                     : '하원 맞아';
+
+  btnsDiv.innerHTML = `
+    <button class="btn-switch" id="warn-switch">${switchLabel}</button>
+    <button class="btn-yes" id="warn-yes">${confirmLabel}</button>
+    <button class="btn-no" id="warn-no">취소</button>
+  `;
+
+  document.getElementById('result-overlay').classList.add('show');
+
+  document.getElementById('warn-switch').onclick = () => { hideOverlay(); onSwitch(); };
+  document.getElementById('warn-yes').onclick = () => { hideOverlay(); onConfirm(); };
+  document.getElementById('warn-no').onclick = () => { hideOverlay(); onCancel(); };
+}
+
+function hideOverlay() {
+  document.getElementById('result-overlay').classList.remove('show');
+  document.getElementById('confirm-btns').style.display = 'none';
+}
+
+// ─── 메인 처리 ───
 async function confirm_input() {
-  if (pin.length !== 4) { alert('4자리를 입력해주세요'); return; }
+  if (pin.length \!== 4 || isProcessing) return;
+  isProcessing = true;
+  
+  const currentPin = pin;
+  const currentMode = mode;
+  
+  // 등하원 상태 체크
+  const status = checkAttendanceStatus(currentPin, currentMode);
+  
+  if (status.warn) {
+    // 경고 팝업 표시
+    showWarning(
+      status,
+      // "맞아\!" → 그대로 진행
+      () => { sendToWebhook(currentPin, currentMode); },
+      // "변경" → 모드 전환 후 진행
+      () => {
+        const switchedMode = currentMode === '등원' ? '하원' : '등원';
+        setMode(switchedMode);
+        sendToWebhook(currentPin, switchedMode);
+      },
+      // "취소"
+      () => { isProcessing = false; pin = ''; updateDots(); }
+    );
+    return;
+  }
+  
+  // 정상 → 바로 전송
+  sendToWebhook(currentPin, currentMode);
+}
+
+async function sendToWebhook(studentCode, sendMode) {
   const now = new Date();
   const payload = {
-    student_code: pin, mode: mode,
+    student_code: studentCode, mode: sendMode,
     timestamp: now.toISOString(),
     date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`,
     time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
   };
+  
   showResult('loading', '', '처리 중...', '학생 정보 확인 중', '');
-  if (!webhookUrl) {
-    await new Promise(r => setTimeout(r, 800));
-    showResult('success', '✅', `학번 ${pin}`, `${mode} 처리 완료 (데모)`, payload.time);
-    resetAfter(2500); return;
+  
+  if (\!webhookUrl) {
+    await new Promise(r => setTimeout(r, 500));
+    saveTodayRecord(studentCode, sendMode, payload.time);
+    showResult('success', '✅', `학번 ${studentCode}`, `${sendMode} 처리 완료 (데모)`, payload.time);
+    resetAfter(2000);
+    return;
   }
+  
   try {
     const res = await fetch(webhookUrl, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     const data = await res.json().catch(() => ({}));
-    showResult('success', data.is_late ? '⚠️' : '✅', data.name || `학번 ${pin}`, data.message || `${mode} 완료`, payload.time);
+    // 성공 시 로컬 기록 저장
+    saveTodayRecord(studentCode, sendMode, payload.time);
+    showResult('success', data.is_late ? '⚠️' : '✅', data.name || `학번 ${studentCode}`, data.message || `${sendMode} 완료`, payload.time);
   } catch (e) {
     showResult('error', '❌', '연결 오류', 'Webhook URL을 확인해주세요', '');
   }
-  resetAfter(2500);
+  resetAfter(2000);
 }
+
 function showResult(type, icon, name, sub, time) {
   const card = document.getElementById('result-card');
   card.className = `result-card ${type}`;
@@ -192,12 +387,15 @@ function showResult(type, icon, name, sub, time) {
   document.getElementById('result-name').textContent = name;
   document.getElementById('result-sub').textContent = sub;
   document.getElementById('result-time').textContent = time;
+  document.getElementById('confirm-btns').style.display = 'none';
   document.getElementById('result-overlay').classList.add('show');
 }
+
 function resetAfter(ms) {
   setTimeout(() => {
     document.getElementById('result-overlay').classList.remove('show');
     pin = ''; updateDots();
+    isProcessing = false;
   }, ms);
 }
 </script>
