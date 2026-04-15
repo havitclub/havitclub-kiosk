@@ -1,4 +1,4 @@
-<\!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -47,8 +47,6 @@
   .num-btn:active { transform: scale(0.94); background: var(--surface2); border-color: var(--accent); }
   .num-btn.del { font-size: 1rem; color: var(--muted); }
   .num-btn.confirm { background: var(--accent); border-color: var(--accent); font-size: 1rem; color: white; font-weight: 700; }
-
-  /* 결과 오버레이 */
   .result-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
   .result-overlay.show { opacity: 1; pointer-events: all; }
   .result-card { background: var(--surface); border-radius: 24px; padding: 40px; text-align: center; max-width: 340px; width: 90%; border: 2px solid transparent; transform: scale(0.9); transition: transform 0.25s; }
@@ -56,23 +54,20 @@
   .result-card.success { border-color: var(--success); }
   .result-card.error { border-color: var(--error); }
   .result-card.warning { border-color: var(--warn); }
-  .result-icon { font-size: 3rem; margin-bottom: 12px; }
+  .result-icon { font-size: 2rem; margin-bottom: 12px; line-height: 1.4; }
   .result-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
   .result-sub { font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
   .result-time { font-size: 0.85rem; color: var(--accent2); margin-top: 8px; font-weight: 500; }
   .spinner { width: 40px; height: 40px; border: 3px solid rgba(59,130,246,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* 확인 팝업 버튼 */
-  .confirm-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
-  .confirm-btns button { padding: 10px 24px; border: none; border-radius: 12px; font-family: 'Noto Sans KR', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.15s; touch-action: manipulation; }
+  .confirm-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
+  .confirm-btns button { padding: 10px 20px; border: none; border-radius: 12px; font-family: 'Noto Sans KR', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.15s; touch-action: manipulation; }
   .confirm-btns .btn-yes { background: var(--accent); color: white; }
   .confirm-btns .btn-yes:active { transform: scale(0.95); }
   .confirm-btns .btn-no { background: var(--surface2); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
   .confirm-btns .btn-no:active { transform: scale(0.95); }
   .confirm-btns .btn-switch { background: var(--warn); color: #1a1a1a; }
   .confirm-btns .btn-switch:active { transform: scale(0.95); }
-
   .config-toggle { position: fixed; bottom: 16px; right: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; color: var(--muted); cursor: pointer; }
   .config-panel { position: fixed; bottom: 50px; right: 16px; background: var(--surface2); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 16px; width: 300px; display: none; z-index: 200; }
   .config-panel.open { display: block; }
@@ -89,8 +84,8 @@
     <div id="time-display">00:00</div>
   </div>
   <div class="mode-toggle">
-    <button class="mode-btn active" onclick="setMode('등원')" id="btn-arrive">🏃 등원</button>
-    <button class="mode-btn" onclick="setMode('하원')" id="btn-depart">🏠 하원</button>
+    <button class="mode-btn active" onclick="setMode('\uB4F1\uC6D0')" id="btn-arrive">🏃 등원</button>
+    <button class="mode-btn" onclick="setMode('\uD558\uC6D0')" id="btn-depart">🏠 하원</button>
   </div>
   <div class="pin-display">
     <div class="pin-label">4자리 학생 번호를 입력하세요</div>
@@ -135,180 +130,181 @@
 </div>
 
 <script>
-let pin = '';
-let mode = '등원';
-let isProcessing = false;
-let webhookUrl = localStorage.getItem('habitclub_webhook') || 'https://havit.app.n8n.cloud/webhook/attendance';
+var pin = '';
+var mode = '\uB4F1\uC6D0';
+var isProcessing = false;
+var webhookUrl = localStorage.getItem('habitclub_webhook') || 'https://havit.app.n8n.cloud/webhook/attendance';
 document.getElementById('webhook-url').value = webhookUrl;
 
-// ─── 등하원 기록 추적 (localStorage) ───
+/* ---- localStorage tracking ---- */
 function getTodayKey() {
-  const now = new Date();
-  return `hc_att_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  var now = new Date();
+  var m = now.getMonth() + 1;
+  var d = now.getDate();
+  return 'hc_att_' + now.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
 }
 
-function getTodayRecords(studentCode) {
+function getTodayRecords(code) {
   try {
-    const data = JSON.parse(localStorage.getItem(getTodayKey()) || '{}');
-    return data[studentCode] || [];
+    var data = JSON.parse(localStorage.getItem(getTodayKey()) || '{}');
+    return data[code] || [];
   } catch(e) { return []; }
 }
 
-function saveTodayRecord(studentCode, recordMode, time) {
+function saveTodayRecord(code, recMode, time) {
   try {
-    const key = getTodayKey();
-    const data = JSON.parse(localStorage.getItem(key) || '{}');
-    if (\!data[studentCode]) data[studentCode] = [];
-    data[studentCode].push({ mode: recordMode, time: time });
+    var key = getTodayKey();
+    var data = JSON.parse(localStorage.getItem(key) || '{}');
+    if (!data[code]) data[code] = [];
+    data[code].push({ mode: recMode, time: time });
     localStorage.setItem(key, JSON.stringify(data));
-  } catch(e) { console.error('저장 오류:', e); }
+  } catch(e) { console.error(e); }
 }
 
 function cleanOldRecords() {
-  const todayKey = getTodayKey();
-  for (let i = localStorage.length - 1; i >= 0; i--) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith('hc_att_') && k \!== todayKey) {
+  var todayKey = getTodayKey();
+  for (var i = localStorage.length - 1; i >= 0; i--) {
+    var k = localStorage.key(i);
+    if (k && k.indexOf('hc_att_') === 0 && k !== todayKey) {
       localStorage.removeItem(k);
     }
   }
 }
 cleanOldRecords();
 
-// ─── 위트있는 경고 메시지 (짧고 임팩트있게) ───
-// 마지막이 등원인데 또 등원 → 하원 아닌지 확인
-const MSG_DOUBLE_ARRIVE = [
-  "엥? 아까 등원했는데? 🤨",
-  "또 등원? 하원 아니야? 🫣",
-  "등원 두 번째인데~? 🧐",
-  "분신술? 이미 왔잖아 😏",
-  "카톡 두 번 간다~ 진짜? 📱"
+/* ---- witty warning messages ---- */
+var MSG_DOUBLE_ARRIVE = [
+  "\uC625? \uC544\uAE4C \uB4F1\uC6D0\uD588\uB294\uB370? \uD83E\uDD28",
+  "\uB610 \uB4F1\uC6D0? \uD558\uC6D0 \uC544\uB2C8\uC57C? \uD83E\uDEE3",
+  "\uB4F1\uC6D0 \uB450 \uBC88\uC9F8\uC778\uB370~? \uD83E\uDDD0",
+  "\uBD84\uC2E0\uC220? \uC774\uBBF8 \uC654\uC796\uC544 \uD83D\uDE0F",
+  "\uCE74\uD1A1 \uB450 \uBC88 \uAC04\uB2E4~ \uC9C4\uC9DC? \uD83D\uDCF1"
 ];
 
-// 등원 기록 없이 하원
-const MSG_NO_ARRIVE = [
-  "엥? 등원 안 했는데? 👻",
-  "먼저 등원부터~ 😎",
-  "등원이 먼저 아닐까? 🤭",
-  "투명인간이었어? 👀",
-  "순서: 등원 → 하원 📋"
+var MSG_NO_ARRIVE = [
+  "\uC625? \uB4F1\uC6D0 \uC548 \uD588\uB294\uB370? \uD83D\uDC7B",
+  "\uBA3C\uC800 \uB4F1\uC6D0\uBD80\uD130~ \uD83D\uDE0E",
+  "\uB4F1\uC6D0\uC774 \uBA3C\uC800 \uC544\uB2D0\uAE4C? \uD83E\uDD2D",
+  "\uD22C\uBA85\uC778\uAC04\uC774\uC5C8\uC5B4? \uD83D\uDC40",
+  "\uC21C\uC11C: \uB4F1\uC6D0 \u2192 \uD558\uC6D0 \uD83D\uDCCB"
 ];
 
-// 마지막이 하원인데 또 하원 → 등원 아닌지 확인
-const MSG_DOUBLE_DEPART = [
-  "엥? 아까 하원했는데? 🤨",
-  "또 하원? 등원 아니야? 🫣",
-  "하원 두 번째인데~? 🧐",
-  "혹시 등원 맞지? 🤔",
-  "다시 한번 확인! ✋"
+var MSG_DOUBLE_DEPART = [
+  "\uC625? \uC544\uAE4C \uD558\uC6D0\uD588\uB294\uB370? \uD83E\uDD28",
+  "\uB610 \uD558\uC6D0? \uB4F1\uC6D0 \uC544\uB2C8\uC57C? \uD83E\uDEE3",
+  "\uD558\uC6D0 \uB450 \uBC88\uC9F8\uC778\uB370~? \uD83E\uDDD0",
+  "\uD639\uC2DC \uB4F1\uC6D0 \uB9DE\uC9C0? \uD83E\uDD14",
+  "\uB2E4\uC2DC \uD55C\uBC88 \uD655\uC778~ \u270B"
 ];
 
 function randomPick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function checkAttendanceStatus(studentCode, currentMode) {
-  const records = getTodayRecords(studentCode);
+function checkAttendanceStatus(code, curMode) {
+  var records = getTodayRecords(code);
 
   if (records.length === 0) {
-    // 첫 기록인데 하원 → 등원 먼저 해야지
-    if (currentMode === '하원') {
+    if (curMode === '\uD558\uC6D0') {
       return { warn: true, type: 'no_arrive', msg: randomPick(MSG_NO_ARRIVE) };
     }
     return { warn: false };
   }
 
-  const lastRecord = records[records.length - 1];
+  var last = records[records.length - 1];
 
-  // 핵심 로직: 마지막 기록과 같은 모드면 경고
-  // 등원 → 등원: 두 번째는 하원일 가능성 높음
-  // 하원 → 하원: 첫 번째가 등원이었을 가능성 있음 (또는 재등원 후 하원)
-
-  if (currentMode === '등원' && lastRecord.mode === '등원') {
-    return { warn: true, type: 'double_arrive', msg: randomPick(MSG_DOUBLE_ARRIVE), lastTime: lastRecord.time };
+  if (curMode === '\uB4F1\uC6D0' && last.mode === '\uB4F1\uC6D0') {
+    return { warn: true, type: 'double_arrive', msg: randomPick(MSG_DOUBLE_ARRIVE), lastTime: last.time };
   }
 
-  if (currentMode === '하원' && lastRecord.mode === '하원') {
-    return { warn: true, type: 'double_depart', msg: randomPick(MSG_DOUBLE_DEPART), lastTime: lastRecord.time };
+  if (curMode === '\uD558\uC6D0' && last.mode === '\uD558\uC6D0') {
+    return { warn: true, type: 'double_depart', msg: randomPick(MSG_DOUBLE_DEPART), lastTime: last.time };
   }
 
-  // 등원 → 하원, 하원 → 등원(재등원) → 정상
   return { warn: false };
 }
 
-// ─── 설정 ───
+/* ---- config ---- */
 function saveConfig() {
   webhookUrl = document.getElementById('webhook-url').value.trim();
   localStorage.setItem('habitclub_webhook', webhookUrl);
   document.getElementById('config-panel').classList.remove('open');
-  alert('저장되었습니다.');
+  alert('\uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4.');
 }
 function toggleConfig() { document.getElementById('config-panel').classList.toggle('open'); }
 
 function setMode(m) {
   mode = m;
-  document.getElementById('btn-arrive').classList.toggle('active', m === '등원');
-  document.getElementById('btn-depart').classList.toggle('active', m === '하원');
+  document.getElementById('btn-arrive').classList.toggle('active', m === '\uB4F1\uC6D0');
+  document.getElementById('btn-depart').classList.toggle('active', m === '\uD558\uC6D0');
 }
 
 function updateClock() {
-  const now = new Date();
-  const days = ['일','월','화','수','목','금','토'];
+  var now = new Date();
+  var days = ['\uC77C','\uC6D4','\uD654','\uC218','\uBAA9','\uAE08','\uD1A0'];
   document.getElementById('date-display').textContent =
-    `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
+    now.getFullYear() + '\uB144 ' + (now.getMonth()+1) + '\uC6D4 ' + now.getDate() + '\uC77C ' + days[now.getDay()] + '\uC694\uC77C';
+  var h = now.getHours();
+  var mi = now.getMinutes();
   document.getElementById('time-display').textContent =
-    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    (h < 10 ? '0' + h : h) + ':' + (mi < 10 ? '0' + mi : mi);
 }
-setInterval(updateClock, 1000); updateClock();
+setInterval(updateClock, 1000);
+updateClock();
 
 function input(digit) {
   if (pin.length >= 4 || isProcessing) return;
-  pin += digit; updateDots();
+  pin += digit;
+  updateDots();
   if (pin.length === 4) setTimeout(confirm_input, 200);
 }
-function del() { 
+function del() {
   if (isProcessing) return;
-  pin = pin.slice(0, -1); updateDots(); 
+  pin = pin.slice(0, -1);
+  updateDots();
 }
 function updateDots() {
-  for (let i = 0; i < 4; i++) {
-    const dot = document.getElementById(`dot-${i}`);
+  for (var i = 0; i < 4; i++) {
+    var dot = document.getElementById('dot-' + i);
     dot.classList.toggle('filled', i < pin.length);
-    dot.textContent = i < pin.length ? '●' : '';
+    dot.textContent = i < pin.length ? '\u25CF' : '';
   }
 }
 
-// ─── 경고 팝업 표시 ───
+/* ---- warning popup ---- */
 function showWarning(status, onConfirm, onSwitch, onCancel) {
-  const card = document.getElementById('result-card');
+  var card = document.getElementById('result-card');
   card.className = 'result-card warning';
   document.getElementById('result-icon').textContent = status.msg;
   document.getElementById('result-name').textContent = '';
-  document.getElementById('result-sub').textContent = status.lastTime ? `이전 기록: ${status.lastTime}` : '';
+  document.getElementById('result-sub').textContent = status.lastTime ? '\uC774\uC804 \uAE30\uB85D: ' + status.lastTime : '';
   document.getElementById('result-time').textContent = '';
 
-  const btnsDiv = document.getElementById('confirm-btns');
+  var btnsDiv = document.getElementById('confirm-btns');
   btnsDiv.style.display = 'flex';
 
-  // 모든 경우: "전환" + "맞아" + "취소"
-  const switchLabel = status.type === 'double_arrive' ? '🔄 하원으로'
-                    : status.type === 'double_depart' ? '🔄 등원으로'
-                    : '🔄 등원으로';
-  const confirmLabel = status.type === 'double_arrive' ? '등원 맞아'
-                     : status.type === 'no_arrive' ? '하원 맞아'
-                     : '하원 맞아';
+  var switchLabel, confirmLabel;
+  if (status.type === 'double_arrive') {
+    switchLabel = '\uD83D\uDD04 \uD558\uC6D0\uC73C\uB85C';
+    confirmLabel = '\uB4F1\uC6D0 \uB9DE\uC544';
+  } else if (status.type === 'double_depart') {
+    switchLabel = '\uD83D\uDD04 \uB4F1\uC6D0\uC73C\uB85C';
+    confirmLabel = '\uD558\uC6D0 \uB9DE\uC544';
+  } else {
+    switchLabel = '\uD83D\uDD04 \uB4F1\uC6D0\uC73C\uB85C';
+    confirmLabel = '\uD558\uC6D0 \uB9DE\uC544';
+  }
 
-  btnsDiv.innerHTML = `
-    <button class="btn-switch" id="warn-switch">${switchLabel}</button>
-    <button class="btn-yes" id="warn-yes">${confirmLabel}</button>
-    <button class="btn-no" id="warn-no">취소</button>
-  `;
+  btnsDiv.innerHTML =
+    '<button class="btn-switch" id="warn-switch">' + switchLabel + '</button>' +
+    '<button class="btn-yes" id="warn-yes">' + confirmLabel + '</button>' +
+    '<button class="btn-no" id="warn-no">\uCDE8\uC18C</button>';
 
   document.getElementById('result-overlay').classList.add('show');
 
-  document.getElementById('warn-switch').onclick = () => { hideOverlay(); onSwitch(); };
-  document.getElementById('warn-yes').onclick = () => { hideOverlay(); onConfirm(); };
-  document.getElementById('warn-no').onclick = () => { hideOverlay(); onCancel(); };
+  document.getElementById('warn-switch').onclick = function() { hideOverlay(); onSwitch(); };
+  document.getElementById('warn-yes').onclick = function() { hideOverlay(); onConfirm(); };
+  document.getElementById('warn-no').onclick = function() { hideOverlay(); onCancel(); };
 }
 
 function hideOverlay() {
@@ -316,74 +312,79 @@ function hideOverlay() {
   document.getElementById('confirm-btns').style.display = 'none';
 }
 
-// ─── 메인 처리 ───
-async function confirm_input() {
-  if (pin.length \!== 4 || isProcessing) return;
+/* ---- main flow ---- */
+function confirm_input() {
+  if (pin.length !== 4 || isProcessing) return;
   isProcessing = true;
-  
-  const currentPin = pin;
-  const currentMode = mode;
-  
-  // 등하원 상태 체크
-  const status = checkAttendanceStatus(currentPin, currentMode);
-  
+
+  var currentPin = pin;
+  var currentMode = mode;
+
+  var status = checkAttendanceStatus(currentPin, currentMode);
+
   if (status.warn) {
-    // 경고 팝업 표시
     showWarning(
       status,
-      // "맞아\!" → 그대로 진행
-      () => { sendToWebhook(currentPin, currentMode); },
-      // "변경" → 모드 전환 후 진행
-      () => {
-        const switchedMode = currentMode === '등원' ? '하원' : '등원';
-        setMode(switchedMode);
-        sendToWebhook(currentPin, switchedMode);
+      function() { sendToWebhook(currentPin, currentMode); },
+      function() {
+        var switched = (currentMode === '\uB4F1\uC6D0') ? '\uD558\uC6D0' : '\uB4F1\uC6D0';
+        setMode(switched);
+        sendToWebhook(currentPin, switched);
       },
-      // "취소"
-      () => { isProcessing = false; pin = ''; updateDots(); }
+      function() { isProcessing = false; pin = ''; updateDots(); }
     );
     return;
   }
-  
-  // 정상 → 바로 전송
+
   sendToWebhook(currentPin, currentMode);
 }
 
-async function sendToWebhook(studentCode, sendMode) {
-  const now = new Date();
-  const payload = {
-    student_code: studentCode, mode: sendMode,
+function sendToWebhook(studentCode, sendMode) {
+  var now = new Date();
+  var mo = now.getMonth() + 1;
+  var da = now.getDate();
+  var hh = now.getHours();
+  var mm = now.getMinutes();
+  var payload = {
+    student_code: studentCode,
+    mode: sendMode,
     timestamp: now.toISOString(),
-    date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`,
-    time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+    date: now.getFullYear() + '-' + (mo < 10 ? '0' + mo : mo) + '-' + (da < 10 ? '0' + da : da),
+    time: (hh < 10 ? '0' + hh : hh) + ':' + (mm < 10 ? '0' + mm : mm)
   };
-  
-  showResult('loading', '', '처리 중...', '학생 정보 확인 중', '');
-  
-  if (\!webhookUrl) {
-    await new Promise(r => setTimeout(r, 500));
-    saveTodayRecord(studentCode, sendMode, payload.time);
-    showResult('success', '✅', `학번 ${studentCode}`, `${sendMode} 처리 완료 (데모)`, payload.time);
-    resetAfter(2000);
+
+  showResult('loading', '', '\uCC98\uB9AC \uC911...', '\uD559\uC0DD \uC815\uBCF4 \uD655\uC778 \uC911', '');
+
+  if (!webhookUrl) {
+    setTimeout(function() {
+      saveTodayRecord(studentCode, sendMode, payload.time);
+      showResult('success', '\u2705', '\uD559\uBC88 ' + studentCode, sendMode + ' \uCC98\uB9AC \uC644\uB8CC (\uB370\uBAA8)', payload.time);
+      resetAfter(2000);
+    }, 500);
     return;
   }
-  
-  try {
-    const res = await fetch(webhookUrl, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-    const data = await res.json().catch(() => ({}));
-    // 성공 시 로컬 기록 저장
+
+  fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(res) { return res.json().catch(function() { return {}; }); })
+  .then(function(data) {
     saveTodayRecord(studentCode, sendMode, payload.time);
-    showResult('success', data.is_late ? '⚠️' : '✅', data.name || `학번 ${studentCode}`, data.message || `${sendMode} 완료`, payload.time);
-  } catch (e) {
-    showResult('error', '❌', '연결 오류', 'Webhook URL을 확인해주세요', '');
-  }
-  resetAfter(2000);
+    showResult('success', data.is_late ? '\u26A0\uFE0F' : '\u2705', data.name || ('\uD559\uBC88 ' + studentCode), data.message || (sendMode + ' \uC644\uB8CC'), payload.time);
+    resetAfter(2000);
+  })
+  .catch(function() {
+    showResult('error', '\u274C', '\uC5F0\uACB0 \uC624\uB958', 'Webhook URL\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694', '');
+    resetAfter(2000);
+  });
 }
 
 function showResult(type, icon, name, sub, time) {
-  const card = document.getElementById('result-card');
-  card.className = `result-card ${type}`;
-  document.getElementById('result-icon').innerHTML = type === 'loading' ? '<div class="spinner"></div>' : icon;
+  var card = document.getElementById('result-card');
+  card.className = 'result-card ' + type;
+  document.getElementById('result-icon').innerHTML = (type === 'loading') ? '<div class="spinner"></div>' : icon;
   document.getElementById('result-name').textContent = name;
   document.getElementById('result-sub').textContent = sub;
   document.getElementById('result-time').textContent = time;
@@ -392,9 +393,10 @@ function showResult(type, icon, name, sub, time) {
 }
 
 function resetAfter(ms) {
-  setTimeout(() => {
+  setTimeout(function() {
     document.getElementById('result-overlay').classList.remove('show');
-    pin = ''; updateDots();
+    pin = '';
+    updateDots();
     isProcessing = false;
   }, ms);
 }
