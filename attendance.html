@@ -11,7 +11,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;col
 .month-nav{display:flex;align-items:center;gap:10px;margin-top:8px}
 .month-nav button{border:1px solid #e0e0e0;background:#fff;cursor:pointer;padding:3px 10px;border-radius:6px;font-size:13px;color:#555}
 .month-nav button:hover{background:#f5f5f5}.month-label{font-size:15px;font-weight:600}
-.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
 .summary-card{background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;padding:10px 6px;text-align:center}
 .summary-card .val{font-size:20px;font-weight:700;line-height:1.2}.summary-card .lbl{font-size:10px;color:#999;margin-top:3px}
 .legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
@@ -25,19 +25,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;col
 .day.empty,.day.weekend-empty{background:transparent;border:none}
 .day.weekday-empty{background:#fafafa;border-color:#f0f0f0}
 .day.present{background:#e8f5e9;border-color:#c8e6c9}
-.day.late{background:#fff8e1;border-color:#ffe082}
-.day.absent{background:#fce4ec;border-color:#f8bbd0}
 .day.today{outline:2px solid #333;outline-offset:-2px}
 .day-num{font-size:12px;font-weight:600;color:#666;line-height:1}
 .day-num.sun{color:#e53935}.day-num.sat{color:#1e88e5}
 .day-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:2px;vertical-align:middle}
-.dot-present{background:#43a047}.dot-late{background:#fb8c00}.dot-absent{background:#e53935}
+.dot-present{background:#43a047}
 .day-st{font-size:9px;color:#666;margin-top:4px;display:block}
 .day-arr{font-size:9px;color:#888;margin-top:2px}
 .day-study{font-size:9px;color:#43a047;margin-top:1px}
 .detail-panel{margin-top:14px;padding:12px 14px;background:#f8f9fa;border-radius:10px;border-left:3px solid #ccc;display:none}
 .detail-panel.active{display:block}
-.detail-panel.present{border-color:#43a047}.detail-panel.late{border-color:#fb8c00}.detail-panel.absent{border-color:#e53935}
+.detail-panel.present{border-color:#43a047}
 .detail-title{font-weight:700;font-size:13px;margin-bottom:8px}
 .detail-grid{display:grid;grid-template-columns:80px 1fr;gap:4px 8px}
 .detail-label{font-size:12px;color:#999}.detail-val{font-size:12px;color:#333}
@@ -56,40 +54,14 @@ var todayStr=today.toISOString().slice(0,10);
 var curYear=parseInt(params.get('year')||today.getFullYear());
 var curMonth=parseInt(params.get('month')||(today.getMonth()+1));
 var recordMap={};
-var virtualAbsences=[];
-var SCHED={};
-SCHED["\uae40\uae30\ud638"]={1:"15:30",3:"16:30",5:"15:30",6:"15:00",0:"09:00"};
-SCHED["\uae40\uc11c\uc724"]={1:"19:00",2:"16:00",3:"19:00",4:"16:00",5:"19:00"};
-SCHED["\uae38\ucc2c"]={1:"19:00",2:"19:00",3:"19:00",4:"19:00",5:"19:00",6:"14:00",0:"14:00"};
-SCHED["\ubbfc\uc138\ud654"]={1:"16:00",2:"20:00",3:"16:00",4:"20:00",5:"19:30",6:"16:00",0:"17:00"};
-SCHED["\ubcc0\uc6b0\uc11d"]={1:"15:00",2:"15:00",3:"15:00",4:"10:00",5:"10:00"};
-SCHED["\uc624\uc720\ube48"]={2:"18:00",5:"18:00"};
-SCHED["\uc6d0\ud558\ub9b0"]={1:"18:00",2:"17:00",3:"18:00",4:"17:00",5:"18:00",6:"12:00",0:"12:00"};
-SCHED["\uc5ec\uc900\uc601"]={1:"18:00",3:"18:00",5:"18:00",6:"11:00",0:"11:00"};
-SCHED["\uc774\uc900\ubbfc"]={2:"17:00",3:"17:00",4:"17:00",6:"16:00",0:"18:00"};
-SCHED["\uc784\uc774\ub77c"]={1:"17:00",3:"20:00",5:"17:00",6:"10:00"};
-SCHED["\uc804\ubbfc\ud76c"]={2:"17:00",3:"17:00",4:"17:00",6:"12:00",0:"10:00"};
-SCHED["\uc804\ubbfc\uc7ac"]={1:"16:00",3:"16:00",6:"16:00"};
-SCHED["\uc11c\uc724\ud638"]={3:"16:00",5:"16:00",6:"12:00",0:"10:00"};
-SCHED["\uc815\ub2e4\ud604"]={1:"16:00",2:"16:00",3:"16:00",4:"16:00",5:"20:30",6:"18:00",0:"13:00"};
-SCHED["\uc8fc\uc2b9\ud6a8"]={6:"19:30"};
-SCHED["\ud55c\uaddc\ube48"]={1:"19:00",4:"19:00",5:"19:00"};
-SCHED["\ud55c\uc900\uacb0"]={6:"18:00",0:"12:00"};
-var GRACE=0;
-var P="\uc815\uc0c1\ucd9c\uc11d";
-var L="\uc9c0\uac01";
-var A="\uacb0\uc11d";
-var DAYS=["\uc77c", "\uc6d4", "\ud654", "\uc218", "\ubaa9", "\uae08", "\ud1a0"];
+var A="결석";
+var DAYS=["일","월","화","수","목","금","토"];
 function pad(n){return String(n).padStart(2,'0');}
 function ok(v){return v!==null&&v!==undefined&&v!==false&&v!=='';}
 function toMins(t){if(!ok(t))return null;var p=t.split(':'),h=parseInt(p[0]);if(isNaN(h))return null;return h*60+(parseInt(p[1])||0);}
 function minsToStr(m){if(!ok(m)||m<=0)return'-';var h=Math.floor(m/60),mn=m%60;if(h>0&&mn>0)return h+'시간 '+mn+'분';if(h>0)return h+'시간';return mn+'분';}
 function parseStudyMins(s){if(!ok(s))return 0;var m=0,rh=/(\d+)\s*시간/,rm=/(\d+)\s*분/;var h=s.match(rh);if(h)m+=parseInt(h[1])*60;var mi=s.match(rm);if(mi)m+=parseInt(mi[1]);var c=s.match(/^(\d+):(\d+)$/);if(c)m=parseInt(c[1])*60+parseInt(c[2]);return m;}
 function studyMins(rec){var n=parseStudyMins(rec.study_time);if(n>0)return n;var a=toMins(rec.arrival),d=toMins(rec.departure);if(a!==null&&d!==null){var diff=d-a;if(diff>0&&diff<720)return diff;}return 0;}
-function getSched(ds){var s=SCHED[STUDENT];if(!s)return null;var dw=new Date(ds+'T00:00:00').getDay();return s[dw]||null;}
-function resolveStatus(rec,ds){if(!rec||rec.status===A)return A;var sc=getSched(ds);if(!sc||!rec.arrival)return rec.status;var sm=toMins(sc),am=toMins(rec.arrival);if(am===null)return rec.status;return(am>sm+GRACE)?L:P;}
-function stClass(s){return s===P?'present':s===L?'late':'absent';}
-function stColor(s){return s===P?'#43a047':s===L?'#fb8c00':'#e53935';}
 async function fetchData(y,m){var url=N8N+'?student='+encodeURIComponent(STUDENT)+'&year='+y+'&month='+m;var res=await fetch(url);if(!res.ok)throw new Error('HTTP '+res.status);var t=await res.text();if(t.charAt(0)==='=')t=t.slice(1);return JSON.parse(t);}
 function render(records,isError){
   var app=document.getElementById('app');
@@ -97,57 +69,55 @@ function render(records,isError){
   if(records)records.forEach(function(r){if(r.date)recordMap[r.date]=r;});
   var dim=new Date(curYear,curMonth,0).getDate();
   var fdow=new Date(curYear,curMonth-1,1).getDay();
-  var sc=SCHED[STUDENT]||{};
-  virtualAbsences=[];
-  for(var d=1;d<=dim;d++){var ds=curYear+'-'+pad(curMonth)+'-'+pad(d);if(ds>=todayStr||recordMap[ds])continue;var dw=new Date(ds+'T00:00:00').getDay();if(sc[dw])virtualAbsences.push(ds);}
-  var nP=0,nL=0,nA=0,totMin=0,sDays=0;
-  if(records)records.forEach(function(r){var st=resolveStatus(r,r.date);if(st===P)nP++;else if(st===L)nL++;else nA++;if(st!==A){var m=studyMins(r);if(m>0){totMin+=m;sDays++;}}});
-  nA+=virtualAbsences.length;
-  var nTot=nP+nL+nA,rate=nTot>0?Math.round((nP+nL)/nTot*100):0,avg=sDays>0?Math.round(totMin/sDays):0;
+  var attended=0,totMin=0,sDays=0,maxMin=0;
+  if(records)records.forEach(function(r){
+    if(r.status===A)return;
+    attended++;
+    var m=studyMins(r);
+    if(m>0){totMin+=m;sDays++;if(m>maxMin)maxMin=m;}
+  });
+  var avg=sDays>0?Math.round(totMin/sDays):0;
   var hdr='';for(var i=0;i<7;i++)hdr+='<div class="day-header '+(i===0?'sun':i===6?'sat':'')+'">'+DAYS[i]+'</div>';
   var cells='';
   for(var i=0;i<fdow;i++)cells+='<div class="day empty"></div>';
   for(var d=1;d<=dim;d++){
     var ds=curYear+'-'+pad(curMonth)+'-'+pad(d);
     var rec=recordMap[ds];
-    var isVA=!rec&&virtualAbsences.indexOf(ds)>=0;
     var dw=new Date(curYear,curMonth-1,d).getDay();
     var isSun=dw===0,isSat=dw===6;
-    var dispSt=rec?resolveStatus(rec,ds):(isVA?A:null);
-    var sc2=dispSt?stClass(dispSt):null;
+    var attendedDay=rec&&rec.status!==A;
     var cls='day';
-    if(sc2)cls+=' has-record '+sc2;
+    if(attendedDay)cls+=' has-record present';
     else if(isSun||isSat)cls+=' weekend-empty';
     else cls+=' weekday-empty';
     if(ds===todayStr)cls+=' today';
     var nc='day-num'+(isSun?' sun':isSat?' sat':'');
     var inner='<div class="'+nc+'">'+d+'</div>';
-    if(dispSt){
-      inner+='<span class="day-st"><span class="day-dot dot-'+sc2+'"></span>'+dispSt+'</span>';
-      if(rec&&rec.arrival)inner+='<div class="day-arr">&#9654; '+rec.arrival+'</div>';
-      if(rec){var sm=studyMins(rec);if(sm>0)inner+='<div class="day-study">&#9201; '+minsToStr(sm)+'</div>';}
+    if(attendedDay){
+      inner+='<span class="day-st"><span class="day-dot dot-present"></span>등원</span>';
+      if(rec.arrival)inner+='<div class="day-arr">&#9654; '+rec.arrival+'</div>';
+      var sm=studyMins(rec);if(sm>0)inner+='<div class="day-study">&#9201; '+minsToStr(sm)+'</div>';
     }
-    var oc=dispSt?'onclick="showDetail(\''+ds+'\')"':'';
+    var oc=attendedDay?'onclick="showDetail(\''+ds+'\')"':'';
     cells+='<div class="'+cls+'" '+oc+'>'+inner+'</div>';
   }
-  var KR={P:P,L:L,A:A,rate:'출석률',study:'평균공부',norec:'기록없음',year:'년',month:'월',title:'출결 현황',err:'데이터 로드 실패'};
+  var KR={title:'출결 현황',year:'년',month:'월',err:'데이터 로드 실패',norec:'기록없음'};
+  var cards=[];
+  cards.push('<div class="summary-card"><div class="val" style="color:#43a047">'+attended+'</div><div class="lbl">등원</div></div>');
+  if(sDays>0&&totMin>0&&sDays>=Math.ceil(attended*0.6)){
+    cards.push('<div class="summary-card"><div class="val" style="font-size:15px">'+minsToStr(totMin)+'</div><div class="lbl">누적 순공</div></div>');
+  }
+  cards.push('<div class="summary-card"><div class="val" style="font-size:15px">'+minsToStr(avg)+'</div><div class="lbl">평균 순공</div></div>');
+  cards.push('<div class="summary-card"><div class="val" style="font-size:15px">'+minsToStr(maxMin)+'</div><div class="lbl">최고 몰입</div></div>');
   app.innerHTML=
     (isError?'<div class="error-msg">'+KR.err+'</div>':'')+
     '<div class="header"><div class="student-name">&#128203; '+(STUDENT||'?')+' '+KR.title+'</div>'+
     '<div class="month-nav"><button onclick="changeMonth(-1)">&#9664;</button>'+
     '<span class="month-label">'+curYear+KR.year+' '+curMonth+KR.month+'</span>'+
     '<button onclick="changeMonth(1)">&#9654;</button></div></div>'+
-    '<div class="summary">'+
-    '<div class="summary-card"><div class="val" style="color:#43a047">'+nP+'</div><div class="lbl">'+KR.P+'</div></div>'+
-    '<div class="summary-card"><div class="val" style="color:#fb8c00">'+nL+'</div><div class="lbl">'+KR.L+'</div></div>'+
-    '<div class="summary-card"><div class="val" style="color:#e53935">'+nA+'</div><div class="lbl">'+KR.A+'</div></div>'+
-    '<div class="summary-card"><div class="val">'+(nTot>0?rate+'%':'-')+'</div><div class="lbl">'+KR.rate+'</div></div>'+
-    '<div class="summary-card"><div class="val" style="font-size:15px">'+minsToStr(avg)+'</div><div class="lbl">'+KR.study+'</div></div>'+
-    '</div>'+
+    '<div class="summary" style="grid-template-columns:repeat('+cards.length+',1fr)">'+cards.join('')+'</div>'+
     '<div class="legend">'+
-    '<div class="legend-item"><div class="legend-dot" style="background:#43a047"></div>'+KR.P+'</div>'+
-    '<div class="legend-item"><div class="legend-dot" style="background:#fb8c00"></div>'+KR.L+'</div>'+
-    '<div class="legend-item"><div class="legend-dot" style="background:#e53935"></div>'+KR.A+'</div>'+
+    '<div class="legend-item"><div class="legend-dot" style="background:#43a047"></div>등원</div>'+
     '<div class="legend-item"><div class="legend-dot" style="background:#e0e0e0"></div>'+KR.norec+'</div>'+
     '</div>'+
     '<div class="calendar">'+hdr+cells+'</div>'+
@@ -155,23 +125,16 @@ function render(records,isError){
 }
 function showDetail(ds){
   var rec=recordMap[ds],panel=document.getElementById('dp'),tl=document.getElementById('dt'),cont=document.getElementById('dc');
+  if(!rec)return;
   var dobj=new Date(ds+'T00:00:00');
   tl.textContent=ds+' ('+DAYS[dobj.getDay()]+')';
-  var panSt=rec?resolveStatus(rec,ds):(virtualAbsences.indexOf(ds)>=0?A:'');
-  panel.className='detail-panel active'+(panSt?' '+stClass(panSt):'');
-  var sa=getSched(ds)||'-';
-  var DL={st:'상태',sa:'약속등원',at:'등원시각',dep:'하원시각',sd:'약속하원',stt:'공부시간',mo:'메모',nr:'기록 없음'};
-  if(!rec){
-    cont.innerHTML='<div class="detail-label">'+DL.st+'</div><div class="detail-val" style="color:#e53935">'+A+'</div>'+'<div class="detail-label">'+DL.sa+'</div><div class="detail-val">'+sa+'</div>'+'<div class="detail-label">'+DL.at+'</div><div class="detail-val">'+DL.nr+'</div>';
-    return;
-  }
-  var dispSt=resolveStatus(rec,ds),sm=studyMins(rec);
+  panel.className='detail-panel active present';
+  var sm=studyMins(rec);
+  var DL={st:'상태',at:'등원시각',dep:'하원시각',stt:'공부시간',mo:'메모'};
   cont.innerHTML=
-    '<div class="detail-label">'+DL.st+'</div><div class="detail-val" style="color:'+stColor(dispSt)+'">'+dispSt+'</div>'+
-    '<div class="detail-label">'+DL.sa+'</div><div class="detail-val">'+sa+'</div>'+
+    '<div class="detail-label">'+DL.st+'</div><div class="detail-val" style="color:#43a047">등원</div>'+
     '<div class="detail-label">'+DL.at+'</div><div class="detail-val">'+(rec.arrival||'-')+'</div>'+
     '<div class="detail-label">'+DL.dep+'</div><div class="detail-val">'+(rec.departure||'-')+'</div>'+
-    '<div class="detail-label">'+DL.sd+'</div><div class="detail-val">'+(rec.scheduled_departure||'-')+'</div>'+
     '<div class="detail-label">'+DL.stt+'</div><div class="detail-val">'+minsToStr(sm)+'</div>'+
     '<div class="detail-label">'+DL.mo+'</div><div class="detail-val">'+(rec.memo||'-')+'</div>';
 }
