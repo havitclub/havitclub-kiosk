@@ -11,6 +11,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;col
 .month-nav{display:flex;align-items:center;gap:10px;margin-top:8px}
 .month-nav button{border:1px solid #e0e0e0;background:#fff;cursor:pointer;padding:3px 10px;border-radius:6px;font-size:13px;color:#555}
 .month-nav button:hover{background:#f5f5f5}.month-label{font-size:15px;font-weight:600}
+.badge{display:inline-block;background:#fffbea;border:1px solid #f2e2a0;color:#9a7b00;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;margin-top:8px}
 .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
 .summary-card{background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;padding:10px 6px;text-align:center}
 .summary-card .val{font-size:20px;font-weight:700;line-height:1.2}.summary-card .lbl{font-size:10px;color:#999;margin-top:3px}
@@ -33,6 +34,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;col
 .day-st{font-size:9px;color:#666;margin-top:4px;display:block}
 .day-arr{font-size:9px;color:#888;margin-top:2px}
 .day-study{font-size:9px;color:#43a047;margin-top:1px}
+.day-out{font-size:9px;color:#bbb;margin-top:1px}
+.chart{margin-top:16px}
+.chart-title{font-size:12px;font-weight:600;color:#888;margin-bottom:6px}
+.bars{display:flex;align-items:flex-end;gap:2px;height:88px;border-bottom:1px solid #eee}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar{width:100%;max-width:14px;background:#c8e6c9;border-radius:3px 3px 0 0}
+.bar.best{background:#43a047}
+.bar-stub{width:100%;max-width:14px;height:2px;background:#f0f0f0;border-radius:1px}
+.bar-day{font-size:8px;color:#bbb;margin-top:2px;height:10px}
+.bar-val{font-size:8px;color:#2e7d32;font-weight:700;margin-bottom:2px;white-space:nowrap}
 .detail-panel{margin-top:14px;padding:12px 14px;background:#f8f9fa;border-radius:10px;border-left:3px solid #ccc;display:none}
 .detail-panel.active{display:block}
 .detail-panel.present{border-color:#43a047}
@@ -60,9 +71,10 @@ function pad(n){return String(n).padStart(2,'0');}
 function ok(v){return v!==null&&v!==undefined&&v!==false&&v!=='';}
 function toMins(t){if(!ok(t))return null;var p=t.split(':'),h=parseInt(p[0]);if(isNaN(h))return null;return h*60+(parseInt(p[1])||0);}
 function minsToStr(m){if(!ok(m)||m<=0)return'-';var h=Math.floor(m/60),mn=m%60;if(h>0&&mn>0)return h+'시간 '+mn+'분';if(h>0)return h+'시간';return mn+'분';}
-function parseStudyMins(s){if(!ok(s))return 0;var m=0,rh=/(\d+)\s*시간/,rm=/(\d+)\s*분/;var h=s.match(rh);if(h)m+=parseInt(h[1])*60;var mi=s.match(rm);if(mi)m+=parseInt(mi[1]);var c=s.match(/^(\d+):(\d+)$/);if(c)m=parseInt(c[1])*60+parseInt(c[2]);return m;}
-function studyMins(rec){var n=parseStudyMins(rec.study_time);if(n>0)return n;var a=toMins(rec.arrival),d=toMins(rec.departure);if(a!==null&&d!==null){var diff=d-a;if(diff>0&&diff<720)return diff;}return 0;}
-async function fetchData(y,m){var url=N8N+'?student='+encodeURIComponent(STUDENT)+'&year='+y+'&month='+m;var res=await fetch(url);if(!res.ok)throw new Error('HTTP '+res.status);var t=await res.text();if(t.charAt(0)==='=')t=t.slice(1);return JSON.parse(t);}
+function parseStudyMins(s){if(!ok(s))return 0;s=s.split('(')[0];var m=0,rh=/(\d+)\s*시간/,rm=/(\d+)\s*분/;var h=s.match(rh);if(h)m+=parseInt(h[1])*60;var mi=s.match(rm);if(mi)m+=parseInt(mi[1]);var c=s.match(/^(\d+):(\d+)$/);if(c)m=parseInt(c[1])*60+parseInt(c[2]);return m;}
+function outMins(rec){var o=parseInt(rec&&rec.outing_minutes);return isNaN(o)?0:o;}
+function studyMins(rec){var n=parseStudyMins(rec.study_time);if(n>0)return n;var a=toMins(rec.arrival),d=toMins(rec.departure);if(a!==null&&d!==null){var diff=d-a-outMins(rec);if(diff>0&&diff<720)return diff;}return 0;}
+function fetchData(y,m){var url=N8N+'?student='+encodeURIComponent(STUDENT)+'&year='+y+'&month='+m;return fetch(url).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.text();}).then(function(t){if(t.charAt(0)==='=')t=t.slice(1);return JSON.parse(t);});}
 function render(records,isError){
   var app=document.getElementById('app');
   recordMap={};
@@ -77,6 +89,15 @@ function render(records,isError){
     if(m>0){totMin+=m;sDays++;if(m>maxMin)maxMin=m;}
   });
   var avg=sDays>0?Math.round(totMin/sDays):0;
+  var isCurMonth=(curYear===today.getFullYear()&&curMonth===(today.getMonth()+1));
+  var lastDay=isCurMonth?today.getDate():dim;
+  var wkTotal=0,wkHit=0;
+  for(var d=1;d<=lastDay;d++){
+    var dw0=new Date(curYear,curMonth-1,d).getDay();
+    if(dw0>=1&&dw0<=5){wkTotal++;var r0=recordMap[curYear+'-'+pad(curMonth)+'-'+pad(d)];if(r0&&r0.status!==A)wkHit++;}
+  }
+  var badge='';
+  if(wkTotal>=10&&wkHit===wkTotal)badge='<div class="badge">&#127942; 평일 개근'+(isCurMonth?' 진행 중':'!')+'</div>';
   var hdr='';for(var i=0;i<7;i++)hdr+='<div class="day-header '+(i===0?'sun':i===6?'sat':'')+'">'+DAYS[i]+'</div>';
   var cells='';
   for(var i=0;i<fdow;i++)cells+='<div class="day empty"></div>';
@@ -97,9 +118,27 @@ function render(records,isError){
       inner+='<span class="day-st"><span class="day-dot dot-present"></span>등원</span>';
       if(rec.arrival)inner+='<div class="day-arr">&#9654; '+rec.arrival+'</div>';
       var sm=studyMins(rec);if(sm>0)inner+='<div class="day-study">&#9201; '+minsToStr(sm)+'</div>';
+      var om=outMins(rec);if(om>0)inner+='<div class="day-out">&#128694; '+minsToStr(om)+'</div>';
     }
     var oc=attendedDay?'onclick="showDetail(\''+ds+'\')"':'';
     cells+='<div class="'+cls+'" '+oc+'>'+inner+'</div>';
+  }
+  var chart='';
+  if(sDays>=2){
+    var bars='',bestShown=false;
+    for(var d=1;d<=dim;d++){
+      var ds2=curYear+'-'+pad(curMonth)+'-'+pad(d);
+      var rec2=recordMap[ds2];
+      var sm2=(rec2&&rec2.status!==A)?studyMins(rec2):0;
+      var h=sm2>0?Math.max(6,Math.round(sm2/maxMin*64)):0;
+      var isBest=(sm2===maxMin&&sm2>0&&!bestShown);
+      if(isBest)bestShown=true;
+      bars+='<div class="bar-wrap">'+
+        (isBest?'<div class="bar-val">'+minsToStr(sm2)+'</div>':'')+
+        (sm2>0?'<div class="bar'+(isBest?' best':'')+'" style="height:'+h+'px"></div>':'<div class="bar-stub"></div>')+
+        '<div class="bar-day">'+((d===1||d%5===0)?d:'')+'</div></div>';
+    }
+    chart='<div class="chart"><div class="chart-title">&#128200; 일별 순공 시간</div><div class="bars">'+bars+'</div></div>';
   }
   var KR={title:'출결 현황',year:'년',month:'월',err:'데이터 로드 실패',norec:'기록없음'};
   var cards=[];
@@ -114,13 +153,14 @@ function render(records,isError){
     '<div class="header"><div class="student-name">&#128203; '+(STUDENT||'?')+' '+KR.title+'</div>'+
     '<div class="month-nav"><button onclick="changeMonth(-1)">&#9664;</button>'+
     '<span class="month-label">'+curYear+KR.year+' '+curMonth+KR.month+'</span>'+
-    '<button onclick="changeMonth(1)">&#9654;</button></div></div>'+
+    '<button onclick="changeMonth(1)">&#9654;</button></div>'+badge+'</div>'+
     '<div class="summary" style="grid-template-columns:repeat('+cards.length+',1fr)">'+cards.join('')+'</div>'+
     '<div class="legend">'+
     '<div class="legend-item"><div class="legend-dot" style="background:#43a047"></div>등원</div>'+
     '<div class="legend-item"><div class="legend-dot" style="background:#e0e0e0"></div>'+KR.norec+'</div>'+
     '</div>'+
     '<div class="calendar">'+hdr+cells+'</div>'+
+    chart+
     '<div class="detail-panel" id="dp"><div class="detail-title" id="dt"></div><div class="detail-grid" id="dc"></div></div>';
 }
 function showDetail(ds){
@@ -130,18 +170,20 @@ function showDetail(ds){
   tl.textContent=ds+' ('+DAYS[dobj.getDay()]+')';
   panel.className='detail-panel active present';
   var sm=studyMins(rec);
-  var DL={st:'상태',at:'등원시각',dep:'하원시각',stt:'공부시간',mo:'메모'};
+  var om=outMins(rec);
+  var DL={st:'상태',at:'등원시각',dep:'하원시각',stt:'순공 시간',out:'외출',mo:'메모'};
   cont.innerHTML=
     '<div class="detail-label">'+DL.st+'</div><div class="detail-val" style="color:#43a047">등원</div>'+
     '<div class="detail-label">'+DL.at+'</div><div class="detail-val">'+(rec.arrival||'-')+'</div>'+
     '<div class="detail-label">'+DL.dep+'</div><div class="detail-val">'+(rec.departure||'-')+'</div>'+
     '<div class="detail-label">'+DL.stt+'</div><div class="detail-val">'+minsToStr(sm)+'</div>'+
+    (om>0?'<div class="detail-label">'+DL.out+'</div><div class="detail-val">'+minsToStr(om)+(rec.outing_count>1?' ('+rec.outing_count+'회)':'')+'</div>':'')+
     '<div class="detail-label">'+DL.mo+'</div><div class="detail-val">'+(rec.memo||'-')+'</div>';
 }
-async function changeMonth(delta){curMonth+=delta;if(curMonth>12){curMonth=1;curYear++;}if(curMonth<1){curMonth=12;curYear--;}document.getElementById('app').innerHTML='<div class="loading">로딩 중...</div>';await loadAndRender();}
-async function loadAndRender(){
+function changeMonth(delta){curMonth+=delta;if(curMonth>12){curMonth=1;curYear++;}if(curMonth<1){curMonth=12;curYear--;}document.getElementById('app').innerHTML='<div class="loading">로딩 중...</div>';loadAndRender();}
+function loadAndRender(){
   if(!STUDENT){document.getElementById('app').innerHTML='<div class="error-msg">URL에 ?student=학생명 파라미터를 추가해주세요</div>';return;}
-  try{var records=await fetchData(curYear,curMonth);render(Array.isArray(records)?records:[],false);}catch(e){console.error(e);render([],true);}
+  fetchData(curYear,curMonth).then(function(records){render(Array.isArray(records)?records:[],false);}).catch(function(e){console.error(e);render([],true);});
 }
 loadAndRender();
 </script>
