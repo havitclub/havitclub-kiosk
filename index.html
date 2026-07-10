@@ -35,8 +35,9 @@
   #date-display { font-size: 0.9rem; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
   #time-display { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 4px; color: var(--text); line-height: 1; }
   .mode-toggle { display: flex; background: var(--surface); border-radius: 12px; padding: 4px; border: 1px solid rgba(59,130,246,0.15); }
-  .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-family: 'Noto Sans KR', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; touch-action: manipulation; }
+  .mode-btn { flex: 1; padding: 10px 4px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-family: 'Noto Sans KR', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; touch-action: manipulation; }
   .mode-btn.active { background: var(--accent); color: white; }
+  .mode-btn.out.active { background: var(--warn); color: #1a1a1a; }
   .pin-display { background: var(--surface); border: 2px solid rgba(59,130,246,0.2); border-radius: 16px; padding: 24px; text-align: center; }
   .pin-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; font-weight: 500; }
   .pin-dots { display: flex; justify-content: center; gap: 20px; }
@@ -84,8 +85,10 @@
     <div id="time-display">00:00</div>
   </div>
   <div class="mode-toggle">
-    <button class="mode-btn active" onclick="setMode('\uB4F1\uC6D0')" id="btn-arrive">🏃 등원</button>
-    <button class="mode-btn" onclick="setMode('\uD558\uC6D0')" id="btn-depart">🏠 하원</button>
+    <button class="mode-btn active" onclick="setMode('등원')" id="btn-arrive">🏃 등원</button>
+    <button class="mode-btn out" onclick="setMode('외출')" id="btn-out">🚶 외출</button>
+    <button class="mode-btn out" onclick="setMode('복귀')" id="btn-return">↩️ 복귀</button>
+    <button class="mode-btn" onclick="setMode('하원')" id="btn-depart">🏠 하원</button>
   </div>
   <div class="pin-display">
     <div class="pin-label">4자리 학생 번호를 입력하세요</div>
@@ -124,17 +127,21 @@
 
 <div class="config-toggle" onclick="toggleConfig()">⚙ 설정</div>
 <div class="config-panel" id="config-panel">
-  <label>n8n Webhook URL</label>
+  <label>출결 Webhook URL (등원/하원)</label>
   <input type="text" id="webhook-url" placeholder="https://havit.app.n8n.cloud/webhook/attendance">
+  <label>외출 Webhook URL (외출/복귀)</label>
+  <input type="text" id="outing-url" placeholder="https://havit.app.n8n.cloud/webhook/outing">
   <button class="config-save" onclick="saveConfig()">저장</button>
 </div>
 
 <script>
 var pin = '';
-var mode = '\uB4F1\uC6D0';
+var mode = '등원';
 var isProcessing = false;
 var webhookUrl = localStorage.getItem('habitclub_webhook') || 'https://havit.app.n8n.cloud/webhook/attendance';
+var outingUrl = localStorage.getItem('habitclub_outing_webhook') || 'https://havit.app.n8n.cloud/webhook/outing';
 document.getElementById('webhook-url').value = webhookUrl;
+document.getElementById('outing-url').value = outingUrl;
 
 /* ---- localStorage tracking ---- */
 function getTodayKey() {
@@ -174,27 +181,51 @@ cleanOldRecords();
 
 /* ---- witty warning messages ---- */
 var MSG_DOUBLE_ARRIVE = [
-  "\uC625? \uC544\uAE4C \uB4F1\uC6D0\uD588\uB294\uB370? \uD83E\uDD28",
-  "\uB610 \uB4F1\uC6D0? \uD558\uC6D0 \uC544\uB2C8\uC57C? \uD83E\uDEE3",
-  "\uB4F1\uC6D0 \uB450 \uBC88\uC9F8\uC778\uB370~? \uD83E\uDDD0",
-  "\uBD84\uC2E0\uC220? \uC774\uBBF8 \uC654\uC796\uC544 \uD83D\uDE0F",
-  "\uCE74\uD1A1 \uB450 \uBC88 \uAC04\uB2E4~ \uC9C4\uC9DC? \uD83D\uDCF1"
+  "옥? 아까 등원했는데? 🤨",
+  "또 등원? 하원 아니야? 🫣",
+  "등원 두 번째인데~? 🧐",
+  "분신술? 이미 왔잖아 😏",
+  "카톡 두 번 간다~ 진짜? 📱"
 ];
 
 var MSG_NO_ARRIVE = [
-  "\uC625? \uB4F1\uC6D0 \uC548 \uD588\uB294\uB370? \uD83D\uDC7B",
-  "\uBA3C\uC800 \uB4F1\uC6D0\uBD80\uD130~ \uD83D\uDE0E",
-  "\uB4F1\uC6D0\uC774 \uBA3C\uC800 \uC544\uB2D0\uAE4C? \uD83E\uDD2D",
-  "\uD22C\uBA85\uC778\uAC04\uC774\uC5C8\uC5B4? \uD83D\uDC40",
-  "\uC21C\uC11C: \uB4F1\uC6D0 \u2192 \uD558\uC6D0 \uD83D\uDCCB"
+  "옥? 등원 안 했는데? 👻",
+  "먼저 등원부터~ 😎",
+  "등원이 먼저 아닐까? 🤭",
+  "투명인간이었어? 👀",
+  "순서: 등원 → 하원 📋"
 ];
 
 var MSG_DOUBLE_DEPART = [
-  "\uC625? \uC544\uAE4C \uD558\uC6D0\uD588\uB294\uB370? \uD83E\uDD28",
-  "\uB610 \uD558\uC6D0? \uB4F1\uC6D0 \uC544\uB2C8\uC57C? \uD83E\uDEE3",
-  "\uD558\uC6D0 \uB450 \uBC88\uC9F8\uC778\uB370~? \uD83E\uDDD0",
-  "\uD639\uC2DC \uB4F1\uC6D0 \uB9DE\uC9C0? \uD83E\uDD14",
-  "\uB2E4\uC2DC \uD55C\uBC88 \uD655\uC778~ \u270B"
+  "옥? 아까 하원했는데? 🤨",
+  "또 하원? 등원 아니야? 🫣",
+  "하원 두 번째인데~? 🧐",
+  "혹시 등원 맞지? 🤔",
+  "다시 한번 확인~ ✋"
+];
+
+var MSG_DOUBLE_OUT = [
+  "또 외출? 복귀 먼저 아니야? 🤔",
+  "아직 밖인 걸로 아는데~ 🚶",
+  "복귀 안 찍고 나갔었지? 😏",
+  "외출 두 번째인데~? 🧐"
+];
+
+var MSG_OUT_NO_ARRIVE = [
+  "등원도 안 했는데 외출? 👻",
+  "먼저 등원부터~ 😎",
+  "순서: 등원 → 외출 📋"
+];
+
+var MSG_OUT_AFTER_DEPART = [
+  "하원했다며? 다시 온 거면 등원! 🏃",
+  "하원 후엔 외출 말고 등원~ 📋"
+];
+
+var MSG_RETURN_NO_OUT = [
+  "외출 기록이 없는데? 👀",
+  "나간 적이 없는 걸로~ 🤨",
+  "혹시 등원 아니야? 🤔"
 ];
 
 function randomPick(arr) {
@@ -203,22 +234,43 @@ function randomPick(arr) {
 
 function checkAttendanceStatus(code, curMode) {
   var records = getTodayRecords(code);
+  var last = records.length ? records[records.length - 1] : null;
 
-  if (records.length === 0) {
-    if (curMode === '\uD558\uC6D0') {
-      return { warn: true, type: 'no_arrive', msg: randomPick(MSG_NO_ARRIVE) };
+  if (curMode === '등원') {
+    if (last && last.mode === '등원') {
+      return { warn: true, type: 'double_arrive', msg: randomPick(MSG_DOUBLE_ARRIVE), lastTime: last.time, switchTo: '하원' };
     }
     return { warn: false };
   }
 
-  var last = records[records.length - 1];
-
-  if (curMode === '\uB4F1\uC6D0' && last.mode === '\uB4F1\uC6D0') {
-    return { warn: true, type: 'double_arrive', msg: randomPick(MSG_DOUBLE_ARRIVE), lastTime: last.time };
+  if (curMode === '하원') {
+    if (!last) {
+      return { warn: true, type: 'no_arrive', msg: randomPick(MSG_NO_ARRIVE), switchTo: '등원' };
+    }
+    if (last.mode === '하원') {
+      return { warn: true, type: 'double_depart', msg: randomPick(MSG_DOUBLE_DEPART), lastTime: last.time, switchTo: '등원' };
+    }
+    return { warn: false };
   }
 
-  if (curMode === '\uD558\uC6D0' && last.mode === '\uD558\uC6D0') {
-    return { warn: true, type: 'double_depart', msg: randomPick(MSG_DOUBLE_DEPART), lastTime: last.time };
+  if (curMode === '외출') {
+    if (!last) {
+      return { warn: true, type: 'out_no_arrive', msg: randomPick(MSG_OUT_NO_ARRIVE), switchTo: '등원' };
+    }
+    if (last.mode === '외출') {
+      return { warn: true, type: 'double_out', msg: randomPick(MSG_DOUBLE_OUT), lastTime: last.time, switchTo: '복귀' };
+    }
+    if (last.mode === '하원') {
+      return { warn: true, type: 'out_after_depart', msg: randomPick(MSG_OUT_AFTER_DEPART), lastTime: last.time, switchTo: '등원' };
+    }
+    return { warn: false };
+  }
+
+  if (curMode === '복귀') {
+    if (!last || last.mode !== '외출') {
+      return { warn: true, type: 'return_no_out', msg: randomPick(MSG_RETURN_NO_OUT), lastTime: last ? last.time : null, switchTo: last ? '외출' : '등원' };
+    }
+    return { warn: false };
   }
 
   return { warn: false };
@@ -227,23 +279,27 @@ function checkAttendanceStatus(code, curMode) {
 /* ---- config ---- */
 function saveConfig() {
   webhookUrl = document.getElementById('webhook-url').value.trim();
+  outingUrl = document.getElementById('outing-url').value.trim();
   localStorage.setItem('habitclub_webhook', webhookUrl);
+  localStorage.setItem('habitclub_outing_webhook', outingUrl);
   document.getElementById('config-panel').classList.remove('open');
-  alert('\uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4.');
+  alert('저장되었습니다.');
 }
 function toggleConfig() { document.getElementById('config-panel').classList.toggle('open'); }
 
 function setMode(m) {
   mode = m;
-  document.getElementById('btn-arrive').classList.toggle('active', m === '\uB4F1\uC6D0');
-  document.getElementById('btn-depart').classList.toggle('active', m === '\uD558\uC6D0');
+  var map = { '등원': 'btn-arrive', '외출': 'btn-out', '복귀': 'btn-return', '하원': 'btn-depart' };
+  for (var k in map) {
+    document.getElementById(map[k]).classList.toggle('active', m === k);
+  }
 }
 
 function updateClock() {
   var now = new Date();
-  var days = ['\uC77C','\uC6D4','\uD654','\uC218','\uBAA9','\uAE08','\uD1A0'];
+  var days = ['일','월','화','수','목','금','토'];
   document.getElementById('date-display').textContent =
-    now.getFullYear() + '\uB144 ' + (now.getMonth()+1) + '\uC6D4 ' + now.getDate() + '\uC77C ' + days[now.getDay()] + '\uC694\uC77C';
+    now.getFullYear() + '년 ' + (now.getMonth()+1) + '월 ' + now.getDate() + '일 ' + days[now.getDay()] + '요일';
   var h = now.getHours();
   var mi = now.getMinutes();
   document.getElementById('time-display').textContent =
@@ -267,38 +323,30 @@ function updateDots() {
   for (var i = 0; i < 4; i++) {
     var dot = document.getElementById('dot-' + i);
     dot.classList.toggle('filled', i < pin.length);
-    dot.textContent = i < pin.length ? '\u25CF' : '';
+    dot.textContent = i < pin.length ? '●' : '';
   }
 }
 
 /* ---- warning popup ---- */
-function showWarning(status, onConfirm, onSwitch, onCancel) {
+function showWarning(status, curMode, onConfirm, onSwitch, onCancel) {
   var card = document.getElementById('result-card');
   card.className = 'result-card warning';
   document.getElementById('result-icon').textContent = status.msg;
   document.getElementById('result-name').textContent = '';
-  document.getElementById('result-sub').textContent = status.lastTime ? '\uC774\uC804 \uAE30\uB85D: ' + status.lastTime : '';
+  document.getElementById('result-sub').textContent = status.lastTime ? '이전 기록: ' + status.lastTime : '';
   document.getElementById('result-time').textContent = '';
 
   var btnsDiv = document.getElementById('confirm-btns');
   btnsDiv.style.display = 'flex';
 
-  var switchLabel, confirmLabel;
-  if (status.type === 'double_arrive') {
-    switchLabel = '\uD83D\uDD04 \uD558\uC6D0\uC73C\uB85C';
-    confirmLabel = '\uB4F1\uC6D0 \uB9DE\uC544';
-  } else if (status.type === 'double_depart') {
-    switchLabel = '\uD83D\uDD04 \uB4F1\uC6D0\uC73C\uB85C';
-    confirmLabel = '\uD558\uC6D0 \uB9DE\uC544';
-  } else {
-    switchLabel = '\uD83D\uDD04 \uB4F1\uC6D0\uC73C\uB85C';
-    confirmLabel = '\uD558\uC6D0 \uB9DE\uC544';
-  }
+  var josa = { '등원': '등원으로', '하원': '하원으로', '외출': '외출로', '복귀': '복귀로' };
+  var switchLabel = '🔄 ' + (josa[status.switchTo] || status.switchTo);
+  var confirmLabel = curMode + ' 맞아';
 
   btnsDiv.innerHTML =
     '<button class="btn-switch" id="warn-switch">' + switchLabel + '</button>' +
     '<button class="btn-yes" id="warn-yes">' + confirmLabel + '</button>' +
-    '<button class="btn-no" id="warn-no">\uCDE8\uC18C</button>';
+    '<button class="btn-no" id="warn-no">취소</button>';
 
   document.getElementById('result-overlay').classList.add('show');
 
@@ -325,9 +373,10 @@ function confirm_input() {
   if (status.warn) {
     showWarning(
       status,
+      currentMode,
       function() { sendToWebhook(currentPin, currentMode); },
       function() {
-        var switched = (currentMode === '\uB4F1\uC6D0') ? '\uD558\uC6D0' : '\uB4F1\uC6D0';
+        var switched = status.switchTo || (currentMode === '등원' ? '하원' : '등원');
         setMode(switched);
         sendToWebhook(currentPin, switched);
       },
@@ -353,18 +402,20 @@ function sendToWebhook(studentCode, sendMode) {
     time: (hh < 10 ? '0' + hh : hh) + ':' + (mm < 10 ? '0' + mm : mm)
   };
 
-  showResult('loading', '', '\uCC98\uB9AC \uC911...', '\uD559\uC0DD \uC815\uBCF4 \uD655\uC778 \uC911', '');
+  var targetUrl = (sendMode === '외출' || sendMode === '복귀') ? outingUrl : webhookUrl;
 
-  if (!webhookUrl) {
+  showResult('loading', '', '처리 중...', '학생 정보 확인 중', '');
+
+  if (!targetUrl) {
     setTimeout(function() {
       saveTodayRecord(studentCode, sendMode, payload.time);
-      showResult('success', '\u2705', '\uD559\uBC88 ' + studentCode, sendMode + ' \uCC98\uB9AC \uC644\uB8CC (\uB370\uBAA8)', payload.time);
+      showResult('success', '✅', '학번 ' + studentCode, sendMode + ' 처리 완료 (데모)', payload.time);
       resetAfter(2000);
     }, 500);
     return;
   }
 
-  fetch(webhookUrl, {
+  fetch(targetUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -372,11 +423,11 @@ function sendToWebhook(studentCode, sendMode) {
   .then(function(res) { return res.json().catch(function() { return {}; }); })
   .then(function(data) {
     saveTodayRecord(studentCode, sendMode, payload.time);
-    showResult('success', data.is_late ? '\u26A0\uFE0F' : '\u2705', data.name || ('\uD559\uBC88 ' + studentCode), data.message || (sendMode + ' \uC644\uB8CC'), payload.time);
+    showResult('success', data.is_late ? '⚠️' : '✅', data.name || ('학번 ' + studentCode), data.message || (sendMode + ' 완료'), payload.time);
     resetAfter(2000);
   })
   .catch(function() {
-    showResult('error', '\u274C', '\uC5F0\uACB0 \uC624\uB958', 'Webhook URL\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694', '');
+    showResult('error', '❌', '연결 오류', 'Webhook URL을 확인해주세요', '');
     resetAfter(2000);
   });
 }
