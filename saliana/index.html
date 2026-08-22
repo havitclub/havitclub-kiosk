@@ -39,12 +39,12 @@ h2{font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.35; mar
 .chip{
   border:1.5px solid var(--line); background:var(--card); border-radius:999px;
   padding:12px 16px; font-size:15px; font-weight:600; color:var(--ink);
-  cursor:pointer; transition:.15s; -webkit-tap-highlight-color:transparent;
+  cursor:pointer; transition:.15s; -webkit-tap-highlight-color:transparent; text-align:left;
 }
 .chip small{display:block; font-weight:500; font-size:12px; color:var(--sub)}
 .chip.sel{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-deep)}
 .stack{display:flex; flex-direction:column; gap:10px; margin-bottom:24px}
-.stack .chip{border-radius:16px; padding:15px 16px; text-align:left; font-size:15.5px}
+.stack .chip{border-radius:16px; padding:15px 16px; font-size:15.5px; line-height:1.45}
 
 .btn{
   appearance:none; border:none; width:100%; padding:16px; border-radius:14px;
@@ -55,11 +55,12 @@ h2{font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.35; mar
 .btn.ghost{background:transparent; color:var(--sub); font-weight:600; font-size:14px; padding:12px}
 .btnrow{margin-top:auto; padding-top:8px}
 
-.input, select.input{
+.input, select.input, textarea.input{
   width:100%; border:1.5px solid var(--line); border-radius:14px; background:var(--card);
   padding:14px 16px; font-family:inherit; font-size:16px; color:var(--ink); outline:none;
 }
 .input:focus{border-color:var(--accent)}
+textarea.input{resize:none; min-height:72px}
 label{font-size:13px; font-weight:700; color:var(--sub); display:block; margin:14px 0 6px}
 
 .card{
@@ -70,6 +71,7 @@ label{font-size:13px; font-weight:700; color:var(--sub); display:block; margin:1
   color:var(--accent-deep); background:var(--accent-soft); border-radius:999px; padding:4px 10px; margin-bottom:10px}
 .hyp{font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.45}
 .hyp mark{background:linear-gradient(transparent 62%, #FFD8A8 62%); color:inherit}
+.echo{font-size:14px; color:var(--sub); margin-top:10px; border-left:3px solid var(--line); padding-left:10px}
 .majors{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
 .majors span{font-size:13.5px; font-weight:600; border:1px solid var(--line); border-radius:999px; padding:6px 12px; color:var(--sub); background:var(--bg)}
 .exp{font-size:15.5px; margin-top:4px}
@@ -101,17 +103,26 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <!-- S1 도메인 -->
 <section class="screen" id="s1">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i><i></i></span></div>
   <h2>요즘 시간 가는 줄 모르게<br>만드는 건 어느 쪽이야?</h2>
   <p class="lead">공부 말고. 제일 가까운 것 <b>하나</b>.</p>
   <div class="chips" id="domainChips"></div>
-  <div class="btnrow"><button class="btn" id="b1" disabled onclick="go(2)">다음</button></div>
+  <div class="btnrow"><button class="btn" id="b1" disabled onclick="go('1b')">다음</button></div>
 </section>
 
-<!-- S2 레버 -->
+<!-- S1b 태그 -->
+<section class="screen" id="s1b">
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i><i></i></span></div>
+  <h2 id="tagTitle">그중에서도?</h2>
+  <p class="lead">제일 가까운 것 <b>하나</b>.</p>
+  <div class="stack" id="tagChips"></div>
+  <div class="btnrow"><button class="btn" id="b1b" disabled onclick="go(2)">다음</button></div>
+</section>
+
+<!-- S2 레버 (로컬라이즈) -->
 <section class="screen" id="s2">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i></span></div>
-  <h2>너랑 제일 가까운 문장은?</h2>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i><i></i></span></div>
+  <h2 id="leverTitle">너랑 제일 가까운 문장은?</h2>
   <p class="lead">직업이 아니라 <b>움직이는 방식</b>을 고르는 거다.</p>
   <div class="stack" id="leverChips"></div>
   <div class="btnrow"><button class="btn" id="b2" disabled onclick="go(3)">다음</button></div>
@@ -119,7 +130,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <!-- S3 모드 분기 -->
 <section class="screen" id="s3">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i class="now"></i></span></div>
   <h2>지금 생각해 둔<br>학과나 진로가 있어?</h2>
   <p class="lead">어렴풋해도 좋고, 없어도 전혀 문제 없다.</p>
   <div class="stack">
@@ -137,6 +148,13 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 <section class="screen" id="s4">
   <div class="top"><span class="brand">살아나</span></div>
   <div id="result"></div>
+
+  <div class="card">
+    <div class="tag">네 말로 고쳐 쓰기</div>
+    <p style="font-size:14.5px; color:var(--sub)">위 가설, 남의 문장 같으면 가짜다. <b style="color:var(--ink)">네 말투로 다시 써봐.</b></p>
+    <textarea class="input" id="selfHyp" maxlength="120" placeholder="나는 ______ 때 살아난다" style="margin-top:10px"></textarea>
+  </div>
+
   <p class="creed">이건 정답이 아니라 <b>이번 주에 검증할 가설</b>이다.</p>
 
   <div class="card" id="leadCard">
@@ -176,69 +194,245 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <script>
 /* ===== 설정 ===== */
-var WEBHOOK_URL = "https://havit.app.n8n.cloud/webhook/saliana-lead";   // 살아나 리드 수집 (n8n, 2026-08-22 활성)
+var WEBHOOK_URL = "https://havit.app.n8n.cloud/webhook/saliana-lead";   // 살아나 리드 수집 (n8n)
 var SOURCE = "양천고특강";
 
-/* ===== 콘텐츠 (큐레이션매핑_v0.md 정본) ===== */
+/* ===== 레버 5종 (역량 매핑 고정) ===== */
 var LEVERS = {
-  L1:{chip:'🔍 "왜 저렇지?"가 궁금하면 끝까지 파본다', verb:'숨은 이유를 파고들', name:'왜를 파는 타입'},
-  L2:{chip:'📊 순위·숫자·비교표를 보면 그냥 못 지나간다', verb:'숨은 패턴을 찾아낼', name:'패턴을 찾는 타입'},
-  L3:{chip:'🛠 직접 만들거나 고쳐야 직성이 풀린다', verb:'내 손으로 만들어낼', name:'만드는 타입'},
-  L4:{chip:'🤝 사람 얘기를 듣고 돕다 보면 시간이 간다', verb:'사람을 직접 만나 도울', name:'사람 곁 타입'},
-  L5:{chip:'📚 하나에 꽂히면 자료를 끝까지 모은다', verb:'아무도 모르는 것까지 모아 꿸', name:'수집가 타입'}
+  L1:{verb:'숨은 이유를 파고들', name:'왜를 파는 타입'},
+  L2:{verb:'숨은 패턴을 찾아낼', name:'패턴을 찾는 타입'},
+  L3:{verb:'내 손으로 만들어낼', name:'만드는 타입'},
+  L4:{verb:'사람을 직접 만나 도울', name:'사람 곁 타입'},
+  L5:{verb:'끝까지 모아 꿸', name:'수집가 타입'}
 };
-/* 실험 기본형: {m}=도메인 재료 */
+/* 실험 기본형: {m}=태그 재료 */
 var EXP_BASE = {
-  L1:'{m} 관련해서 요즘 제일 궁금한 "왜?" 1개를 정한다 → 책이나 다큐 1편으로 3단계까지 파본다. 시작 전에 내 추측을 먼저 메모하고, 끝나고 어디가 달랐는지 확인.',
-  L2:'{m} 관련 실제 데이터(통계청·공식 통계)를 직접 열어본다 → 예상과 달랐던 숫자 1개를 캡처한다.',
-  L3:'{m} 쪽에서 이번 주 안에 완성할 수 있는 제일 작은 것 1개를 만든다. 크기보다 완성이 중요.',
+  L1:'{m}에서 요즘 제일 궁금한 "왜?" 1개를 정한다 → 책·다큐·검색으로 3단계까지 파본다. 시작 전에 내 추측을 먼저 메모하고, 끝나고 어디가 달랐는지 확인.',
+  L2:'{m} 관련 실제 데이터(통계·기록·공식 자료)를 직접 열어본다 → 예상과 달랐던 숫자 1개를 캡처한다.',
+  L3:'{m}에서 이번 주 안에 완성할 수 있는 제일 작은 것 1개를 만든다. 크기보다 완성이 중요.',
   L4:'{m} 쪽을 실제로 겪어본 사람 1명에게 15분만 물어본다(또는 현장 1회 관찰) → "언제 더 살아났나" 한 줄 메모.',
   L5:'{m} 자료 10개를 모아 내 기준으로 분류한다 → 나만의 지도 1장. 공통점 1개를 뽑아본다.'
 };
+
+/* ===== 도메인 8 × 태그 3 = 24 (전공=도메인×레버, 레버 문안=태그별 로컬라이즈) ===== */
 var DOMAINS = [
- {id:'D1', chip:'🎬 영상·웹툰·음악·글', m:'이야기와 콘텐츠',
+ {id:'D1', chip:'🎬 콘텐츠·이야기', sub:'영상 · 웹툰 · 음악',
   majors:{L1:['미디어커뮤니케이션','문예창작'],L2:['문화콘텐츠학','데이터저널리즘'],L3:['영상제작','디자인'],L4:['엔터테인먼트경영','교육학'],L5:['국어국문','문헌정보학']},
-  exp:{L5:'인생 콘텐츠 10개를 골라 "왜 좋았나"를 한 줄씩 쓴다 → 공통점 1개를 뽑는다. 그게 네 취향의 뼈대다.'}},
- {id:'D2', chip:'🎮 게임·앱·AI', m:'게임과 디지털 세계',
+  tags:[
+   {id:'t_video', label:'영상·유튜브', m:'영상과 유튜브',
+    opts:{L1:'"이 영상은 왜 떡상했지?" 알고리즘·썸네일이 왜 먹혔는지 뜯어본다',
+          L2:'조회수·트렌드 흐름을 따져보고 패턴을 찾는다',
+          L3:'직접 찍고 편집해보고 싶다(해봤다) — 컷·자막·타이밍 만지는 게 재밌다',
+          L4:'댓글·커뮤니티에서 사람들 반응 보고 떠들 때가 제일 재밌다',
+          L5:'한 채널·한 주제를 정주행하고 옛날 영상까지 다 찾아본다'},
+    exp:{L3:'1분짜리 숏폼 1개를 직접 찍고 편집해서 올려본다(비공개도 OK). 조회수 말고 "만드는 동안 살아있었나"를 확인.'}},
+   {id:'t_webtoon', label:'웹툰·웹소설', m:'웹툰과 이야기',
+    opts:{L1:'"이 캐릭터는 왜 이런 선택을 했지?" 작가의 의도·복선을 파고든다',
+          L2:'장르 공식·클리셰 패턴이 보인다 — 어떤 설정이 뜨는지 안다',
+          L3:'내 세계관·스토리를 직접 짜본 적 있다(짜보고 싶다)',
+          L4:'친구한테 추천하고 같이 감상 얘기할 때가 제일 재밌다',
+          L5:'설정집·외전·작가 인터뷰까지 다 찾아 모은다'}},
+   {id:'t_music', label:'음악', m:'음악',
+    opts:{L1:'"이 노래는 왜 좋지?" 코드·가사·구조를 뜯어본다',
+          L2:'차트 순위·역주행이 왜 생기는지에 눈이 간다',
+          L3:'직접 만들거나 커버하고 싶다 — 작곡·미디·플레이리스트 조합',
+          L4:'공연·페스티벌처럼 같이 듣고 나누는 순간이 최고다',
+          L5:'장르 계보를 타고 내려가며 아무도 모르는 곡까지 판다'}}
+  ]},
+ {id:'D2', chip:'🎮 디지털', sub:'게임 · 코딩 · AI',
   majors:{L1:['컴퓨터공학','인지과학'],L2:['인공지능학','데이터사이언스'],L3:['게임공학','소프트웨어학'],L4:['IT경영','HCI(사용자경험)'],L5:['정보보호학','컴퓨터공학']},
-  exp:{L3:'스크래치나 노코드 툴로 화면 1개짜리 미니 앱(또는 게임 스테이지 1개)을 이번 주 안에 만든다.'}},
- {id:'D3', chip:'⚽ 운동·몸·건강', m:'몸과 스포츠',
-  majors:{L1:['스포츠과학','의예과'],L2:['스포츠데이터분석','물리치료학'],L3:['재활공학','체육학'],L4:['스포츠교육','트레이닝'],L5:['스포츠산업','스포츠경영']}},
- {id:'D4', chip:'🗣 사람·고민·사회 이슈', m:'사람과 사회 문제',
+  tags:[
+   {id:'t_game', label:'게임', m:'게임',
+    opts:{L1:'"이 게임은 왜 이렇게 설계됐지? 메타는 왜 바뀌지?" 궁금해서 찾아본 적 있다',
+          L2:'승률·픽률·스탯 따져보고 복기한다 (전적검색 돌려보는 타입)',
+          L3:'맵·모드·건축을 직접 만든다 (마크 건축, 로블록스 스튜디오)',
+          L4:'오더 내리고 팀 합 맞출 때가 제일 재밌다, 혼자 하면 심심하다',
+          L5:'도감·업적·파밍 100%를 못 참는다'},
+    exp:{L3:'마크·로블록스·모드 툴로 이번 주 안에 끝나는 제일 작은 것 1개(방 하나, 스테이지 하나)를 완성한다.'}},
+   {id:'t_coding', label:'코딩·앱 만들기', m:'코딩과 앱',
+    opts:{L1:'"이 앱은 어떻게 돌아가지?" 작동 원리가 궁금하다',
+          L2:'버그의 원인을 끝까지 추적하는 게 은근 재밌다',
+          L3:'일단 뭐라도 만들어서 돌아가게 하는 순간이 최고다',
+          L4:'내가 만든 걸 친구가 써주고 반응할 때가 제일 좋다',
+          L5:'새 언어·새 툴이 나오면 일단 튜토리얼부터 다 해본다'}},
+   {id:'t_ai', label:'AI', m:'AI',
+    opts:{L1:'"AI는 어떻게 생각하는 거지?" 원리가 궁금해서 찾아본다',
+          L2:'프롬프트를 바꿔가며 결과가 어떻게 달라지는지 실험한다',
+          L3:'AI로 뭔가 만들어낸다 — 이미지·글·자동화',
+          L4:'AI가 사람과 일자리를 어떻게 바꿀지 얘기하는 게 재밌다',
+          L5:'새 AI 툴이 나오면 제일 먼저 다 써본다'}}
+  ]},
+ {id:'D3', chip:'⚽ 몸·스포츠', sub:'운동 · 스포츠 관람 · 건강',
+  majors:{L1:['스포츠과학','의예과'],L2:['스포츠데이터분석','물리치료학'],L3:['재활공학','체육학'],L4:['스포츠교육','트레이닝'],L5:['스포츠산업','스포츠경영']},
+  tags:[
+   {id:'t_sports_do', label:'직접 하는 운동', m:'운동',
+    opts:{L1:'"왜 안 늘지?" 자세·원리를 분석하고 교정한다',
+          L2:'기록·세트·페이스를 재고 데이터로 관리한다',
+          L3:'새 기술·새 루틴을 직접 짜서 시도한다',
+          L4:'팀 스포츠의 합, 같이 뛰는 맛에 한다',
+          L5:'장비·용품·훈련법을 끝까지 파고 모은다'}},
+   {id:'t_sports_watch', label:'보는 스포츠 (팬·분석)', m:'스포츠',
+    opts:{L1:'"감독은 왜 저 교체를 했지?" 전술을 뜯어본다',
+          L2:'선수 스탯·이적시장·순위 데이터에 눈이 간다 (풋볼매니저형)',
+          L3:'판타지 리그·내 팀 스쿼드를 직접 짠다',
+          L4:'직관 가서 같이 응원하고 떠드는 맛이 최고다',
+          L5:'한 팀의 역사·기록·비하인드까지 다 꿰고 있다'}},
+   {id:'t_health', label:'몸 관리·건강', m:'몸과 건강',
+    opts:{L1:'"이 운동·식단이 왜 효과 있지?" 원리를 찾아본다',
+          L2:'인바디·수면·식단을 기록하고 변화를 추적한다',
+          L3:'내 루틴을 직접 설계하고 계속 개선한다',
+          L4:'친구 운동·식단을 챙겨주고 같이 할 때 신난다',
+          L5:'영양제·보충제·운동법 정보를 끝없이 수집한다'}}
+  ]},
+ {id:'D4', chip:'🗣 사람·사회', sub:'고민 상담 · 이슈 · 심리',
   majors:{L1:['사회학','심리학','경제학'],L2:['통계학','정책학'],L3:['소셜벤처(창업)','행정학'],L4:['사회복지학','교육학','상담학'],L5:['인류학','언론정보학']},
-  exp:{L1:'최근에 "이건 좀 아니지 않나" 싶었던 뉴스 1건을 고른다 → 그 문제를 다룬 책·다큐 1편으로 "왜"를 3단계 파본다. 읽기 전 내 추측 먼저 메모.',
-       L2:'통계청에서 그 문제의 실태조사 데이터를 직접 연다 → 의외였던 숫자 1개를 캡처한다.',
-       L4:'관련 현장(봉사 등)에 1회 가본다 → "자료로 볼 때 vs 현장에 있을 때, 언제 더 살아났나"를 비교해 메모.'}},
- {id:'D5', chip:'💰 돈·주식·창업', m:'돈과 비즈니스',
+  tags:[
+   {id:'t_counsel', label:'친구 고민 들어주기', m:'사람의 고민',
+    opts:{L1:'"쟤가 왜 그랬을까" — 행동 뒤의 이유를 곱씹는다',
+          L2:'고민을 들으면 상황을 정리해서 선택지로 짜준다',
+          L3:'말만 말고 해결책을 직접 만들어서 챙겨준다',
+          L4:'그냥 들어주는 것만으로 시간 가는 줄 모른다',
+          L5:'심리 테스트·상담 글·연애 썰까지 관련 글을 다 읽는다'}},
+   {id:'t_issue', label:'사회 이슈·뉴스', m:'사회 문제',
+    opts:{L1:'"이 문제는 왜 안 고쳐지지?" 구조와 원인을 파고든다',
+          L2:'통계·그래프로 그게 진짜인지 확인하고 싶어진다',
+          L3:'캠페인·프로젝트로 뭐라도 해보고 싶다',
+          L4:'그 현장에 있는 사람들의 이야기가 제일 궁금하다',
+          L5:'한 이슈를 잡으면 기사·다큐·책까지 다 찾아본다'},
+    exp:{L1:'최근 "이건 좀 아니지 않나" 싶었던 뉴스 1건을 고른다 → 그 문제를 다룬 책·다큐 1편으로 "왜"를 3단계 파본다. 읽기 전 내 추측 먼저 메모.',
+         L2:'통계청에서 그 문제의 실태조사 데이터를 직접 연다 → 의외였던 숫자 1개를 캡처한다.',
+         L4:'관련 현장(봉사 등)에 1회 가본다 → "자료로 볼 때 vs 현장에 있을 때, 언제 더 살아났나"를 비교해 메모.'}},
+   {id:'t_psych', label:'사람 심리·관찰', m:'사람 심리',
+    opts:{L1:'"사람들은 왜 저렇게 행동할까" — 심리의 원리가 궁금하다',
+          L2:'MBTI·심리테스트를 그냥 안 믿고 진짜 맞는지 따져본다',
+          L3:'관찰한 걸로 나만의 사람 유형·이론을 만들어본다',
+          L4:'사람을 직접 만나서 묻고 관찰하는 게 재밌다',
+          L5:'심리학 실험·뇌과학 이야기를 끝없이 모은다'}}
+  ]},
+ {id:'D5', chip:'💰 돈·비즈니스', sub:'투자 · 창업 · 트렌드',
   majors:{L1:['경제학','경영학'],L2:['금융공학','통계학'],L3:['창업학','마케팅'],L4:['경영학(인사·조직)','유통경영'],L5:['회계학','국제통상']},
-  exp:{L2:'"취업 잘되는 과" 상위 3개의 10년 전 순위와 지금 순위를 비교해본다 → 유망하다는 말의 유통기한을 직접 확인.'}},
- {id:'D6', chip:'🔬 과학·우주·동물·환경', m:'과학과 자연',
-  majors:{L1:['물리학','화학','생명과학'],L2:['데이터사이언스','환경공학'],L3:['기계공학','화학공학'],L4:['수의예과','간호학','환경교육'],L5:['지구과학','생물학']}},
- {id:'D7', chip:'🍳 요리·패션·기계·공간', m:'만드는 일과 공간',
-  majors:{L1:['건축학','산업공학'],L2:['도시공학','산업디자인'],L3:['기계공학','조리학','패션디자인'],L4:['실내건축','서비스디자인'],L5:['건축사학','공예학']}},
- {id:'D8', chip:'🏛 역사·여행·언어', m:'역사와 문화',
-  majors:{L1:['사학','철학'],L2:['고고학','문화재보존과학'],L3:['문화기획','관광학'],L4:['국제학','외교학'],L5:['사학','언어학']}}
+  tags:[
+   {id:'t_invest', label:'주식·투자', m:'주식과 투자',
+    opts:{L1:'"이 회사 주가는 왜 오르지?" 사업 구조를 뜯어본다',
+          L2:'차트·재무제표·지표를 비교하며 따져본다',
+          L3:'모의투자로 내 포트폴리오를 직접 굴려본다',
+          L4:'투자 얘기를 나누고 남을 설득하는 게 재밌다',
+          L5:'산업 리포트·경제 뉴스레터를 챙겨 모은다'}},
+   {id:'t_startup', label:'창업·장사', m:'창업과 장사',
+    opts:{L1:'"저 가게는 왜 잘되지?" 장사의 구조를 분석한다',
+          L2:'원가·마진·회전율 계산이 머릿속에서 저절로 된다',
+          L3:'직접 팔아본다 — 굿즈, 중고거래, 매점 아이디어',
+          L4:'사람을 모으고 팀을 꾸리는 게 제일 재밌다',
+          L5:'성공한 창업 스토리·케이스를 다 찾아 읽는다'}},
+   {id:'t_marketing', label:'트렌드·마케팅', m:'트렌드와 마케팅',
+    opts:{L1:'"이건 왜 유행하지?" 바이럴의 이유를 뜯어본다',
+          L2:'뭐가 뜨고 지는지 남들보다 먼저 알아챈다',
+          L3:'짤·카피·컨셉을 직접 만들어 반응을 본다',
+          L4:'사람들이 뭘 좋아하는지 묻고 관찰하는 게 재밌다',
+          L5:'브랜드·광고 레퍼런스를 스크랩해 모은다'}}
+  ]},
+ {id:'D6', chip:'🔬 과학·자연', sub:'실험 · 우주 · 동물·환경',
+  majors:{L1:['물리학','화학','생명과학'],L2:['데이터사이언스','환경공학'],L3:['기계공학','화학공학'],L4:['수의예과','간호학','환경교육'],L5:['지구과학','생물학']},
+  tags:[
+   {id:'t_experiment', label:'실험·과학 원리', m:'과학 원리',
+    opts:{L1:'"이건 왜 이렇게 되지?" 원리를 끝까지 파고든다',
+          L2:'조건을 바꿔가며 결과를 비교하는 게 재밌다',
+          L3:'직접 실험·공작으로 눈앞에서 확인해야 직성이 풀린다',
+          L4:'신기한 원리를 남에게 설명해줄 때 제일 신난다',
+          L5:'과학 유튜브·다큐·잡학을 끝없이 흡수한다'}},
+   {id:'t_space', label:'우주·미래기술', m:'우주와 미래기술',
+    opts:{L1:'"우주는 왜 이렇게 생겼지?" 근본 질문에 꽂힌다',
+          L2:'발사 기록·스펙·로드맵을 비교하며 본다',
+          L3:'로켓·로봇·모형을 직접 만들어보고 싶다',
+          L4:'미래에 인류가 어떻게 살지 토론하는 게 재밌다',
+          L5:'SF·우주 다큐·신기술 뉴스를 다 챙겨본다'}},
+   {id:'t_animal', label:'동물·환경', m:'동물과 환경',
+    opts:{L1:'"동물은 왜 저렇게 행동하지?" 생태의 이유가 궁금하다',
+          L2:'멸종·기후 데이터가 진짜 어떤지 확인하고 싶다',
+          L3:'직접 키우고 돌보고 가꾸는 게 좋다',
+          L4:'유기동물·환경 활동처럼 현장에서 돕고 싶다',
+          L5:'종·품종·생태 지식을 도감처럼 모은다'}}
+  ]},
+ {id:'D7', chip:'🍳 만들기·공간', sub:'요리 · 패션 · 조립·건축',
+  majors:{L1:['건축학','산업공학'],L2:['도시공학','산업디자인'],L3:['기계공학','조리학','패션디자인'],L4:['실내건축','서비스디자인'],L5:['건축사학','공예학']},
+  tags:[
+   {id:'t_cooking', label:'요리·베이킹', m:'요리',
+    opts:{L1:'"왜 이 온도·순서여야 하지?" 요리의 과학이 궁금하다',
+          L2:'레시피들을 비교하고 계량·시간을 정확히 따진다',
+          L3:'레시피를 바꿔서 나만의 메뉴를 만들어본다',
+          L4:'만든 걸 먹여주고 반응을 볼 때가 제일 행복하다',
+          L5:'맛집·레시피·식재료 정보를 끝없이 모은다'}},
+   {id:'t_fashion', label:'패션·뷰티', m:'패션과 뷰티',
+    opts:{L1:'"이 스타일은 왜 예뻐 보이지?" 핏·비율의 이유를 따진다',
+          L2:'유행이 도는 패턴이 보인다 — 뭐가 다시 올지 안다',
+          L3:'옷·메이크업을 직접 조합해 나만의 룩을 만든다',
+          L4:'친구를 스타일링해주고 변신시킬 때 신난다',
+          L5:'브랜드·아카이브·룩북을 파고 모은다'}},
+   {id:'t_making', label:'기계·조립·건축', m:'만들기',
+    opts:{L1:'"이건 어떻게 작동하지?" 뜯어봐야 직성이 풀린다',
+          L2:'도면·치수·구조를 정확히 따져 설계한다',
+          L3:'일단 손으로 만든다 — 조립·목공·프라모델·레고',
+          L4:'만든 걸 선물하거나 고쳐줄 때가 제일 좋다',
+          L5:'공구·부품·제작법 영상을 끝없이 판다'}}
+  ]},
+ {id:'D8', chip:'🏛 역사·문화', sub:'역사 · 여행 · 언어',
+  majors:{L1:['사학','철학'],L2:['고고학','문화재보존과학'],L3:['문화기획','관광학'],L4:['국제학','외교학'],L5:['사학','언어학']},
+  tags:[
+   {id:'t_history', label:'역사', m:'역사',
+    opts:{L1:'"이 사건은 왜 일어났지?" 인과관계를 파고든다',
+          L2:'연표·지도·사료를 비교하며 교차검증한다',
+          L3:'역사를 소재로 글·영상·콘텐츠를 만들어보고 싶다',
+          L4:'역사 얘기로 몇 시간이고 떠들 수 있다',
+          L5:'한 시대를 잡으면 유물·비하인드까지 다 판다'}},
+   {id:'t_travel', label:'여행·지리', m:'여행과 지리',
+    opts:{L1:'"이 도시는 왜 이렇게 생겼지?" 지형·구조의 이유가 궁금하다',
+          L2:'환율·동선·최적 루트를 계산하는 게 재밌다',
+          L3:'여행 계획서를 직접 짜는 게 여행만큼 재밌다',
+          L4:'현지 사람·새로운 사람을 만나는 게 여행의 이유다',
+          L5:'가본 곳·갈 곳을 지도에 아카이브한다'}},
+   {id:'t_language', label:'언어·외국문화', m:'언어와 문화',
+    opts:{L1:'"이 말은 왜 이렇게 표현하지?" 언어의 구조가 궁금하다',
+          L2:'언어들 사이의 공통점·차이 패턴을 발견하는 게 재밌다',
+          L3:'번역·자막 만들기를 직접 해보고 싶다(해봤다)',
+          L4:'외국인 친구와 대화가 통하는 순간이 최고다',
+          L5:'한 나라를 잡으면 음식·예절·역사까지 다 판다'}}
+  ]}
 ];
 
 /* ===== 상태 ===== */
-var st = {domain:null, lever:null, mode:null, career:'', hyp:''};
+var st = {domain:null, tag:null, lever:null, leverOpt:'', mode:null, career:'', hyp:''};
 
 /* ===== 렌더 ===== */
 function el(h){var d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild}
 var dc=document.getElementById('domainChips');
 DOMAINS.forEach(function(d){
-  var c=el('<button class="chip">'+d.chip+'</button>');
-  c.onclick=function(){st.domain=d;[].forEach.call(dc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b1').disabled=false};
+  var c=el('<button class="chip">'+d.chip+'<small>'+d.sub+'</small></button>');
+  c.onclick=function(){st.domain=d;st.tag=null;[].forEach.call(dc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b1').disabled=false};
   dc.appendChild(c);
 });
-var lc=document.getElementById('leverChips');
-Object.keys(LEVERS).forEach(function(k){
-  var c=el('<button class="chip">'+LEVERS[k].chip+'</button>');
-  c.onclick=function(){st.lever=k;[].forEach.call(lc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b2').disabled=false};
-  lc.appendChild(c);
-});
-
+function renderTags(){
+  var tc=document.getElementById('tagChips'); tc.innerHTML='';
+  document.getElementById('tagTitle').textContent='그중에서도, 제일 가까운 건?';
+  st.domain.tags.forEach(function(t){
+    var c=el('<button class="chip">'+t.label+'</button>');
+    c.onclick=function(){st.tag=t;st.lever=null;[].forEach.call(tc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b1b').disabled=false};
+    tc.appendChild(c);
+  });
+  document.getElementById('b1b').disabled=true;
+}
+function renderLevers(){
+  var lc=document.getElementById('leverChips'); lc.innerHTML='';
+  document.getElementById('leverTitle').textContent='「'+st.tag.label+'」 — 너랑 제일 가까운 문장은?';
+  Object.keys(LEVERS).forEach(function(k){
+    var c=el('<button class="chip">'+st.tag.opts[k]+'</button>');
+    c.onclick=function(){st.lever=k;st.leverOpt=st.tag.opts[k];[].forEach.call(lc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b2').disabled=false};
+    lc.appendChild(c);
+  });
+  document.getElementById('b2').disabled=true;
+}
 function go(n){
+  if(n==='1b') renderTags();
+  if(n===2) renderLevers();
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});
   document.getElementById('s'+n).classList.add('on');
   window.scrollTo(0,0);
@@ -253,21 +447,22 @@ function pickMode(m){
 
 function makeResult(){
   st.career = (document.getElementById('careerInput').value||'').trim();
-  var d=st.domain, L=LEVERS[st.lever];
-  st.hyp = '나는 '+d.m+'에서 '+L.verb+' 때 살아난다';
-  var exp = (d.exp && d.exp[st.lever]) ? d.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', d.m);
-  var majors = d.majors[st.lever].map(function(m){return '<span>'+m+'</span>'}).join('');
+  var t=st.tag, L=LEVERS[st.lever];
+  st.hyp = '나는 '+t.m+'에서 '+L.verb+' 때 살아난다';
+  var exp = (t.exp && t.exp[st.lever]) ? t.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', t.m);
+  var majors = st.domain.majors[st.lever].map(function(m){return '<span>'+m+'</span>'}).join('');
   var html='';
 
   if(st.mode==='검증' && st.career){
     html += '<div class="card"><div class="tag">가설 0 — 네가 이미 갖고 있던 것</div>'
-      +'<p class="hyp" style="font-size:19px">"<mark>'+esc(st.career)+'</mark>에 가면, 나는 만족스러운 삶을 살 것이다"</p>'
+      +'<p class="hyp" style="font-size:19px">"<mark>'+esc(st.career)+'</mark>'+careerJosa(st.career)+', 나는 만족스러운 삶을 살 것이다"</p>'
       +'<p class="exp" style="margin-top:12px"><b>이번 주 검증</b> — 대학 공시에서 그 학과 졸업생이 실제로 어디에 가는지(전공일치·취업의 질) 직접 찾아본다. 남의 말 말고 원자료로.</p>'
       +'<p class="note">확인되면 확신이 되고, 아니면 일찍 아는 게 이득이다. 어느 쪽이든 네가 이긴다.</p></div>';
   }
 
   html += '<div class="card"><div class="tag">'+(st.mode==='검증'?'가설 1 — 그리고 하나 더':'네 가설')+' · '+L.name+'</div>'
-    +'<p class="hyp">"나는 '+d.m+'에서 <mark>'+L.verb+'</mark> 때 살아난다"</p>'
+    +'<p class="hyp">"나는 '+t.m+'에서 <mark>'+L.verb+'</mark> 때 살아난다"</p>'
+    +'<p class="echo">네가 고른 문장 — "'+st.leverOpt+'"</p>'
     +'<p class="note">이 가설이 맞다면, 이런 전공이 네 무대일 수 있다:</p>'
     +'<div class="majors">'+majors+'</div></div>';
 
@@ -279,6 +474,12 @@ function makeResult(){
   go(4);
 }
 function esc(s){return s.replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]})}
+function careerJosa(s){
+  if(/(과|학|학부|대|계열|전공)$/.test(s)) return '에 가면';
+  var c=s.charCodeAt(s.length-1);
+  if(c>=0xAC00&&c<=0xD7A3) return ((c-0xAC00)%28>0?'이':'가')+' 되면';
+  return '— 그 길로 가면';
+}
 
 /* ===== 리드 전송 ===== */
 function sendLead(){
@@ -289,8 +490,13 @@ function sendLead(){
     school:(document.getElementById('fSchool').value||'').trim(),
     grade:document.getElementById('fGrade').value||'',
     phone:(document.getElementById('fPhone').value||'').trim(),
-    mode:st.mode, domain:st.domain.m, lever:LEVERS[st.lever].name,
-    hypothesis:st.hyp, career_input:st.career, source:SOURCE,
+    mode:st.mode,
+    domain:st.tag.label+' ('+st.domain.chip.replace(/^[^ ]+ /,'')+')',
+    lever:LEVERS[st.lever].name,
+    lever_opt:st.leverOpt,
+    hypothesis:st.hyp,
+    hypothesis_self:(document.getElementById('selfHyp').value||'').trim(),
+    career_input:st.career, source:SOURCE,
     ts:new Date().toISOString()
   };
   var btn=document.getElementById('sendBtn');
@@ -302,11 +508,12 @@ function sendLead(){
       document.getElementById('leadErr').style.display='block'; });
 }
 function restart(){
-  st={domain:null,lever:null,mode:null,career:'',hyp:''};
+  st={domain:null,tag:null,lever:null,leverOpt:'',mode:null,career:'',hyp:''};
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel')});
-  document.getElementById('b1').disabled=true;document.getElementById('b2').disabled=true;document.getElementById('b3').disabled=true;
+  ['b1','b1b','b2','b3'].forEach(function(id){document.getElementById(id).disabled=true});
   document.getElementById('careerBox').style.display='none';
   document.getElementById('careerInput').value='';
+  document.getElementById('selfHyp').value='';
   var btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent='가설 저장하고 마치기';
   document.getElementById('leadErr').style.display='none';
   go(0);
