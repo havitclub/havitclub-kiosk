@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>살아나 — 나는 언제 살아나는가</title>
+<meta name="description" content="정답을 찍는 검사가 아니라, 이번 주에 검증할 가설을 만드는 3분.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#FDFBF7; --card:#FFFFFF; --ink:#1F1B16; --sub:#7A6F63;
+  --accent:#E8590C; --accent-soft:#FFF1E6; --accent-deep:#C24507;
+  --line:#EDE6DC; --green:#2B8A3E; --radius:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.55;
+  min-height:100dvh; display:flex; justify-content:center;
+}
+.wrap{width:100%; max-width:480px; padding:24px 20px 48px; display:flex; flex-direction:column; min-height:100dvh}
+.screen{display:none; animation:fadein .35s ease}
+.screen.on{display:flex; flex-direction:column; flex:1}
+@keyframes fadein{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+.top{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; min-height:28px}
+.brand{font-weight:800; font-size:15px; letter-spacing:-.01em; color:var(--accent-deep)}
+.stepdots{display:flex; gap:6px}
+.stepdots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.2s}
+.stepdots i.now{background:var(--accent); width:18px; border-radius:4px}
+
+h1{font-size:34px; font-weight:800; letter-spacing:-.03em; line-height:1.25; margin-bottom:14px}
+h2{font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.35; margin-bottom:6px}
+.lead{color:var(--sub); font-size:15px; margin-bottom:24px}
+.lead b{color:var(--ink)}
+
+.chips{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px}
+.chip{
+  border:1.5px solid var(--line); background:var(--card); border-radius:999px;
+  padding:12px 16px; font-size:15px; font-weight:600; color:var(--ink);
+  cursor:pointer; transition:.15s; -webkit-tap-highlight-color:transparent;
+}
+.chip small{display:block; font-weight:500; font-size:12px; color:var(--sub)}
+.chip.sel{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-deep)}
+.stack{display:flex; flex-direction:column; gap:10px; margin-bottom:24px}
+.stack .chip{border-radius:16px; padding:15px 16px; text-align:left; font-size:15.5px}
+
+.btn{
+  appearance:none; border:none; width:100%; padding:16px; border-radius:14px;
+  font-family:inherit; font-size:16.5px; font-weight:700; cursor:pointer; transition:.15s;
+  background:var(--accent); color:#fff; -webkit-tap-highlight-color:transparent;
+}
+.btn:disabled{background:#E5DCD0; color:#A99C8C; cursor:default}
+.btn.ghost{background:transparent; color:var(--sub); font-weight:600; font-size:14px; padding:12px}
+.btnrow{margin-top:auto; padding-top:8px}
+
+.input, select.input{
+  width:100%; border:1.5px solid var(--line); border-radius:14px; background:var(--card);
+  padding:14px 16px; font-family:inherit; font-size:16px; color:var(--ink); outline:none;
+}
+.input:focus{border-color:var(--accent)}
+label{font-size:13px; font-weight:700; color:var(--sub); display:block; margin:14px 0 6px}
+
+.card{
+  background:var(--card); border:1.5px solid var(--line); border-radius:var(--radius);
+  padding:20px; margin-bottom:14px;
+}
+.card .tag{display:inline-block; font-size:12px; font-weight:800; letter-spacing:.02em;
+  color:var(--accent-deep); background:var(--accent-soft); border-radius:999px; padding:4px 10px; margin-bottom:10px}
+.hyp{font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.45}
+.hyp mark{background:linear-gradient(transparent 62%, #FFD8A8 62%); color:inherit}
+.majors{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.majors span{font-size:13.5px; font-weight:600; border:1px solid var(--line); border-radius:999px; padding:6px 12px; color:var(--sub); background:var(--bg)}
+.exp{font-size:15.5px; margin-top:4px}
+.exp b{color:var(--accent-deep)}
+.note{font-size:13px; color:var(--sub); margin-top:10px}
+.falsify{border-left:3px solid var(--accent); padding:2px 0 2px 12px; font-size:14.5px; color:var(--ink); margin-top:14px}
+.creed{text-align:center; font-size:13.5px; color:var(--sub); margin:18px 0 26px}
+.creed b{color:var(--accent-deep)}
+
+.done{text-align:center; padding:34px 0}
+.done .big{font-size:44px; margin-bottom:10px}
+.err{color:#C92A2A; font-size:13.5px; margin-top:10px; display:none}
+footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; color:#B4A897}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- S0 인트로 -->
+<section class="screen on" id="s0">
+  <div class="top"><span class="brand">살아나</span></div>
+  <h1>나는 언제<br><span style="color:var(--accent)">살아나는가</span></h1>
+  <p class="lead">정답을 찍는 검사가 아니다.<br>
+  3분 뒤, <b>네 가설 한 문장</b>과 <b>이번 주에 해볼 실험 1개</b>가 나온다.<br>
+  맞는지는 네가 직접 확인한다.</p>
+  <div class="btnrow"><button class="btn" onclick="go(1)">시작</button></div>
+  <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
+</section>
+
+<!-- S1 도메인 -->
+<section class="screen" id="s1">
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i></span></div>
+  <h2>요즘 시간 가는 줄 모르게<br>만드는 건 어느 쪽이야?</h2>
+  <p class="lead">공부 말고. 제일 가까운 것 <b>하나</b>.</p>
+  <div class="chips" id="domainChips"></div>
+  <div class="btnrow"><button class="btn" id="b1" disabled onclick="go(2)">다음</button></div>
+</section>
+
+<!-- S2 레버 -->
+<section class="screen" id="s2">
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i></span></div>
+  <h2>너랑 제일 가까운 문장은?</h2>
+  <p class="lead">직업이 아니라 <b>움직이는 방식</b>을 고르는 거다.</p>
+  <div class="stack" id="leverChips"></div>
+  <div class="btnrow"><button class="btn" id="b2" disabled onclick="go(3)">다음</button></div>
+</section>
+
+<!-- S3 모드 분기 -->
+<section class="screen" id="s3">
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i></span></div>
+  <h2>지금 생각해 둔<br>학과나 진로가 있어?</h2>
+  <p class="lead">어렴풋해도 좋고, 없어도 전혀 문제 없다.</p>
+  <div class="stack">
+    <button class="chip" id="modeYes" onclick="pickMode('검증')">있다 (어렴풋이라도)</button>
+    <button class="chip" id="modeNo" onclick="pickMode('발굴')">아직 막연하다</button>
+  </div>
+  <div id="careerBox" style="display:none">
+    <label for="careerInput">뭔데? 한 단어면 충분 (예: 사회학과, 간호사)</label>
+    <input class="input" id="careerInput" maxlength="30" placeholder="생각해 둔 학과·진로">
+  </div>
+  <div class="btnrow"><button class="btn" id="b3" disabled onclick="makeResult()">내 가설 보기</button></div>
+</section>
+
+<!-- S4 결과 -->
+<section class="screen" id="s4">
+  <div class="top"><span class="brand">살아나</span></div>
+  <div id="result"></div>
+  <p class="creed">이건 정답이 아니라 <b>이번 주에 검증할 가설</b>이다.</p>
+
+  <div class="card" id="leadCard">
+    <div class="tag">실험 결과, 어떻게 됐는지 궁금하니까</div>
+    <p style="font-size:14.5px; color:var(--sub)">남겨주면 실험 리마인드와 다음 가설 만드는 법을 보내준다.</p>
+    <label for="fName">이름</label>
+    <input class="input" id="fName" maxlength="20" placeholder="이름">
+    <label for="fSchool">학교 · 학년</label>
+    <div style="display:flex; gap:8px">
+      <input class="input" id="fSchool" maxlength="20" placeholder="학교" style="flex:1">
+      <select class="input" id="fGrade" style="width:96px">
+        <option value="">학년</option><option>중1</option><option>중2</option><option>중3</option>
+        <option>고1</option><option>고2</option><option>고3</option><option>기타</option>
+      </select>
+    </div>
+    <label for="fPhone">연락처 (본인 또는 학부모, 선택)</label>
+    <input class="input" id="fPhone" inputmode="tel" maxlength="13" placeholder="010-0000-0000">
+    <div style="margin-top:16px"><button class="btn" id="sendBtn" onclick="sendLead()">가설 저장하고 마치기</button></div>
+    <p class="err" id="leadErr">전송이 안 됐다. 화면을 캡처해 두면 결과는 그대로 남는다.</p>
+  </div>
+  <button class="btn ghost" onclick="restart()">처음부터 다시</button>
+  <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
+</section>
+
+<!-- S5 완료 -->
+<section class="screen" id="s5">
+  <div class="done">
+    <div class="big">🌱</div>
+    <h2>가설 접수 완료</h2>
+    <p class="lead" style="margin-top:8px">이번 주 실험, 진짜 해보는 게 전부다.<br>결과 화면은 캡처해 가자.</p>
+    <button class="btn ghost" onclick="restart()">처음부터 다시</button>
+  </div>
+  <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
+</section>
+
+</div>
+
+<script>
+/* ===== 설정 ===== */
+var WEBHOOK_URL = "https://havit.app.n8n.cloud/webhook/saliana-lead";   // 살아나 리드 수집 (n8n, 2026-08-22 활성)
+var SOURCE = "양천고특강";
+
+/* ===== 콘텐츠 (큐레이션매핑_v0.md 정본) ===== */
+var LEVERS = {
+  L1:{chip:'🔍 "왜 저렇지?"가 궁금하면 끝까지 파본다', verb:'숨은 이유를 파고들', name:'왜를 파는 타입'},
+  L2:{chip:'📊 순위·숫자·비교표를 보면 그냥 못 지나간다', verb:'숨은 패턴을 찾아낼', name:'패턴을 찾는 타입'},
+  L3:{chip:'🛠 직접 만들거나 고쳐야 직성이 풀린다', verb:'내 손으로 만들어낼', name:'만드는 타입'},
+  L4:{chip:'🤝 사람 얘기를 듣고 돕다 보면 시간이 간다', verb:'사람을 직접 만나 도울', name:'사람 곁 타입'},
+  L5:{chip:'📚 하나에 꽂히면 자료를 끝까지 모은다', verb:'아무도 모르는 것까지 모아 꿸', name:'수집가 타입'}
+};
+/* 실험 기본형: {m}=도메인 재료 */
+var EXP_BASE = {
+  L1:'{m} 관련해서 요즘 제일 궁금한 "왜?" 1개를 정한다 → 책이나 다큐 1편으로 3단계까지 파본다. 시작 전에 내 추측을 먼저 메모하고, 끝나고 어디가 달랐는지 확인.',
+  L2:'{m} 관련 실제 데이터(통계청·공식 통계)를 직접 열어본다 → 예상과 달랐던 숫자 1개를 캡처한다.',
+  L3:'{m} 쪽에서 이번 주 안에 완성할 수 있는 제일 작은 것 1개를 만든다. 크기보다 완성이 중요.',
+  L4:'{m} 쪽을 실제로 겪어본 사람 1명에게 15분만 물어본다(또는 현장 1회 관찰) → "언제 더 살아났나" 한 줄 메모.',
+  L5:'{m} 자료 10개를 모아 내 기준으로 분류한다 → 나만의 지도 1장. 공통점 1개를 뽑아본다.'
+};
+var DOMAINS = [
+ {id:'D1', chip:'🎬 영상·웹툰·음악·글', m:'이야기와 콘텐츠',
+  majors:{L1:['미디어커뮤니케이션','문예창작'],L2:['문화콘텐츠학','데이터저널리즘'],L3:['영상제작','디자인'],L4:['엔터테인먼트경영','교육학'],L5:['국어국문','문헌정보학']},
+  exp:{L5:'인생 콘텐츠 10개를 골라 "왜 좋았나"를 한 줄씩 쓴다 → 공통점 1개를 뽑는다. 그게 네 취향의 뼈대다.'}},
+ {id:'D2', chip:'🎮 게임·앱·AI', m:'게임과 디지털 세계',
+  majors:{L1:['컴퓨터공학','인지과학'],L2:['인공지능학','데이터사이언스'],L3:['게임공학','소프트웨어학'],L4:['IT경영','HCI(사용자경험)'],L5:['정보보호학','컴퓨터공학']},
+  exp:{L3:'스크래치나 노코드 툴로 화면 1개짜리 미니 앱(또는 게임 스테이지 1개)을 이번 주 안에 만든다.'}},
+ {id:'D3', chip:'⚽ 운동·몸·건강', m:'몸과 스포츠',
+  majors:{L1:['스포츠과학','의예과'],L2:['스포츠데이터분석','물리치료학'],L3:['재활공학','체육학'],L4:['스포츠교육','트레이닝'],L5:['스포츠산업','스포츠경영']}},
+ {id:'D4', chip:'🗣 사람·고민·사회 이슈', m:'사람과 사회 문제',
+  majors:{L1:['사회학','심리학','경제학'],L2:['통계학','정책학'],L3:['소셜벤처(창업)','행정학'],L4:['사회복지학','교육학','상담학'],L5:['인류학','언론정보학']},
+  exp:{L1:'최근에 "이건 좀 아니지 않나" 싶었던 뉴스 1건을 고른다 → 그 문제를 다룬 책·다큐 1편으로 "왜"를 3단계 파본다. 읽기 전 내 추측 먼저 메모.',
+       L2:'통계청에서 그 문제의 실태조사 데이터를 직접 연다 → 의외였던 숫자 1개를 캡처한다.',
+       L4:'관련 현장(봉사 등)에 1회 가본다 → "자료로 볼 때 vs 현장에 있을 때, 언제 더 살아났나"를 비교해 메모.'}},
+ {id:'D5', chip:'💰 돈·주식·창업', m:'돈과 비즈니스',
+  majors:{L1:['경제학','경영학'],L2:['금융공학','통계학'],L3:['창업학','마케팅'],L4:['경영학(인사·조직)','유통경영'],L5:['회계학','국제통상']},
+  exp:{L2:'"취업 잘되는 과" 상위 3개의 10년 전 순위와 지금 순위를 비교해본다 → 유망하다는 말의 유통기한을 직접 확인.'}},
+ {id:'D6', chip:'🔬 과학·우주·동물·환경', m:'과학과 자연',
+  majors:{L1:['물리학','화학','생명과학'],L2:['데이터사이언스','환경공학'],L3:['기계공학','화학공학'],L4:['수의예과','간호학','환경교육'],L5:['지구과학','생물학']}},
+ {id:'D7', chip:'🍳 요리·패션·기계·공간', m:'만드는 일과 공간',
+  majors:{L1:['건축학','산업공학'],L2:['도시공학','산업디자인'],L3:['기계공학','조리학','패션디자인'],L4:['실내건축','서비스디자인'],L5:['건축사학','공예학']}},
+ {id:'D8', chip:'🏛 역사·여행·언어', m:'역사와 문화',
+  majors:{L1:['사학','철학'],L2:['고고학','문화재보존과학'],L3:['문화기획','관광학'],L4:['국제학','외교학'],L5:['사학','언어학']}}
+];
+
+/* ===== 상태 ===== */
+var st = {domain:null, lever:null, mode:null, career:'', hyp:''};
+
+/* ===== 렌더 ===== */
+function el(h){var d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild}
+var dc=document.getElementById('domainChips');
+DOMAINS.forEach(function(d){
+  var c=el('<button class="chip">'+d.chip+'</button>');
+  c.onclick=function(){st.domain=d;[].forEach.call(dc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b1').disabled=false};
+  dc.appendChild(c);
+});
+var lc=document.getElementById('leverChips');
+Object.keys(LEVERS).forEach(function(k){
+  var c=el('<button class="chip">'+LEVERS[k].chip+'</button>');
+  c.onclick=function(){st.lever=k;[].forEach.call(lc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b2').disabled=false};
+  lc.appendChild(c);
+});
+
+function go(n){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});
+  document.getElementById('s'+n).classList.add('on');
+  window.scrollTo(0,0);
+}
+function pickMode(m){
+  st.mode=m;
+  document.getElementById('modeYes').classList.toggle('sel',m==='검증');
+  document.getElementById('modeNo').classList.toggle('sel',m==='발굴');
+  document.getElementById('careerBox').style.display = (m==='검증')?'block':'none';
+  document.getElementById('b3').disabled=false;
+}
+
+function makeResult(){
+  st.career = (document.getElementById('careerInput').value||'').trim();
+  var d=st.domain, L=LEVERS[st.lever];
+  st.hyp = '나는 '+d.m+'에서 '+L.verb+' 때 살아난다';
+  var exp = (d.exp && d.exp[st.lever]) ? d.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', d.m);
+  var majors = d.majors[st.lever].map(function(m){return '<span>'+m+'</span>'}).join('');
+  var html='';
+
+  if(st.mode==='검증' && st.career){
+    html += '<div class="card"><div class="tag">가설 0 — 네가 이미 갖고 있던 것</div>'
+      +'<p class="hyp" style="font-size:19px">"<mark>'+esc(st.career)+'</mark>에 가면, 나는 만족스러운 삶을 살 것이다"</p>'
+      +'<p class="exp" style="margin-top:12px"><b>이번 주 검증</b> — 대학 공시에서 그 학과 졸업생이 실제로 어디에 가는지(전공일치·취업의 질) 직접 찾아본다. 남의 말 말고 원자료로.</p>'
+      +'<p class="note">확인되면 확신이 되고, 아니면 일찍 아는 게 이득이다. 어느 쪽이든 네가 이긴다.</p></div>';
+  }
+
+  html += '<div class="card"><div class="tag">'+(st.mode==='검증'?'가설 1 — 그리고 하나 더':'네 가설')+' · '+L.name+'</div>'
+    +'<p class="hyp">"나는 '+d.m+'에서 <mark>'+L.verb+'</mark> 때 살아난다"</p>'
+    +'<p class="note">이 가설이 맞다면, 이런 전공이 네 무대일 수 있다:</p>'
+    +'<div class="majors">'+majors+'</div></div>';
+
+  html += '<div class="card"><div class="tag">이번 주 실험 — 딱 1개</div>'
+    +'<p class="exp">'+exp+'</p>'
+    +'<p class="falsify">마지막 질문. <b>뭘 발견하면 이 가설을 접을 거야?</b><br>그 답을 정해두는 순간, 이건 공상이 아니라 실험이 된다.</p></div>';
+
+  document.getElementById('result').innerHTML=html;
+  go(4);
+}
+function esc(s){return s.replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]})}
+
+/* ===== 리드 전송 ===== */
+function sendLead(){
+  var name=(document.getElementById('fName').value||'').trim();
+  if(!name){document.getElementById('fName').focus();return}
+  var payload={
+    name:name,
+    school:(document.getElementById('fSchool').value||'').trim(),
+    grade:document.getElementById('fGrade').value||'',
+    phone:(document.getElementById('fPhone').value||'').trim(),
+    mode:st.mode, domain:st.domain.m, lever:LEVERS[st.lever].name,
+    hypothesis:st.hyp, career_input:st.career, source:SOURCE,
+    ts:new Date().toISOString()
+  };
+  var btn=document.getElementById('sendBtn');
+  btn.disabled=true; btn.textContent='저장 중…';
+  if(!WEBHOOK_URL){ go(5); return; }
+  fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){ if(!r.ok) throw 0; go(5); })
+    .catch(function(){ btn.disabled=false; btn.textContent='가설 저장하고 마치기';
+      document.getElementById('leadErr').style.display='block'; });
+}
+function restart(){
+  st={domain:null,lever:null,mode:null,career:'',hyp:''};
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel')});
+  document.getElementById('b1').disabled=true;document.getElementById('b2').disabled=true;document.getElementById('b3').disabled=true;
+  document.getElementById('careerBox').style.display='none';
+  document.getElementById('careerInput').value='';
+  var btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent='가설 저장하고 마치기';
+  document.getElementById('leadErr').style.display='none';
+  go(0);
+}
+</script>
+</body>
+</html>
