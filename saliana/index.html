@@ -189,6 +189,11 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
     </div>
     <label for="fPhone">연락처 (너 또는 부모님, 안 써도 됨)</label>
     <input class="input" id="fPhone" inputmode="tel" maxlength="13" placeholder="010-0000-0000">
+    <label style="display:flex; gap:10px; align-items:flex-start; margin-top:16px; font-weight:500; cursor:pointer">
+      <input type="checkbox" id="fConsent" style="margin-top:3px; width:18px; height:18px; accent-color:var(--accent)">
+      <span style="font-size:13.5px; color:var(--ink)"><b>개인정보 수집·이용 동의 (저장하려면 필수)</b><br>
+      <span style="font-size:12.5px; color:var(--sub)">항목: 이름·학교·학년·연락처 / 쓰는 곳: 실험 리마인드 문자(1~2회)와 진로 상담 연락, 딱 거기까지 / 보관: 6개월 뒤 파기 / 삭제 원하면 언제든 문자 한 통이면 돼. 동의 안 해도 결과는 캡처해 가면 됨.</span></span>
+    </label>
     <div style="margin-top:16px"><button class="btn" id="sendBtn" onclick="sendLead()">가설 저장하기</button></div>
     <p class="err" id="leadErr">앗, 전송이 안 됐어. 화면 캡처해두면 결과는 안 날아가.</p>
   </div>
@@ -517,6 +522,9 @@ function careerJosa(s){
 function sendLead(){
   var name=(document.getElementById('fName').value||'').trim();
   if(!name){document.getElementById('fName').focus();return}
+  if(!document.getElementById('fConsent').checked){
+    document.getElementById('fConsent').closest('label').style.color='#C92A2A';
+    document.getElementById('fConsent').closest('label').scrollIntoView({behavior:'smooth',block:'center'});return}
   var payload={
     name:name,
     school:(document.getElementById('fSchool').value||'').trim(),
@@ -531,6 +539,7 @@ function sendLead(){
     hypothesis_self:(document.getElementById('selfHyp').value||'').trim(),
     aftertaste:(document.getElementById('afterTaste').value||'').trim(),
     career_input:st.career, source:SOURCE,
+    consent:'동의 '+new Date().toISOString().slice(0,10),
     ts:new Date().toISOString()
   };
   var btn=document.getElementById('sendBtn');
