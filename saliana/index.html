@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>살아나 — 나는 언제 살아나는가</title>
-<meta name="description" content="정답을 찍는 검사가 아니라, 이번 주에 검증할 가설을 만드는 3분.">
+<meta name="description" content="정답을 찍는 검사가 아니라, 이번 주에 검증할 가설을 만드는 5분.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
@@ -71,6 +71,8 @@ label{font-size:13px; font-weight:700; color:var(--sub); display:block; margin:1
   color:var(--accent-deep); background:var(--accent-soft); border-radius:999px; padding:4px 10px; margin-bottom:10px}
 .hyp{font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.45}
 .hyp mark{background:linear-gradient(transparent 62%, #FFD8A8 62%); color:inherit}
+.role{font-size:15px; font-weight:700; margin-top:12px}
+.role b{color:var(--accent-deep)}
 .echo{font-size:14px; color:var(--sub); margin-top:10px; border-left:3px solid var(--line); padding-left:10px}
 .majors{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
 .majors span{font-size:13.5px; font-weight:600; border:1px solid var(--line); border-radius:999px; padding:6px 12px; color:var(--sub); background:var(--bg)}
@@ -95,42 +97,51 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
   <div class="top"><span class="brand">살아나</span></div>
   <h1>나는 언제<br><span style="color:var(--accent)">살아나는가</span></h1>
   <p class="lead">성격검사 아니야. 정답도 없어.<br>
-  3분이면 <b>네 가설 한 문장</b>과 <b>이번 주 실험 딱 하나</b>가 나와. 릴스 여섯 개 볼 시간이야.<br>
+  5분이면 <b>네 가설 한 문장</b>과 <b>이번 주 실험 딱 하나</b>가 나와.<br>
   맞는지는 네가 직접 확인해. 우린 채점 안 해.</p>
   <div class="btnrow"><button class="btn" onclick="go(1)">시작</button></div>
   <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
 </section>
 
-<!-- S1 도메인 -->
+<!-- S1 매체 -->
 <section class="screen" id="s1">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i><i></i></span></div>
-  <h2>요즘 뭐 하다가<br>시간 순삭돼?</h2>
-  <p class="lead">공부 빼고. 제일 가까운 거 <b>하나만</b>.</p>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i><i></i><i></i></span></div>
+  <h2>요즘 시키지 않아도<br>계속 하게 되는 건?</h2>
+  <p class="lead">공부 빼고. 솔직하게, 제일 가까운 거 <b>하나만</b>.</p>
   <div class="chips" id="domainChips"></div>
   <div class="btnrow"><button class="btn" id="b1" disabled onclick="go('1b')">다음</button></div>
 </section>
 
 <!-- S1b 태그 -->
 <section class="screen" id="s1b">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i><i></i><i></i></span></div>
   <h2 id="tagTitle">그중에서도?</h2>
   <p class="lead">하나만 딱. 고민되면 둘 다라는 뜻이니까 <b>아무거나 골라도 돼</b>.</p>
   <div class="stack" id="tagChips"></div>
   <div class="btnrow"><button class="btn" id="b1b" disabled onclick="go(2)">다음</button></div>
 </section>
 
-<!-- S2 레버 (로컬라이즈) -->
+<!-- S2 분별 (레버 판정) -->
 <section class="screen" id="s2">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i><i></i></span></div>
-  <h2 id="leverTitle">너랑 제일 가까운 문장은?</h2>
-  <p class="lead">직업 고르는 거 아니야. <b>네가 움직이는 방식</b>을 고르는 거야.</p>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i><i></i><i></i></span></div>
+  <h2 id="leverTitle">끝까지 보게 되는 건?</h2>
+  <p class="lead">"그냥 재밌어서"는 답 아니고. <b>3초컷 안 당하는 게 뭔지</b> 고르는 거야.</p>
   <div class="stack" id="leverChips"></div>
-  <div class="btnrow"><button class="btn" id="b2" disabled onclick="go(3)">다음</button></div>
+  <div class="btnrow"><button class="btn" id="b2" disabled onclick="go('2b')">다음</button></div>
+</section>
+
+<!-- S2b 이입 (역할 판정) -->
+<section class="screen" id="s2b">
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i class="now"></i><i></i></span></div>
+  <h2>영화든 웹툰이든 게임이든 —<br>너는 보통 누구에 이입해?</h2>
+  <p class="lead">멋있는 거 말고, <b>진짜 네가 서 있는 자리</b>.</p>
+  <div class="stack" id="roleChips"></div>
+  <div class="btnrow"><button class="btn" id="b2b" disabled onclick="go(3)">다음</button></div>
 </section>
 
 <!-- S3 모드 분기 -->
 <section class="screen" id="s3">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i class="now"></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i></i><i class="now"></i></span></div>
   <h2>지금 생각해 둔<br>학과나 진로가 있어?</h2>
   <p class="lead">어렴풋해도 되고, 없으면 없는 대로 가. <b>둘 다 정상이야.</b></p>
   <div class="stack">
@@ -148,6 +159,12 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 <section class="screen" id="s4">
   <div class="top"><span class="brand">살아나</span></div>
   <div id="result"></div>
+
+  <div class="card">
+    <div class="tag">하나만 더 (선택)</div>
+    <p style="font-size:14.5px; color:var(--sub)">보고 나면 <b style="color:var(--ink)">시간 아깝다</b> 싶은 거랑, <b style="color:var(--ink)">뭔가 남는다</b> 싶은 거. 각각 하나씩만.</p>
+    <textarea class="input" id="afterTaste" maxlength="140" placeholder="아까운 건 ______ / 남는 건 ______" style="margin-top:10px"></textarea>
+  </div>
 
   <div class="card">
     <div class="tag">네 말로 고쳐 쓰기</div>
@@ -194,106 +211,202 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <script>
 /* ===== 설정 ===== */
-var WEBHOOK_URL = "https://havit.app.n8n.cloud/webhook/saliana-lead";   // 살아나 리드 수집 (n8n)
+var WEBHOOK_URL = "https://havit.app.n8n.cloud/webhook/saliana-lead";
 var SOURCE = "양천고특강";
 
-/* ===== 레버 5종 (역량 매핑 고정) ===== */
+/* ===== 레버 5종 ===== */
 var LEVERS = {
   L1:{verb:'숨은 이유를 파고들', name:'왜를 파는 타입'},
   L2:{verb:'숨은 패턴을 찾아낼', name:'패턴을 찾는 타입'},
   L3:{verb:'내 손으로 만들어낼', name:'만드는 타입'},
-  L4:{verb:'사람을 직접 만나 도울', name:'사람 곁 타입'},
+  L4:{verb:'사람과 부딪히고 나눌', name:'사람 곁 타입'},
   L5:{verb:'끝까지 모아 꿸', name:'수집가 타입'}
 };
-/* 실험 기본형: {m}=태그 재료 */
+/* ===== 이입 역할 5종 ===== */
+var ROLES = [
+ {id:'R1', chip:'판을 직접 뒤집는 주인공 — 일단 내가 부딪혀야 함', name:'주인공형', phrase:'직접 부딪히는 쪽'},
+ {id:'R2', chip:'뒤에서 판을 설계하는 전략가·흑막 — 큰 그림이 내 것', name:'설계자형', phrase:'판을 설계하는 쪽'},
+ {id:'R3', chip:'주인공 옆에서 문제를 풀어주는 해결사·참모', name:'해결사형', phrase:'옆에서 문제를 풀어주는 쪽'},
+ {id:'R4', chip:'사람들을 모으고 잇는 리더·분위기메이커', name:'연결자형', phrase:'사람을 모으고 잇는 쪽'},
+ {id:'R5', chip:'그 세계를 구석구석 탐험하는 관찰자·기록자', name:'탐험가형', phrase:'끝까지 탐험하고 기록하는 쪽'}
+];
+/* 실험 기본형: {m}=재료 */
 var EXP_BASE = {
-  L1:'{m}에서 요즘 제일 궁금한 "왜?" 하나만 정해 → 책이든 다큐든 하나 잡고 3단계까지 파봐. 시작 전에 네 예상을 먼저 적어두고, 끝나고 뭐가 달랐는지 비교해봐.',
-  L2:'{m} 쪽 진짜 데이터(통계·기록·공식 자료)를 직접 열어봐 → 예상이랑 달랐던 숫자 하나만 캡처해 와.',
+  L1:'{m}에서 요즘 제일 궁금한 "왜?" 하나만 정해 → 영상이든 글이든 3단계까지 파봐. 시작 전에 네 예상을 먼저 적어두고, 끝나고 뭐가 달랐는지 비교해봐.',
+  L2:'{m} 쪽 진짜 데이터(수치·기록·통계)를 직접 열어봐 → 예상이랑 달랐던 숫자 하나만 캡처해 와.',
   L3:'{m}에서 이번 주 안에 끝낼 수 있는 제일 작은 거 하나 만들어봐. 퀄리티 말고 완성이 중요해.',
-  L4:'{m} 쪽 실제로 겪어본 사람 한 명한테 15분만 물어봐(아니면 현장 한 번 가보기) → "언제 더 살아났는지" 한 줄만 남겨.',
+  L4:'{m} 쪽을 같이 좋아하는(겪어본) 사람 한 명이랑 15분만 깊게 얘기해봐 → "언제 더 살아났는지" 한 줄만 남겨.',
   L5:'{m} 자료 10개 모아서 네 기준으로 분류해봐 → 너만의 지도 한 장. 공통점 하나 뽑아보고.'
 };
 
-/* ===== 도메인 8 × 태그 3 = 24 (전공=도메인×레버, 레버 문안=태그별 로컬라이즈) ===== */
+/* ===== 매체 8 × 태그 3 = 24 (폰 현실 재편 v0.3) ===== */
 var DOMAINS = [
- {id:'D1', chip:'🎬 콘텐츠·이야기', sub:'영상 · 웹툰 · 음악',
-  majors:{L1:['미디어커뮤니케이션','문예창작'],L2:['문화콘텐츠학','데이터저널리즘'],L3:['영상제작','디자인'],L4:['엔터테인먼트경영','교육학'],L5:['국어국문','문헌정보학']},
+ {id:'D1', chip:'📱 숏츠·릴스', sub:'웃긴 밈 · 정보 · 브이로그', q:'스킵 안 하고 끝까지 보게 되는 건?',
+  majors:{L1:['미디어커뮤니케이션','심리학'],L2:['문화콘텐츠학','데이터사이언스'],L3:['영상제작','광고홍보'],L4:['미디어커뮤니케이션','마케팅'],L5:['문헌정보학','문화콘텐츠학']},
   tags:[
-   {id:'t_video', label:'영상·유튜브', m:'영상과 유튜브',
-    opts:{L1:'"이 영상은 왜 떡상했지?" 알고리즘·썸네일이 왜 먹혔는지 뜯어봄',
-          L2:'조회수·트렌드 흐름을 따져보고 패턴을 찾음',
-          L3:'직접 찍고 편집해보고 싶음(해봤다) — 컷·자막·타이밍 만지는 게 재밌음',
-          L4:'댓글·커뮤니티에서 사람들 반응 보고 떠들 때가 제일 재밌음',
-          L5:'한 채널·한 주제를 정주행하고 옛날 영상까지 다 찾아봄'},
+   {id:'t_shorts_fun', label:'웃긴 거·밈', m:'웃긴 콘텐츠와 밈',
+    opts:{L1:'왜 웃긴지 구조가 보이는 거 — 떡밥 회수, 반전, 타이밍',
+          L2:'이 밈이 어디서 시작돼서 어떻게 퍼졌는지 흐름이 보이는 거',
+          L3:'"나도 찍을 수 있겠는데?" 싶어지는 거',
+          L4:'누구한테 보낼지 바로 생각나는 거 — 보내는 맛에 봄',
+          L5:'한 번 웃기면 그 계정 과거 영상까지 정주행하게 되는 거'},
     exp:{L3:'1분짜리 숏폼 하나 직접 찍고 편집해서 올려봐(비공개도 OK). 조회수 말고 "만드는 동안 살아있었나"만 확인해.'}},
-   {id:'t_webtoon', label:'웹툰·웹소설', m:'웹툰과 이야기',
-    opts:{L1:'"이 캐릭터는 왜 이런 선택을 했지?" 작가의 의도·복선까지 파봄',
-          L2:'장르 공식·클리셰 패턴이 보인다 — 어떤 설정이 뜨는지 앎',
-          L3:'내 세계관·스토리를 직접 짜본 적 있음(짜보고 싶음)',
-          L4:'친구한테 추천하고 같이 감상 얘기할 때가 제일 재밌음',
-          L5:'설정집·외전·작가 인터뷰까지 다 찾아 모음'}},
-   {id:'t_music', label:'음악', m:'음악',
-    opts:{L1:'"이 노래는 왜 좋지?" 코드·가사·구조를 뜯어봄',
-          L2:'차트 순위·역주행이 왜 생기는지부터 눈에 들어옴',
-          L3:'직접 만들거나 커버하고 싶다 — 작곡·미디·플레이리스트 조합',
-          L4:'공연·페스티벌처럼 같이 듣고 나누는 순간이 최고임',
-          L5:'장르 계보를 타고 내려가며 아무도 모르는 곡까지 팜'}}
+   {id:'t_shorts_info', label:'정보·꿀팁', m:'정보와 꿀팁 콘텐츠',
+    opts:{L1:'"이게 왜 되지?" 원리까지 설명해주는 거',
+          L2:'비교·순위·전후 데이터로 증명해주는 거',
+          L3:'보고 나서 바로 따라 해볼 수 있는 거',
+          L4:'사람 고민을 해결해주는 상담·사연류',
+          L5:'한 주제를 시리즈로 모아서 저장하게 되는 거'}},
+   {id:'t_vlog', label:'브이로그·일상', m:'일상과 브이로그',
+    opts:{L1:'"이 사람은 왜 이렇게 살까" — 삶의 방식이 궁금해지는 거',
+          L2:'루틴·계획 짜는 방식을 뜯어보게 되는 거',
+          L3:'나도 내 일상을 찍어보고 싶어지는 거',
+          L4:'사람 사는 얘기, 관계 얘기가 나오는 거',
+          L5:'한 사람의 처음 영상부터 지금까지 다 따라가게 되는 거'}}
   ]},
- {id:'D2', chip:'🎮 디지털', sub:'게임 · 코딩 · AI',
-  majors:{L1:['컴퓨터공학','인지과학'],L2:['인공지능학','데이터사이언스'],L3:['게임공학','소프트웨어학'],L4:['IT경영','HCI(사용자경험)'],L5:['정보보호학','컴퓨터공학']},
+ {id:'D2', chip:'▶️ 유튜브 롱폼', sub:'스트리머 · 지식 · 리뷰', q:'끝까지 보게 되는 건?',
+  majors:{L1:['미디어커뮤니케이션','인지과학'],L2:['데이터사이언스','통계학'],L3:['영상제작','콘텐츠기획'],L4:['커뮤니케이션','방송연예'],L5:['문화콘텐츠학','사학']},
   tags:[
-   {id:'t_game', label:'게임', m:'게임',
-    opts:{L1:'"이 게임은 왜 이렇게 설계됐지? 메타는 왜 바뀌지?" 궁금해서 찾아본 적 있음',
-          L2:'승률·픽률·스탯 따져보고 복기함 (전적검색 돌려보는 타입)',
-          L3:'맵·모드·건축을 직접 만듦 (마크 건축, 로블록스 스튜디오)',
-          L4:'오더 내리고 팀 합 맞출 때가 제일 재밌음, 혼자 하면 심심함',
-          L5:'도감·업적·파밍 100%를 못 참음'},
-    exp:{L3:'마크·로블록스·모드 툴로 이번 주 안에 끝나는 제일 작은 거 하나(방 하나, 스테이지 하나)만 완성해봐.'}},
-   {id:'t_coding', label:'코딩·앱 만들기', m:'코딩과 앱',
-    opts:{L1:'"이 앱은 어떻게 돌아가지?" 작동 원리가 궁금함',
-          L2:'버그의 원인을 끝까지 추적하는 게 은근 재밌음',
-          L3:'일단 뭐라도 만들어서 돌아가게 하는 순간이 최고임',
-          L4:'내가 만든 걸 친구가 써주고 반응할 때가 제일 좋음',
-          L5:'새 언어·새 툴이 나오면 일단 튜토리얼부터 다 해봄'}},
-   {id:'t_ai', label:'AI', m:'AI',
-    opts:{L1:'"AI는 어떻게 생각하는 거지?" 원리가 궁금해서 찾아봄',
-          L2:'프롬프트를 바꿔가며 결과가 어떻게 달라지는지 실험함',
-          L3:'AI로 뭔가 만들어낸다 — 이미지·글·자동화',
-          L4:'AI가 사람과 일자리를 어떻게 바꿀지 얘기하는 게 재밌음',
-          L5:'새 AI 툴이 나오면 제일 먼저 다 써봄'}}
+   {id:'t_streamer', label:'게임·스트리머 방송', m:'스트리머와 방송',
+    opts:{L1:'"이 방송은 왜 재밌지?" 진행·편집 방식을 뜯어보게 됨',
+          L2:'시청자 수·떡상 타이밍 같은 흐름이 눈에 들어옴',
+          L3:'나도 방송이나 편집을 해보고 싶다는 생각을 해봄',
+          L4:'채팅·합방 케미 보는 맛 — 소통이 본체',
+          L5:'한 스트리머의 레전드 영상을 다 찾아봄'}},
+   {id:'t_knowledge', label:'지식·다큐·썰', m:'지식 콘텐츠',
+    opts:{L1:'"세상이 왜 이렇게 돌아가지" 원리 설명이 제일 재밌음',
+          L2:'숫자·그래프가 나오면 더 집중하게 됨',
+          L3:'본 걸 어디다 써먹을 수 있을지 생각하게 됨',
+          L4:'사람 이야기·인터뷰 중심이 좋음',
+          L5:'한 주제를 알고리즘 타고 끝까지 내려감'}},
+   {id:'t_review', label:'리뷰·분석', m:'리뷰와 분석',
+    opts:{L1:'왜 명작인지·왜 망작인지 해부하는 게 좋음',
+          L2:'스펙·가성비 비교를 나도 모르게 따라 하고 있음',
+          L3:'보다가 직접 사서(만들어서) 확인하고 싶어짐',
+          L4:'댓글 여론까지 읽어야 다 본 기분',
+          L5:'한 분야 리뷰를 도장깨기로 다 봄'}}
   ]},
- {id:'D3', chip:'⚽ 몸·스포츠', sub:'운동 · 스포츠 관람 · 건강',
-  majors:{L1:['스포츠과학','의예과'],L2:['스포츠데이터분석','물리치료학'],L3:['재활공학','체육학'],L4:['스포츠교육','트레이닝'],L5:['스포츠산업','스포츠경영']},
+ {id:'D3', chip:'📖 웹툰·웹소설', sub:'판타지 · 액션 · 로맨스', q:'다음 화를 끊지 못하게 만드는 건?',
+  majors:{L1:['문예창작','철학'],L2:['문화콘텐츠학','심리학'],L3:['웹툰창작','디자인'],L4:['문예창작','교육학'],L5:['국어국문','문헌정보학']},
   tags:[
-   {id:'t_sports_do', label:'직접 하는 운동', m:'운동',
+   {id:'t_fantasy', label:'판타지·회귀·이세계', m:'판타지 세계',
+    opts:{L1:'설정·세계관의 아귀가 맞는지 따지게 됨',
+          L2:'회귀·상태창 같은 시스템의 규칙을 파악하는 재미',
+          L3:'내 세계관을 직접 짜보고 싶어짐',
+          L4:'캐릭터들의 관계성이 본체 — 서사에 울고 웃음',
+          L5:'설정집·외전·작가 코멘터리까지 다 찾아봄'}},
+   {id:'t_action', label:'액션·헌터·무협', m:'액션과 성장물',
+    opts:{L1:'주인공이 강해지는 "구조"가 궁금함 — 뭘 얻어서 어떻게 컸는지',
+          L2:'전투력 측정기 — 누가 더 센지 서열 정리하게 됨',
+          L3:'내가 그 능력을 얻으면 뭘 할지 구체적으로 상상함',
+          L4:'동료가 모이는 장면에서 제일 살아있음',
+          L5:'떡밥·복선 정리글까지 찾아 읽음'}},
+   {id:'t_romance', label:'로맨스·일상·드라마', m:'사람 이야기',
+    opts:{L1:'"쟤가 왜 저러지" 인물 심리를 계속 분석하게 됨',
+          L2:'관계의 패턴이 보임 — "이 커플 이렇게 될 각"',
+          L3:'대사나 장면을 내가 다시 써보고 싶을 때가 있음',
+          L4:'인물들 감정에 같이 울고 웃는 게 본체',
+          L5:'작가의 전작까지 다 찾아 읽음'}}
+  ]},
+ {id:'D4', chip:'🎮 게임', sub:'랭크 경쟁 · 샌드박스 · 스토리', q:'그 게임을 계속 켜게 만드는 건?',
+  majors:{L1:['게임기획','컴퓨터공학'],L2:['데이터사이언스','인공지능학'],L3:['게임공학','소프트웨어학'],L4:['e스포츠경영','HCI(사용자경험)'],L5:['게임기획','정보보호학']},
+  tags:[
+   {id:'t_rank', label:'경쟁·랭크 (롤·피파·발로)', m:'경쟁과 승부',
+    opts:{L1:'메타가 왜 바뀌는지, 왜 이 조합이 센지 따지게 됨',
+          L2:'전적·승률·픽률 돌려보고 복기함',
+          L3:'새 전략·빌드를 직접 만들어서 실험함',
+          L4:'오더 내리고 팀 합 맞출 때가 제일 재밌음, 혼자면 노잼',
+          L5:'티어 올리기·등반 그 자체를 못 놓음'}},
+   {id:'t_sandbox', label:'샌드박스·제작 (마크·로블)', m:'만드는 게임',
+    opts:{L1:'레드스톤·명령어 같은 작동 원리를 파게 됨',
+          L2:'효율 최적화 — 최단 루트, 자동화 농장',
+          L3:'맵·건축·게임 자체를 만드는 게 본체',
+          L4:'친구들 초대해서 같이 만들고 노는 맛',
+          L5:'한 월드를 몇 달째 확장하며 다 짓고 다 모음'},
+    exp:{L3:'마크·로블록스 스튜디오로 이번 주 안에 끝나는 제일 작은 거 하나(방 하나, 스테이지 하나)만 완성해봐.'}},
+   {id:'t_story', label:'스토리·수집형 (RPG·가챠)', m:'이야기가 있는 게임',
+    opts:{L1:'숨겨진 스토리·세계관 떡밥을 파는 재미',
+          L2:'확률·스펙 계산하고 육성 효율을 따짐',
+          L3:'내 캐릭터·덱·파티를 나만의 방식으로 조합함',
+          L4:'같이 하는 사람들이랑 공략 얘기하는 게 절반',
+          L5:'도감 100%·전 캐릭터 수집을 못 참음'}}
+  ]},
+ {id:'D5', chip:'🌟 아이돌·덕질', sub:'무대 · 최애 · 애니', q:'유독 그것만 계속 돌려보는 이유는?',
+  majors:{L1:['문화콘텐츠학','심리학'],L2:['엔터테인먼트경영','마케팅'],L3:['실용음악','공연기획'],L4:['엔터테인먼트경영','미디어커뮤니케이션'],L5:['문화콘텐츠학','문헌정보학']},
+  tags:[
+   {id:'t_stage', label:'음악·무대·플레이리스트', m:'음악과 무대',
+    opts:{L1:'이 무대가 왜 좋은지 — 동선·카메라·편곡을 뜯어보게 됨',
+          L2:'차트·조회수 추이, 컴백 전략까지 챙겨 봄',
+          L3:'안무 커버·커버곡·플레이리스트 만들기를 해봄(하고 싶음)',
+          L4:'같이 들을 사람이 있어야 완성 — 공유하고 입덕시키는 맛',
+          L5:'데뷔 무대부터 최신 직캠까지 전부 챙겨 봄'}},
+   {id:'t_bias', label:'최애·아이돌 서사', m:'최애의 서사',
+    opts:{L1:'최애가 왜 좋은지 이유를 밤새 설명할 수 있음',
+          L2:'일정·기록·수치를 데이터처럼 꿰고 있음',
+          L3:'짤·영상 편집·팬아트를 직접 만듦',
+          L4:'덕메랑 최애 얘기하는 시간이 본체',
+          L5:'과거 영상·비하인드·인터뷰까지 고고학 수준으로 팜'}},
+   {id:'t_anime', label:'애니·최애 캐릭터', m:'애니와 캐릭터',
+    opts:{L1:'캐릭터의 선택과 성장 서사를 곱씹게 됨',
+          L2:'세계관 설정·전투력·복선을 정리하게 됨',
+          L3:'그리거나, 굿즈 만들거나, 따라 만들어보고 싶음',
+          L4:'같은 작품 좋아하는 사람을 만나면 바로 친해짐',
+          L5:'원작·외전·제작 비하인드까지 전부 팜'}}
+  ]},
+ {id:'D6', chip:'💬 SNS·소통', sub:'인스타 · 단톡·디코 · 커뮤', q:'폰을 못 놓게 만드는 순간은?',
+  majors:{L1:['심리학','사회학'],L2:['마케팅','데이터사이언스'],L3:['광고홍보','디자인'],L4:['커뮤니케이션','상담학'],L5:['사회학','언론정보학']},
+  tags:[
+   {id:'t_insta', label:'인스타·스토리', m:'인스타와 피드',
+    opts:{L1:'누가 뭘 올렸는지보다 "왜 올렸는지"가 보임',
+          L2:'팔로워·좋아요가 붙는 패턴이 보임',
+          L3:'피드·스토리를 잘 만드는 데 진심임',
+          L4:'스토리 답장·DM으로 이어지는 대화가 본체',
+          L5:'관심 계정·게시물을 아카이브처럼 저장·분류함'}},
+   {id:'t_chat', label:'단톡·디코', m:'단톡과 대화',
+    opts:{L1:'단톡 분위기가 왜 싸해졌는지 원인을 알고 있음',
+          L2:'누가 누구랑 친한지 관계도가 그려짐',
+          L3:'방 파고, 이벤트 열고, 판 짜는 걸 내가 함',
+          L4:'고민 들어주다 보면 새벽임',
+          L5:'옛날 대화까지 스크롤 올려 찾아주는 기록 담당'}},
+   {id:'t_community', label:'커뮤니티·익명글', m:'커뮤니티',
+    opts:{L1:'왜 이 글이 화제인지, 여론이 왜 갈리는지 분석하게 됨',
+          L2:'실시간 반응·화력의 흐름을 읽는 게 재밌음',
+          L3:'내 글로 반응을 끌어내는 맛을 앎',
+          L4:'댓글로 모르는 사람 고민에 답해준 적 있음',
+          L5:'정보글·후기글을 모아서 정리해 둠'}}
+  ]},
+ {id:'D7', chip:'🏃 폰 밖 취미', sub:'운동 · 만들기·요리 · 그림·악기', q:'힘든데도 계속 하게 되는 이유는?',
+  majors:{L1:['스포츠과학','물리치료학'],L2:['스포츠데이터분석','헬스케어'],L3:['체육학','조리학','디자인'],L4:['스포츠교육','교육학'],L5:['스포츠산업','공예학']},
+  tags:[
+   {id:'t_workout', label:'운동·몸 만들기', m:'운동',
     opts:{L1:'"왜 안 늘지?" 자세·원리를 분석하고 교정함',
-          L2:'기록·세트·페이스를 재고 데이터로 관리함',
-          L3:'새 기술·새 루틴을 직접 짜서 시도함',
-          L4:'팀 스포츠의 합, 같이 뛰는 맛에 함',
-          L5:'장비·용품·훈련법을 끝까지 파고 모음'}},
-   {id:'t_sports_watch', label:'보는 스포츠 (팬·분석)', m:'스포츠',
-    opts:{L1:'"감독은 왜 저 교체를 했지?" 전술을 뜯어봄',
-          L2:'선수 스탯·이적시장·순위 데이터부터 눈에 들어옴 (풋볼매니저형)',
-          L3:'판타지 리그·내 팀 스쿼드를 직접 짬',
-          L4:'직관 가서 같이 응원하고 떠드는 맛이 최고임',
-          L5:'한 팀의 역사·기록·비하인드까지 다 꿰고 있음'}},
-   {id:'t_health', label:'몸 관리·건강', m:'몸과 건강',
-    opts:{L1:'"이 운동·식단이 왜 효과 있지?" 원리를 찾아봄',
-          L2:'인바디·수면·식단을 기록하고 변화를 추적함',
-          L3:'내 루틴을 직접 설계하고 계속 개선함',
-          L4:'친구 운동·식단을 챙겨주고 같이 할 때 신남',
-          L5:'영양제·보충제·운동법 정보를 끝없이 수집함'}}
+          L2:'기록·세트·페이스를 재면서 관리함',
+          L3:'내 루틴을 직접 짜서 실험함',
+          L4:'같이 뛰는 맛에 함 — 팀·크루가 좋음',
+          L5:'장비·훈련법 정보를 끝까지 파고 모음'}},
+   {id:'t_make', label:'만들기·요리', m:'만드는 일',
+    opts:{L1:'왜 이 순서·온도여야 하는지 원리가 궁금함',
+          L2:'계량·비율을 정확히 따지는 편',
+          L3:'일단 손으로 만들어야 직성이 풀림',
+          L4:'만든 걸 먹이고 선물할 때가 제일 좋음',
+          L5:'재료·도구·레시피 정보를 수집함'}},
+   {id:'t_art', label:'그림·악기·창작', m:'그림과 음악',
+    opts:{L1:'잘 만든 작품은 뭐가 다른지 뜯어보게 됨',
+          L2:'이론·코드·구도를 체계로 이해하는 게 좋음',
+          L3:'일단 그리고 일단 연주함 — 만드는 시간 자체가 좋음',
+          L4:'합주·합작처럼 같이 만들 때 살아남',
+          L5:'레퍼런스·자료를 폴더별로 모아 둠'}}
   ]},
- {id:'D4', chip:'🗣 사람·사회', sub:'고민 상담 · 이슈 · 심리',
-  majors:{L1:['사회학','심리학','경제학'],L2:['통계학','정책학'],L3:['소셜벤처(창업)','행정학'],L4:['사회복지학','교육학','상담학'],L5:['인류학','언론정보학']},
+ {id:'D8', chip:'🌍 세상 이야기', sub:'돈·주식 · 사회 이슈 · 과학', q:'뉴스·영상 중에 멈춰서 보게 되는 건?',
+  majors:{L1:['경제학','사회학'],L2:['통계학','금융공학'],L3:['창업학','행정학'],L4:['사회복지학','교육학'],L5:['언론정보학','지구과학']},
   tags:[
-   {id:'t_counsel', label:'친구 고민 들어주기', m:'사람의 고민',
-    opts:{L1:'"쟤가 왜 그랬을까" — 행동 뒤의 이유를 곱씹음',
-          L2:'고민을 들으면 상황을 정리해서 선택지로 짜줌',
-          L3:'말만 말고 해결책을 직접 만들어서 챙겨줌',
-          L4:'그냥 들어주는 것만으로 시간 가는 줄 모름',
-          L5:'심리 테스트·상담 글·연애 썰까지 관련 글을 다 읽음'}},
-   {id:'t_issue', label:'사회 이슈·뉴스', m:'사회 문제',
+   {id:'t_money', label:'돈·주식·창업', m:'돈과 비즈니스',
+    opts:{L1:'"저 회사는(가게는) 왜 잘되지?" 구조를 뜯어봄',
+          L2:'차트·수익률·순위를 비교하며 따져봄',
+          L3:'모의투자든 굿즈 팔기든 직접 굴려보고 싶음',
+          L4:'돈 얘기로 사람을 설득하는 게 재밌음',
+          L5:'경제 뉴스레터·리포트를 챙겨 모음'}},
+   {id:'t_issue2', label:'사회 이슈·뉴스', m:'사회 문제',
     opts:{L1:'"이 문제는 왜 안 고쳐지지?" 구조랑 원인을 끝까지 파봄',
           L2:'통계·그래프로 그게 진짜인지 확인하고 싶어짐',
           L3:'캠페인·프로젝트로 뭐라도 해보고 싶음',
@@ -302,105 +415,17 @@ var DOMAINS = [
     exp:{L1:'최근 "이건 좀 아니지 않나" 싶었던 뉴스 하나 골라 → 그 문제를 다룬 책이나 다큐 하나로 "왜"를 3단계 파봐. 읽기 전에 네 추측부터 메모해 두고.',
          L2:'통계청에서 그 문제 실태조사 데이터를 직접 열어봐 → 의외였던 숫자 하나만 캡처해 와.',
          L4:'관련 현장(봉사 같은 거)에 한 번 가봐 → "자료로 볼 때 vs 현장에 있을 때, 언제 더 살아났는지" 비교해서 메모.'}},
-   {id:'t_psych', label:'사람 심리·관찰', m:'사람 심리',
-    opts:{L1:'"사람들은 왜 저렇게 행동할까" — 심리의 원리가 궁금함',
-          L2:'MBTI·심리테스트를 그냥 안 믿고 진짜 맞는지 따져봄',
-          L3:'관찰한 걸로 나만의 사람 유형·이론을 만들어봄',
-          L4:'사람을 직접 만나서 묻고 관찰하는 게 재밌음',
-          L5:'심리학 실험·뇌과학 이야기를 끝없이 모음'}}
-  ]},
- {id:'D5', chip:'💰 돈·비즈니스', sub:'투자 · 창업 · 트렌드',
-  majors:{L1:['경제학','경영학'],L2:['금융공학','통계학'],L3:['창업학','마케팅'],L4:['경영학(인사·조직)','유통경영'],L5:['회계학','국제통상']},
-  tags:[
-   {id:'t_invest', label:'주식·투자', m:'주식과 투자',
-    opts:{L1:'"이 회사 주가는 왜 오르지?" 사업 구조를 뜯어봄',
-          L2:'차트·재무제표·지표를 비교하며 따져봄',
-          L3:'모의투자로 내 포트폴리오를 직접 굴려봄',
-          L4:'투자 얘기를 나누고 남을 설득하는 게 재밌음',
-          L5:'산업 리포트·경제 뉴스레터를 챙겨 모음'}},
-   {id:'t_startup', label:'창업·장사', m:'창업과 장사',
-    opts:{L1:'"저 가게는 왜 잘되지?" 장사의 구조를 분석함',
-          L2:'원가·마진·회전율 계산이 머릿속에서 저절로 됨',
-          L3:'직접 팔아본다 — 굿즈, 중고거래, 매점 아이디어',
-          L4:'사람을 모으고 팀을 꾸리는 게 제일 재밌음',
-          L5:'성공한 창업 스토리·케이스를 다 찾아 읽음'}},
-   {id:'t_marketing', label:'트렌드·마케팅', m:'트렌드와 마케팅',
-    opts:{L1:'"이건 왜 유행하지?" 바이럴의 이유를 뜯어봄',
-          L2:'뭐가 뜨고 지는지 남들보다 먼저 알아챔',
-          L3:'짤·카피·컨셉을 직접 만들어 반응을 봄',
-          L4:'사람들이 뭘 좋아하는지 묻고 관찰하는 게 재밌음',
-          L5:'브랜드·광고 레퍼런스를 스크랩해 모음'}}
-  ]},
- {id:'D6', chip:'🔬 과학·자연', sub:'실험 · 우주 · 동물·환경',
-  majors:{L1:['물리학','화학','생명과학'],L2:['데이터사이언스','환경공학'],L3:['기계공학','화학공학'],L4:['수의예과','간호학','환경교육'],L5:['지구과학','생물학']},
-  tags:[
-   {id:'t_experiment', label:'실험·과학 원리', m:'과학 원리',
-    opts:{L1:'"이건 왜 이렇게 되지?" 원리를 끝까지 파봄',
-          L2:'조건을 바꿔가며 결과를 비교하는 게 재밌음',
-          L3:'직접 실험·공작으로 눈앞에서 확인해야 직성이 풀림',
-          L4:'신기한 원리를 남에게 설명해줄 때 제일 신남',
-          L5:'과학 유튜브·다큐·잡학을 끝없이 흡수함'}},
-   {id:'t_space', label:'우주·미래기술', m:'우주와 미래기술',
-    opts:{L1:'"우주는 왜 이렇게 생겼지?" 근본 질문에 꽂힘',
-          L2:'발사 기록·스펙·로드맵을 비교하며 봄',
-          L3:'로켓·로봇·모형을 직접 만들어보고 싶음',
-          L4:'미래에 인류가 어떻게 살지 토론하는 게 재밌음',
-          L5:'SF·우주 다큐·신기술 뉴스를 다 챙겨봄'}},
-   {id:'t_animal', label:'동물·환경', m:'동물과 환경',
-    opts:{L1:'"동물은 왜 저렇게 행동하지?" 생태의 이유가 궁금함',
-          L2:'멸종·기후 데이터가 진짜 어떤지 확인하고 싶음',
-          L3:'직접 키우고 돌보고 가꾸는 게 좋음',
-          L4:'유기동물·환경 활동처럼 현장에서 돕고 싶음',
-          L5:'종·품종·생태 지식을 도감처럼 모음'}}
-  ]},
- {id:'D7', chip:'🍳 만들기·공간', sub:'요리 · 패션 · 조립·건축',
-  majors:{L1:['건축학','산업공학'],L2:['도시공학','산업디자인'],L3:['기계공학','조리학','패션디자인'],L4:['실내건축','서비스디자인'],L5:['건축사학','공예학']},
-  tags:[
-   {id:'t_cooking', label:'요리·베이킹', m:'요리',
-    opts:{L1:'"왜 이 온도·순서여야 하지?" 요리의 과학이 궁금함',
-          L2:'레시피들을 비교하고 계량·시간을 정확히 따짐',
-          L3:'레시피를 바꿔서 나만의 메뉴를 만들어봄',
-          L4:'만든 걸 먹여주고 반응을 볼 때가 제일 행복함',
-          L5:'맛집·레시피·식재료 정보를 끝없이 모음'}},
-   {id:'t_fashion', label:'패션·뷰티', m:'패션과 뷰티',
-    opts:{L1:'"이 스타일은 왜 예뻐 보이지?" 핏·비율의 이유를 따짐',
-          L2:'유행이 도는 패턴이 보인다 — 뭐가 다시 올지 앎',
-          L3:'옷·메이크업을 직접 조합해 나만의 룩을 만듦',
-          L4:'친구를 스타일링해주고 변신시킬 때 신남',
-          L5:'브랜드·아카이브·룩북을 파고 모음'}},
-   {id:'t_making', label:'기계·조립·건축', m:'만들기',
-    opts:{L1:'"이건 어떻게 작동하지?" 뜯어봐야 직성이 풀림',
-          L2:'도면·치수·구조를 정확히 따져 설계함',
-          L3:'일단 손으로 만든다 — 조립·목공·프라모델·레고',
-          L4:'만든 걸 선물하거나 고쳐줄 때가 제일 좋음',
-          L5:'공구·부품·제작법 영상을 끝없이 팜'}}
-  ]},
- {id:'D8', chip:'🏛 역사·문화', sub:'역사 · 여행 · 언어',
-  majors:{L1:['사학','철학'],L2:['고고학','문화재보존과학'],L3:['문화기획','관광학'],L4:['국제학','외교학'],L5:['사학','언어학']},
-  tags:[
-   {id:'t_history', label:'역사', m:'역사',
-    opts:{L1:'"이 사건은 왜 일어났지?" 인과관계를 끝까지 파봄',
-          L2:'연표·지도·사료를 비교하며 교차검증함',
-          L3:'역사를 소재로 글·영상·콘텐츠를 만들어보고 싶음',
-          L4:'역사 얘기로 몇 시간이고 떠들 수 있음',
-          L5:'한 시대를 잡으면 유물·비하인드까지 다 팜'}},
-   {id:'t_travel', label:'여행·지리', m:'여행과 지리',
-    opts:{L1:'"이 도시는 왜 이렇게 생겼지?" 지형·구조의 이유가 궁금함',
-          L2:'환율·동선·최적 루트를 계산하는 게 재밌음',
-          L3:'여행 계획서를 직접 짜는 게 여행만큼 재밌음',
-          L4:'현지 사람·새로운 사람을 만나는 게 여행의 이유임',
-          L5:'가본 곳·갈 곳을 지도에 아카이브함'}},
-   {id:'t_language', label:'언어·외국문화', m:'언어와 문화',
-    opts:{L1:'"이 말은 왜 이렇게 표현하지?" 언어의 구조가 궁금함',
-          L2:'언어들 사이의 공통점·차이 패턴을 발견하는 게 재밌음',
-          L3:'번역·자막 만들기를 직접 해보고 싶음(해봤다)',
-          L4:'외국인 친구와 대화가 통하는 순간이 최고임',
-          L5:'한 나라를 잡으면 음식·예절·역사까지 다 팜'}}
+   {id:'t_science', label:'과학·우주·신기술', m:'과학과 자연',
+    opts:{L1:'"이건 왜 이렇지?" 원리를 끝까지 파봄',
+          L2:'조건을 바꿔서 비교·검증해보고 싶어짐',
+          L3:'직접 실험·제작으로 확인해야 직성이 풀림',
+          L4:'신기한 걸 남한테 설명해줄 때 제일 신남',
+          L5:'과학 유튜브·다큐를 끝없이 흡수함'}}
   ]}
 ];
 
 /* ===== 상태 ===== */
-var st = {domain:null, tag:null, lever:null, leverOpt:'', mode:null, career:'', hyp:''};
+var st = {domain:null, tag:null, lever:null, leverOpt:'', role:null, mode:null, career:'', hyp:''};
 
 /* ===== 렌더 ===== */
 function el(h){var d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild}
@@ -409,6 +434,12 @@ DOMAINS.forEach(function(d){
   var c=el('<button class="chip">'+d.chip+'<small>'+d.sub+'</small></button>');
   c.onclick=function(){st.domain=d;st.tag=null;[].forEach.call(dc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b1').disabled=false};
   dc.appendChild(c);
+});
+var rc=document.getElementById('roleChips');
+ROLES.forEach(function(r){
+  var c=el('<button class="chip">'+r.chip+'</button>');
+  c.onclick=function(){st.role=r;[].forEach.call(rc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b2b').disabled=false};
+  rc.appendChild(c);
 });
 function renderTags(){
   var tc=document.getElementById('tagChips'); tc.innerHTML='';
@@ -422,7 +453,7 @@ function renderTags(){
 }
 function renderLevers(){
   var lc=document.getElementById('leverChips'); lc.innerHTML='';
-  document.getElementById('leverTitle').textContent='「'+st.tag.label+'」 — 어떤 게 제일 너야?';
+  document.getElementById('leverTitle').textContent='「'+st.tag.label+'」 — '+st.domain.q;
   Object.keys(LEVERS).forEach(function(k){
     var c=el('<button class="chip">'+st.tag.opts[k]+'</button>');
     c.onclick=function(){st.lever=k;st.leverOpt=st.tag.opts[k];[].forEach.call(lc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b2').disabled=false};
@@ -447,7 +478,7 @@ function pickMode(m){
 
 function makeResult(){
   st.career = (document.getElementById('careerInput').value||'').trim();
-  var t=st.tag, L=LEVERS[st.lever];
+  var t=st.tag, L=LEVERS[st.lever], R=st.role;
   st.hyp = '나는 '+t.m+'에서 '+L.verb+' 때 살아난다';
   var exp = (t.exp && t.exp[st.lever]) ? t.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', t.m);
   var majors = st.domain.majors[st.lever].map(function(m){return '<span>'+m+'</span>'}).join('');
@@ -462,6 +493,7 @@ function makeResult(){
 
   html += '<div class="card"><div class="tag">'+(st.mode==='검증'?'가설 1 — 그리고 하나 더':'네 가설')+' · '+L.name+'</div>'
     +'<p class="hyp">"나는 '+t.m+'에서 <mark>'+L.verb+'</mark> 때 살아난다"</p>'
+    +'<p class="role">그리고 그 판에서 너는 — <b>'+R.name+'</b>. '+R.phrase+'으로 움직일 때 더 살아난다.</p>'
     +'<p class="echo">네가 고른 문장 — "'+st.leverOpt+'"</p>'
     +'<p class="note">이 가설이 진짜면, 이런 데가 네 판이 될 수도 있어:</p>'
     +'<div class="majors">'+majors+'</div></div>';
@@ -494,8 +526,10 @@ function sendLead(){
     domain:st.tag.label+' ('+st.domain.chip.replace(/^[^ ]+ /,'')+')',
     lever:LEVERS[st.lever].name,
     lever_opt:st.leverOpt,
+    role:st.role?st.role.name:'',
     hypothesis:st.hyp,
     hypothesis_self:(document.getElementById('selfHyp').value||'').trim(),
+    aftertaste:(document.getElementById('afterTaste').value||'').trim(),
     career_input:st.career, source:SOURCE,
     ts:new Date().toISOString()
   };
@@ -504,17 +538,18 @@ function sendLead(){
   if(!WEBHOOK_URL){ go(5); return; }
   fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(!r.ok) throw 0; go(5); })
-    .catch(function(){ btn.disabled=false; btn.textContent='가설 저장하고 마치기';
+    .catch(function(){ btn.disabled=false; btn.textContent='가설 저장하기';
       document.getElementById('leadErr').style.display='block'; });
 }
 function restart(){
-  st={domain:null,tag:null,lever:null,leverOpt:'',mode:null,career:'',hyp:''};
+  st={domain:null,tag:null,lever:null,leverOpt:'',role:null,mode:null,career:'',hyp:''};
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel')});
-  ['b1','b1b','b2','b3'].forEach(function(id){document.getElementById(id).disabled=true});
+  ['b1','b1b','b2','b2b','b3'].forEach(function(id){document.getElementById(id).disabled=true});
   document.getElementById('careerBox').style.display='none';
   document.getElementById('careerInput').value='';
   document.getElementById('selfHyp').value='';
-  var btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent='가설 저장하고 마치기';
+  document.getElementById('afterTaste').value='';
+  var btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent='가설 저장하기';
   document.getElementById('leadErr').style.display='none';
   go(0);
 }
