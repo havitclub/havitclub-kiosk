@@ -36,6 +36,10 @@ h2{font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.35; mar
 .lead b{color:var(--ink)}
 
 .chips{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px}
+.glabel{font-size:12px; font-weight:800; color:var(--sub); margin:14px 0 8px; letter-spacing:.02em}
+.gchips{display:flex; flex-wrap:wrap; gap:8px}
+.gchips .chip{padding:9px 13px; font-size:14px; border-radius:999px}
+#tagCloud{margin-bottom:24px}
 .chip{
   border:1.5px solid var(--line); background:var(--card); border-radius:999px;
   padding:12px 16px; font-size:15px; font-weight:600; color:var(--ink);
@@ -103,27 +107,18 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
   <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
 </section>
 
-<!-- S1 매체 -->
+<!-- S1 관심 태그 (24개 한 화면) -->
 <section class="screen" id="s1">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i><i></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i><i></i></span></div>
   <h2>요즘 시키지 않아도<br>계속 하게 되는 건?</h2>
   <p class="lead">공부 빼고. 솔직하게, 제일 가까운 거 <b>하나만</b>.</p>
-  <div class="chips" id="domainChips"></div>
-  <div class="btnrow"><button class="btn" id="b1" disabled onclick="go('1b')">다음</button></div>
-</section>
-
-<!-- S1b 태그 -->
-<section class="screen" id="s1b">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i><i></i><i></i></span></div>
-  <h2 id="tagTitle">그중에서도?</h2>
-  <p class="lead">하나만 딱. 고민되면 둘 다라는 뜻이니까 <b>아무거나 골라도 돼</b>.</p>
-  <div class="stack" id="tagChips"></div>
-  <div class="btnrow"><button class="btn" id="b1b" disabled onclick="go(2)">다음</button></div>
+  <div id="tagCloud"></div>
+  <div class="btnrow"><button class="btn" id="b1" disabled onclick="go(2)">다음</button></div>
 </section>
 
 <!-- S2 분별 (레버 판정) -->
 <section class="screen" id="s2">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i><i></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i><i></i></span></div>
   <h2 id="leverTitle">끝까지 보게 되는 건?</h2>
   <p class="lead">"그냥 재밌어서"는 답 아니고. <b>3초컷 안 당하는 게 뭔지</b> 고르는 거야.</p>
   <div class="stack" id="leverChips"></div>
@@ -132,7 +127,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <!-- S2b 이입 (역할 판정) -->
 <section class="screen" id="s2b">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i class="now"></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i><i></i></span></div>
   <h2>영화든 웹툰이든 게임이든 —<br>너는 보통 누구에 이입해?</h2>
   <p class="lead">멋있는 거 말고, <b>진짜 네가 서 있는 자리</b>.</p>
   <div class="stack" id="roleChips"></div>
@@ -141,7 +136,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <!-- S3 모드 분기 -->
 <section class="screen" id="s3">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i></i><i class="now"></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i class="now"></i></span></div>
   <h2>지금 생각해 둔<br>학과나 진로가 있어?</h2>
   <p class="lead">어렴풋해도 되고, 없으면 없는 대로 가. <b>둘 다 정상이야.</b></p>
   <div class="stack">
@@ -191,8 +186,12 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
     <input class="input" id="fPhone" inputmode="tel" maxlength="13" placeholder="010-0000-0000">
     <label style="display:flex; gap:10px; align-items:flex-start; margin-top:16px; font-weight:500; cursor:pointer">
       <input type="checkbox" id="fConsent" style="margin-top:3px; width:18px; height:18px; accent-color:var(--accent)">
-      <span style="font-size:13.5px; color:var(--ink)"><b>개인정보 수집·이용 동의 (저장하려면 필수)</b><br>
-      <span style="font-size:12.5px; color:var(--sub)">항목: 이름·학교·학년·연락처 / 쓰는 곳: 실험 리마인드 문자(1~2회)와 진로 상담 연락, 딱 거기까지 / 보관: 6개월 뒤 파기 / 삭제 원하면 언제든 문자 한 통이면 돼. 동의 안 해도 결과는 캡처해 가면 됨.</span></span>
+      <span style="font-size:13px; color:var(--ink)"><b>개인정보 수집·이용 동의 (필수)</b><br>
+      <span style="font-size:12px; color:var(--sub); line-height:1.6">해빗클럽은 아래와 같이 개인정보를 수집·이용합니다.<br>
+      · 수집 항목: 이름, 학교, 학년, 연락처<br>
+      · 수집·이용 목적: 진로 실험 리마인드 안내(문자 1~2회) 및 진로 상담 연락<br>
+      · 보유·이용 기간: 수집일로부터 6개월 (기간 경과 시 지체 없이 파기)<br>
+      · 귀하는 동의를 거부할 권리가 있으며, 동의하지 않는 경우 결과 저장 및 안내 연락이 제한됩니다. 동의 철회 및 삭제 요청은 해빗클럽으로 연락 주시면 즉시 처리됩니다.</span></span>
     </label>
     <div style="margin-top:16px"><button class="btn" id="sendBtn" onclick="sendLead()">가설 저장하기</button></div>
     <p class="err" id="leadErr">앗, 전송이 안 됐어. 화면 캡처해두면 결과는 안 날아가.</p>
@@ -201,12 +200,21 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
   <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
 </section>
 
+<!-- S4b 캡처용 요약 카드 -->
+<section class="screen" id="s4b">
+  <div class="top"><span class="brand">살아나</span></div>
+  <h2>저장 완료. 이 화면을<br><span style="color:var(--accent)">캡처해 둬</span></h2>
+  <p class="lead">다음 주의 너한테 넘기는 카드야.</p>
+  <div class="card" id="summaryCard" style="border-color:var(--accent)"></div>
+  <div class="btnrow"><button class="btn" onclick="go(5)">캡처했어</button></div>
+</section>
+
 <!-- S5 완료 -->
 <section class="screen" id="s5">
   <div class="done">
     <div class="big">🌱</div>
     <h2>가설 접수 완료</h2>
-    <p class="lead" style="margin-top:8px">이제 이번 주에 진짜 해보는 것만 남았어.<br>결과 화면 캡처해서, 다음 주의 너한테 넘겨.</p>
+    <p class="lead" style="margin-top:8px">이제 이번 주에 진짜 해보는 것만 남았어.<br>다음 주에 어떻게 됐는지 물어볼게.</p>
     <button class="btn ghost" onclick="restart()">처음부터 다시</button>
   </div>
   <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
@@ -434,11 +442,18 @@ var st = {domain:null, tag:null, lever:null, leverOpt:'', role:null, mode:null, 
 
 /* ===== 렌더 ===== */
 function el(h){var d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild}
-var dc=document.getElementById('domainChips');
+var tc=document.getElementById('tagCloud');
 DOMAINS.forEach(function(d){
-  var c=el('<button class="chip">'+d.chip+'<small>'+d.sub+'</small></button>');
-  c.onclick=function(){st.domain=d;st.tag=null;[].forEach.call(dc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b1').disabled=false};
-  dc.appendChild(c);
+  tc.appendChild(el('<div class="glabel">'+d.chip+'</div>'));
+  var g=el('<div class="gchips"></div>');
+  d.tags.forEach(function(t){
+    var c=el('<button class="chip">'+t.label+'</button>');
+    c.onclick=function(){st.domain=d;st.tag=t;st.lever=null;
+      tc.querySelectorAll('.chip').forEach(function(x){x.classList.remove('sel')});
+      c.classList.add('sel');document.getElementById('b1').disabled=false};
+    g.appendChild(c);
+  });
+  tc.appendChild(g);
 });
 var rc=document.getElementById('roleChips');
 ROLES.forEach(function(r){
@@ -446,16 +461,6 @@ ROLES.forEach(function(r){
   c.onclick=function(){st.role=r;[].forEach.call(rc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b2b').disabled=false};
   rc.appendChild(c);
 });
-function renderTags(){
-  var tc=document.getElementById('tagChips'); tc.innerHTML='';
-  document.getElementById('tagTitle').textContent='그중에서 뭐가 제일 가까워?';
-  st.domain.tags.forEach(function(t){
-    var c=el('<button class="chip">'+t.label+'</button>');
-    c.onclick=function(){st.tag=t;st.lever=null;[].forEach.call(tc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b1b').disabled=false};
-    tc.appendChild(c);
-  });
-  document.getElementById('b1b').disabled=true;
-}
 function renderLevers(){
   var lc=document.getElementById('leverChips'); lc.innerHTML='';
   document.getElementById('leverTitle').textContent='「'+st.tag.label+'」 — '+st.domain.q;
@@ -467,7 +472,6 @@ function renderLevers(){
   document.getElementById('b2').disabled=true;
 }
 function go(n){
-  if(n==='1b') renderTags();
   if(n===2) renderLevers();
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});
   document.getElementById('s'+n).classList.add('on');
@@ -544,16 +548,31 @@ function sendLead(){
   };
   var btn=document.getElementById('sendBtn');
   btn.disabled=true; btn.textContent='저장 중…';
-  if(!WEBHOOK_URL){ go(5); return; }
+  if(!WEBHOOK_URL){ showSummary(payload); return; }
   fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(function(r){ if(!r.ok) throw 0; go(5); })
+    .then(function(r){ if(!r.ok) throw 0; showSummary(payload); })
     .catch(function(){ btn.disabled=false; btn.textContent='가설 저장하기';
       document.getElementById('leadErr').style.display='block'; });
+}
+function showSummary(p){
+  var today=new Date();
+  var dateStr=(today.getMonth()+1)+'월 '+today.getDate()+'일';
+  var mainHyp = p.hypothesis_self || p.hypothesis;
+  var subHyp = p.hypothesis_self ? '<p class="note" style="margin-top:8px">원래 문장 — "'+p.hypothesis+'"</p>' : '';
+  var exp = (st.tag.exp && st.tag.exp[st.lever]) ? st.tag.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', st.tag.m);
+  document.getElementById('summaryCard').innerHTML =
+    '<div class="tag">'+dateStr+' · '+esc(p.name)+'의 가설</div>'
+    +'<p class="hyp" style="font-size:20px">"'+esc(mainHyp)+'"</p>'
+    + subHyp
+    +'<p class="role" style="margin-top:10px"><b>'+p.lever+'</b> × <b>'+p.role+'</b></p>'
+    +'<p class="exp" style="margin-top:12px"><b>이번 주 실험</b> — '+exp+'</p>'
+    +'<p class="note" style="margin-top:14px; text-align:center">살아나 · 해빗클럽 — havitclub.github.io/havitclub-kiosk/saliana</p>';
+  go('4b');
 }
 function restart(){
   st={domain:null,tag:null,lever:null,leverOpt:'',role:null,mode:null,career:'',hyp:''};
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel')});
-  ['b1','b1b','b2','b2b','b3'].forEach(function(id){document.getElementById(id).disabled=true});
+  ['b1','b2','b2b','b3'].forEach(function(id){document.getElementById(id).disabled=true});
   document.getElementById('careerBox').style.display='none';
   document.getElementById('careerInput').value='';
   document.getElementById('selfHyp').value='';
