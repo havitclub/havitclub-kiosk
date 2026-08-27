@@ -99,26 +99,39 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 <!-- S0 인트로 -->
 <section class="screen on" id="s0">
   <div class="top"><span class="brand">살아나</span></div>
-  <h1>나는 언제<br><span style="color:var(--accent)">살아나는가</span></h1>
-  <p class="lead">성격검사 아니야. 정답도 없어.<br>
-  5분이면 <b>네 가설 한 문장</b>과 <b>이번 주 실험 딱 하나</b>가 나와.<br>
+  <p style="font-size:16px; font-weight:700; color:var(--sub); margin-bottom:10px">"꿈이 뭐야?" — 어른들 그 질문, 지겹지?</p>
+  <h1>여긴 그거<br><span style="color:var(--accent)">안 물어봐</span></h1>
+  <p class="lead">직업 말고, <b>네가 언제 살아나는지</b>를 찾는 거야.<br>
+  5분 뒤에 <b>네 가설 한 문장</b>과 <b>이번 주에 해볼 실험 하나</b>를 손에 쥐게 돼. 릴스 몇 개 볼 시간이야.<br>
   맞는지는 네가 직접 확인해. 우린 채점 안 해.</p>
   <div class="btnrow"><button class="btn" onclick="go(1)">시작</button></div>
-  <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
+  <footer>살아나 — 나는 언제 살아나는가 · 해빗클럽</footer>
 </section>
 
 <!-- S1 관심 태그 (24개 한 화면) -->
 <section class="screen" id="s1">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i class="now"></i><i></i><i></i><i></i><i></i></span></div>
   <h2>요즘 시키지 않아도<br>계속 하게 되는 건?</h2>
   <p class="lead">공부 빼고. 솔직하게, 제일 가까운 거 <b>하나만</b>.</p>
   <div id="tagCloud"></div>
-  <div class="btnrow"><button class="btn" id="b1" disabled onclick="go(2)">다음</button></div>
+  <div class="btnrow"><button class="btn" id="b1" disabled onclick="go('1c')">다음</button></div>
+</section>
+
+<!-- S1c 마이크로 -->
+<section class="screen" id="s1c">
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i><i></i><i></i></span></div>
+  <h2 id="microTitle">더 정확히는?</h2>
+  <p class="lead">구체적일수록 가설이 날카로워져. 없으면 <b>직접 써도 돼</b>.</p>
+  <div class="chips" id="microChips"></div>
+  <div id="microBox" style="display:none; margin-bottom:20px">
+    <input class="input" id="microInput" maxlength="20" placeholder="예: 롤토체스, 산리오, 낚시...">
+  </div>
+  <div class="btnrow"><button class="btn" id="b1c" disabled onclick="go(2)">다음</button></div>
 </section>
 
 <!-- S2 분별 (레버 판정) -->
 <section class="screen" id="s2">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i class="now"></i><i></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i><i></i><i></i></span></div>
   <h2 id="leverTitle">끝까지 보게 되는 건?</h2>
   <p class="lead">"그냥 재밌어서"는 답 아니고. <b>3초컷 안 당하는 게 뭔지</b> 고르는 거야.</p>
   <div class="stack" id="leverChips"></div>
@@ -127,7 +140,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <!-- S2b 이입 (역할 판정) -->
 <section class="screen" id="s2b">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i class="now"></i><i></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i class="now"></i></span></div>
   <h2>영화든 웹툰이든 게임이든 —<br>너는 보통 누구에 이입해?</h2>
   <p class="lead">멋있는 거 말고, <b>진짜 네가 서 있는 자리</b>.</p>
   <div class="stack" id="roleChips"></div>
@@ -136,7 +149,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
 <!-- S3 모드 분기 -->
 <section class="screen" id="s3">
-  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i class="now"></i></span></div>
+  <div class="top"><span class="brand">살아나</span><span class="stepdots"><i></i><i></i><i></i><i></i><i class="now"></i></span></div>
   <h2>지금 생각해 둔<br>학과나 진로가 있어?</h2>
   <p class="lead">어렴풋해도 되고, 없으면 없는 대로 가. <b>둘 다 정상이야.</b></p>
   <div class="stack">
@@ -157,8 +170,10 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 
   <div class="card">
     <div class="tag">하나만 더 (선택)</div>
-    <p style="font-size:14.5px; color:var(--sub)">보고 나면 <b style="color:var(--ink)">시간 아깝다</b> 싶은 거랑, <b style="color:var(--ink)">뭔가 남는다</b> 싶은 거. 각각 하나씩만.</p>
-    <textarea class="input" id="afterTaste" maxlength="140" placeholder="아까운 건 ______ / 남는 건 ______" style="margin-top:10px"></textarea>
+    <label for="afterWaste">보고 나면 <b>시간 아깝다</b> 싶은 거</label>
+    <input class="input" id="afterWaste" maxlength="60" placeholder="예: 새벽까지 릴스 무한스크롤">
+    <label for="afterGain">보고 나면 <b>뭔가 남는다</b> 싶은 거</label>
+    <input class="input" id="afterGain" maxlength="60" placeholder="예: 경기 복기 영상">
   </div>
 
   <div class="card">
@@ -182,7 +197,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
         <option>고1</option><option>고2</option><option>고3</option><option>기타</option>
       </select>
     </div>
-    <label for="fPhone">연락처 (너 또는 부모님, 안 써도 됨)</label>
+    <label for="fPhone">연락처 — 문자 받을 번호 (안 써도 됨)</label>
     <input class="input" id="fPhone" inputmode="tel" maxlength="13" placeholder="010-0000-0000">
     <label style="display:flex; gap:10px; align-items:flex-start; margin-top:16px; font-weight:500; cursor:pointer">
       <input type="checkbox" id="fConsent" style="margin-top:3px; width:18px; height:18px; accent-color:var(--accent)">
@@ -203,7 +218,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
 <!-- S4b 캡처용 요약 카드 -->
 <section class="screen" id="s4b">
   <div class="top"><span class="brand">살아나</span></div>
-  <h2>저장 완료. 이 화면을<br><span style="color:var(--accent)">캡처해 둬</span></h2>
+  <h2 style="font-size:20px">저장 완료 — 이 화면 <span style="color:var(--accent)">캡처해 둬</span></h2>
   <p class="lead">다음 주의 너한테 넘기는 카드야.</p>
   <div class="card" id="summaryCard" style="border-color:var(--accent)"></div>
   <div class="btnrow"><button class="btn" onclick="go(5)">캡처했어</button></div>
@@ -245,11 +260,38 @@ var ROLES = [
 ];
 /* 실험 기본형: {m}=재료 */
 var EXP_BASE = {
-  L1:'{m}에서 요즘 제일 궁금한 "왜?" 하나만 정해 → 영상이든 글이든 3단계까지 파봐. 시작 전에 네 예상을 먼저 적어두고, 끝나고 뭐가 달랐는지 비교해봐.',
-  L2:'{m} 쪽 진짜 데이터(수치·기록·통계)를 직접 열어봐 → 예상이랑 달랐던 숫자 하나만 캡처해 와.',
-  L3:'{m}에서 이번 주 안에 끝낼 수 있는 제일 작은 거 하나 만들어봐. 퀄리티 말고 완성이 중요해.',
-  L4:'{m} 쪽을 같이 좋아하는(겪어본) 사람 한 명이랑 15분만 깊게 얘기해봐 → "언제 더 살아났는지" 한 줄만 남겨.',
-  L5:'{m} 자료 10개 모아서 네 기준으로 분류해봐 → 너만의 지도 한 장. 공통점 하나 뽑아보고.'
+  L1:'① {m}에서 요즘 제일 궁금한 "왜?" 하나 정해 ② 시작 전에 네 예상 답을 한 줄 적고, 영상이든 글이든 3단계까지 파봐 ③ 예상과 달랐던 점을 한 줄로 남겨 — 이게 증거야.',
+  L2:'① {m}의 진짜 데이터(수치·기록·통계)를 하나 열어봐 ② 예상과 달랐던 숫자 하나를 캡처해 ③ 왜 달랐는지 한 줄로 남겨 — 이게 증거야.',
+  L3:'① {m}에서 이번 주 안에 끝나는 제일 작은 거 하나 정해 ② 완성해 — 퀄리티 말고 완성 ③ 만드는 동안 시간이 순삭이었는지, 억지로 버텼는지 한 줄로 남겨 — 이게 증거야.',
+  L4:'① {m}을 같이 좋아하는(겪어본) 사람 한 명 정해 ② 15분만 깊게 얘기해봐 ③ 혼자 할 때보다 살아났는지 한 줄로 남겨 — 이게 증거야.',
+  L5:'① {m} 자료 10개 모아 ② 네 기준으로 분류해서 너만의 지도 한 장 만들어 ③ 모으는 내내 뭐가 제일 재밌었는지 한 줄로 남겨 — 이게 증거야.'
+};
+/* 마이크로 태그: 태그별 세부 5종 (m=가설 재료) */
+var MICRO = {
+ t_shorts_fun:[{l:'상황극·콩트',m:'상황극 콘텐츠'},{l:'밈·유행어',m:'밈과 유행어'},{l:'동물·아기 짤',m:'동물 영상'},{l:'리액션·몰카',m:'리액션 콘텐츠'},{l:'병맛·B급',m:'병맛 유머'}],
+ t_shorts_info:[{l:'공부법·자기계발',m:'공부법 콘텐츠'},{l:'생활 꿀팁',m:'생활 꿀팁'},{l:'IT·앱',m:'IT 정보'},{l:'돈·재테크',m:'재테크 정보'},{l:'상식·잡학',m:'상식과 잡학'}],
+ t_vlog:[{l:'공부 브이로그',m:'공부 브이로그'},{l:'일상·룸투어',m:'일상 브이로그'},{l:'운동·바디',m:'운동 브이로그'},{l:'먹방·카페',m:'먹방'},{l:'여행',m:'여행 브이로그'}],
+ t_streamer:[{l:'게임 방송',m:'게임 방송'},{l:'버추얼·버튜버',m:'버튜버 방송'},{l:'토크·합방',m:'토크 방송'},{l:'챌린지·실험',m:'챌린지 콘텐츠'},{l:'스포츠 중계',m:'스포츠 중계'}],
+ t_knowledge:[{l:'역사·전쟁',m:'역사 이야기'},{l:'과학·우주',m:'과학 콘텐츠'},{l:'경제·시사',m:'경제 이야기'},{l:'심리·인간관계',m:'심리 이야기'},{l:'미스터리·썰',m:'미스터리 썰'}],
+ t_review:[{l:'테크·폰',m:'테크 리뷰'},{l:'영화·드라마',m:'영화 리뷰'},{l:'음식·맛집',m:'맛집 리뷰'},{l:'패션·뷰티',m:'패션 리뷰'},{l:'게임 리뷰',m:'게임 리뷰'}],
+ t_fantasy:[{l:'회귀·빙의',m:'회귀물'},{l:'이세계·아카데미',m:'아카데미물'},{l:'로판',m:'로판'},{l:'게임 판타지',m:'게임 판타지'},{l:'정통 판타지',m:'판타지 소설'}],
+ t_action:[{l:'헌터·레이드물',m:'헌터물'},{l:'무협',m:'무협'},{l:'스포츠물',m:'스포츠 웹툰'},{l:'좀비·아포칼립스',m:'아포칼립스물'},{l:'히어로물',m:'히어로물'}],
+ t_romance:[{l:'로맨스판타지',m:'로판'},{l:'현대 로맨스',m:'로맨스'},{l:'학원물',m:'학원물'},{l:'일상·힐링',m:'힐링물'},{l:'드라마·눈물샘',m:'드라마 서사'}],
+ t_rank:[{l:'롤',m:'롤'},{l:'피파(FC)',m:'피파'},{l:'발로란트',m:'발로란트'},{l:'오버워치',m:'오버워치'},{l:'배그·서든',m:'배그'}],
+ t_sandbox:[{l:'마인크래프트',m:'마인크래프트'},{l:'로블록스',m:'로블록스'},{l:'심즈·시뮬레이션',m:'시뮬레이션 게임'},{l:'자동화·팩토리',m:'자동화 게임'},{l:'모드 만들기',m:'게임 모드 제작'}],
+ t_story:[{l:'원신·명조류',m:'오픈월드 RPG'},{l:'포켓몬',m:'포켓몬'},{l:'젤다·콘솔',m:'콘솔 게임'},{l:'스토리 RPG',m:'스토리 게임'},{l:'수집·가챠',m:'수집형 게임'}],
+ t_stage:[{l:'K팝 아이돌',m:'K팝'},{l:'밴드·록',m:'밴드 음악'},{l:'힙합·랩',m:'힙합'},{l:'팝송',m:'팝 음악'},{l:'발라드·OST',m:'발라드'}],
+ t_bias:[{l:'보이그룹',m:'최애 보이그룹'},{l:'걸그룹',m:'최애 걸그룹'},{l:'배우',m:'최애 배우'},{l:'스포츠 선수',m:'최애 선수'},{l:'유튜버·인플루언서',m:'최애 유튜버'}],
+ t_anime:[{l:'소년만화',m:'소년만화'},{l:'지브리·감성',m:'감성 애니'},{l:'이세계·판타지',m:'판타지 애니'},{l:'스포츠 애니',m:'스포츠 애니'},{l:'최애 캐릭터·굿즈',m:'최애 캐릭터'}],
+ t_insta:[{l:'스토리·일상 공유',m:'인스타 스토리'},{l:'피드 꾸미기',m:'피드 꾸미기'},{l:'릴스 탐색',m:'릴스'},{l:'DM 수다',m:'DM 대화'},{l:'셀럽 팔로우',m:'셀럽 피드'}],
+ t_chat:[{l:'친구 단톡',m:'단톡'},{l:'디스코드',m:'디스코드'},{l:'게임 보이스챗',m:'보이스챗'},{l:'오픈채팅',m:'오픈채팅'},{l:'반톡·학급 단톡',m:'반톡'}],
+ t_community:[{l:'디시',m:'디시'},{l:'더쿠·팬 커뮤',m:'팬 커뮤니티'},{l:'네이트판·썰',m:'썰 게시판'},{l:'해외 커뮤·레딧',m:'해외 커뮤니티'},{l:'당근·중고거래',m:'중고거래'}],
+ t_workout:[{l:'헬스·웨이트',m:'헬스'},{l:'축구·풋살',m:'축구'},{l:'농구',m:'농구'},{l:'배드민턴·라켓',m:'배드민턴'},{l:'러닝·자전거',m:'러닝'}],
+ t_make:[{l:'요리·베이킹',m:'요리'},{l:'공예·뜨개',m:'공예'},{l:'프라모델·레고',m:'프라모델'},{l:'목공·DIY',m:'DIY'},{l:'슬라임·문구',m:'문구 꾸미기'}],
+ t_art:[{l:'디지털 드로잉',m:'디지털 드로잉'},{l:'손그림',m:'그림'},{l:'피아노',m:'피아노'},{l:'기타·밴드',m:'기타'},{l:'보컬·작곡',m:'작곡'}],
+ t_money:[{l:'주식·ETF',m:'주식'},{l:'코인',m:'코인'},{l:'창업·장사 아이디어',m:'창업 아이디어'},{l:'브랜드·마케팅',m:'마케팅'},{l:'경제 뉴스',m:'경제 뉴스'}],
+ t_issue2:[{l:'사건·사고 뉴스',m:'사회 뉴스'},{l:'환경·기후',m:'기후 문제'},{l:'교육·학교 이슈',m:'교육 문제'},{l:'국제·전쟁',m:'국제 이슈'},{l:'복지·불평등',m:'불평등 문제'}],
+ t_science:[{l:'우주·천문',m:'우주'},{l:'물리·수학',m:'물리'},{l:'생물·뇌과학',m:'뇌과학'},{l:'AI·로봇',m:'AI'},{l:'화학·실험',m:'화학 실험'}]
 };
 
 /* ===== 매체 8 × 태그 3 = 24 (폰 현실 재편 v0.3) ===== */
@@ -263,7 +305,7 @@ var DOMAINS = [
           L3:'"나도 찍을 수 있겠는데?" 싶어지는 거',
           L4:'누구한테 보낼지 바로 생각나는 거 — 보내는 맛에 봄',
           L5:'한 번 웃기면 그 계정 과거 영상까지 정주행하게 되는 거'},
-    exp:{L3:'1분짜리 숏폼 하나 직접 찍고 편집해서 올려봐(비공개도 OK). 조회수 말고 "만드는 동안 살아있었나"만 확인해.'}},
+    exp:{L3:'① 1분짜리 숏폼 하나 기획해 ② 직접 찍고 편집해서 올려봐(비공개도 OK) ③ 조회수 말고 "만드는 동안 살아있었나" 한 줄로 남겨 — 이게 증거야.'}},
    {id:'t_shorts_info', label:'정보·꿀팁', m:'정보와 꿀팁 콘텐츠',
     opts:{L1:'"이게 왜 되지?" 원리까지 설명해주는 거',
           L2:'비교·순위·전후 데이터로 증명해주는 거',
@@ -336,7 +378,7 @@ var DOMAINS = [
           L3:'맵·건축·게임 자체를 만드는 게 본체',
           L4:'친구들 초대해서 같이 만들고 노는 맛',
           L5:'한 월드를 몇 달째 확장하며 다 짓고 다 모음'},
-    exp:{L3:'마크·로블록스 스튜디오로 이번 주 안에 끝나는 제일 작은 거 하나(방 하나, 스테이지 하나)만 완성해봐.'}},
+    exp:{L3:'① 마크·로블록스 스튜디오로 이번 주 안에 끝나는 제일 작은 거(방 하나, 스테이지 하나) 정해 ② 완성해 ③ 만드는 동안 시간이 순삭이었는지 한 줄로 남겨 — 이게 증거야.'}},
    {id:'t_story', label:'스토리·수집형 (RPG·가챠)', m:'이야기가 있는 게임',
     opts:{L1:'숨겨진 스토리·세계관 떡밥을 파는 재미',
           L2:'확률·스펙 계산하고 육성 효율을 따짐',
@@ -425,9 +467,9 @@ var DOMAINS = [
           L3:'캠페인·프로젝트로 뭐라도 해보고 싶음',
           L4:'그 현장에 있는 사람들의 이야기가 제일 궁금함',
           L5:'한 이슈를 잡으면 기사·다큐·책까지 다 찾아봄'},
-    exp:{L1:'최근 "이건 좀 아니지 않나" 싶었던 뉴스 하나 골라 → 그 문제를 다룬 책이나 다큐 하나로 "왜"를 3단계 파봐. 읽기 전에 네 추측부터 메모해 두고.',
-         L2:'통계청에서 그 문제 실태조사 데이터를 직접 열어봐 → 의외였던 숫자 하나만 캡처해 와.',
-         L4:'관련 현장(봉사 같은 거)에 한 번 가봐 → "자료로 볼 때 vs 현장에 있을 때, 언제 더 살아났는지" 비교해서 메모.'}},
+    exp:{L1:'① 최근 "이건 좀 아니지 않나" 싶었던 뉴스 하나 골라 ② 네 추측을 먼저 메모하고, 그 문제를 다룬 책·다큐 하나로 "왜"를 3단계 파봐 ③ 추측과 달랐던 점 한 줄 — 이게 증거야.',
+         L2:'① 통계청에서 그 문제의 실태조사 데이터를 열어봐 ② 의외였던 숫자 하나 캡처해 ③ 왜 의외였는지 한 줄 — 이게 증거야.',
+         L4:'① 관련 현장(봉사 같은 거) 한 곳 정해 ② 한 번 가봐 ③ "자료로 볼 때 vs 현장에 있을 때 언제 더 살아났는지" 한 줄 — 이게 증거야.'}},
    {id:'t_science', label:'과학·우주·신기술', m:'과학과 자연',
     opts:{L1:'"이건 왜 이렇지?" 원리를 끝까지 파봄',
           L2:'조건을 바꿔서 비교·검증해보고 싶어짐',
@@ -438,7 +480,8 @@ var DOMAINS = [
 ];
 
 /* ===== 상태 ===== */
-var st = {domain:null, tag:null, lever:null, leverOpt:'', role:null, mode:null, career:'', hyp:''};
+var st = {domain:null, tag:null, micro:null, lever:null, leverOpt:'', role:null, mode:null, career:'', hyp:''};
+function mat(){ return (st.micro && st.micro.m) ? st.micro.m : st.tag.m; }
 
 /* ===== 렌더 ===== */
 function el(h){var d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild}
@@ -448,7 +491,7 @@ DOMAINS.forEach(function(d){
   var g=el('<div class="gchips"></div>');
   d.tags.forEach(function(t){
     var c=el('<button class="chip">'+t.label+'</button>');
-    c.onclick=function(){st.domain=d;st.tag=t;st.lever=null;
+    c.onclick=function(){st.domain=d;st.tag=t;st.micro=null;st.lever=null;
       tc.querySelectorAll('.chip').forEach(function(x){x.classList.remove('sel')});
       c.classList.add('sel');document.getElementById('b1').disabled=false};
     g.appendChild(c);
@@ -461,6 +504,29 @@ ROLES.forEach(function(r){
   c.onclick=function(){st.role=r;[].forEach.call(rc.children,function(x){x.classList.remove('sel')});c.classList.add('sel');document.getElementById('b2b').disabled=false};
   rc.appendChild(c);
 });
+function renderMicro(){
+  var mc=document.getElementById('microChips'); mc.innerHTML='';
+  document.getElementById('microTitle').textContent='「'+st.tag.label+'」 — 더 정확히는?';
+  var box=document.getElementById('microBox'), inp=document.getElementById('microInput');
+  box.style.display='none'; inp.value='';
+  (MICRO[st.tag.id]||[]).forEach(function(mo){
+    var c=el('<button class="chip">'+mo.l+'</button>');
+    c.onclick=function(){st.micro={label:mo.l,m:mo.m};box.style.display='none';
+      mc.querySelectorAll('.chip').forEach(function(x){x.classList.remove('sel')});
+      c.classList.add('sel');document.getElementById('b1c').disabled=false};
+    mc.appendChild(c);
+  });
+  var cw=el('<button class="chip">🖊 직접 쓸래</button>');
+  cw.onclick=function(){st.micro=null;
+    mc.querySelectorAll('.chip').forEach(function(x){x.classList.remove('sel')});
+    cw.classList.add('sel');box.style.display='block';inp.focus();
+    document.getElementById('b1c').disabled=!(inp.value.trim())};
+  mc.appendChild(cw);
+  inp.oninput=function(){var v=inp.value.trim();
+    st.micro=v?{label:v,m:v}:null;
+    document.getElementById('b1c').disabled=!v};
+  document.getElementById('b1c').disabled=true;
+}
 function renderLevers(){
   var lc=document.getElementById('leverChips'); lc.innerHTML='';
   document.getElementById('leverTitle').textContent='「'+st.tag.label+'」 — '+st.domain.q;
@@ -472,6 +538,7 @@ function renderLevers(){
   document.getElementById('b2').disabled=true;
 }
 function go(n){
+  if(n==='1c') renderMicro();
   if(n===2) renderLevers();
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});
   document.getElementById('s'+n).classList.add('on');
@@ -487,9 +554,9 @@ function pickMode(m){
 
 function makeResult(){
   st.career = (document.getElementById('careerInput').value||'').trim();
-  var t=st.tag, L=LEVERS[st.lever], R=st.role;
-  st.hyp = '나는 '+t.m+'에서 '+L.verb+' 때 살아난다';
-  var exp = (t.exp && t.exp[st.lever]) ? t.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', t.m);
+  var t=st.tag, L=LEVERS[st.lever], R=st.role, m=mat();
+  st.hyp = '나는 '+m+'에서 '+L.verb+' 때 살아난다';
+  var exp = (t.exp && t.exp[st.lever]) ? t.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', m);
   var majors = st.domain.majors[st.lever].map(function(m){return '<span>'+m+'</span>'}).join('');
   var html='';
 
@@ -501,7 +568,7 @@ function makeResult(){
   }
 
   html += '<div class="card"><div class="tag">'+(st.mode==='검증'?'가설 1 — 그리고 하나 더':'네 가설')+' · '+L.name+'</div>'
-    +'<p class="hyp">"나는 '+t.m+'에서 <mark>'+L.verb+'</mark> 때 살아난다"</p>'
+    +'<p class="hyp">"나는 '+esc(m)+'에서 <mark>'+L.verb+'</mark> 때 살아난다"</p>'
     +'<p class="role">그리고 그 판에서 너는 — <b>'+R.name+'</b>. '+R.phrase+'으로 움직일 때 더 살아난다.</p>'
     +'<p class="echo">네가 고른 문장 — "'+st.leverOpt+'"</p>'
     +'<p class="note">이 가설이 진짜면, 이런 데가 네 판이 될 수도 있어:</p>'
@@ -509,6 +576,7 @@ function makeResult(){
 
   html += '<div class="card"><div class="tag">이번 주 실험 — 딱 1개</div>'
     +'<p class="exp">'+exp+'</p>'
+    +'<p class="note">다음 주에 그 증거로 가설을 <b>유지 / 수정 / 폐기</b> 중 하나로 판정해. 그때 물어볼게.</p>'
     +'<p class="falsify">마지막으로 하나만. <b>뭐가 나오면 이 가설 접을 거야?</b><br>그걸 정해두는 순간, 공상이 실험으로 바뀐다.</p></div>';
 
   document.getElementById('result').innerHTML=html;
@@ -536,12 +604,14 @@ function sendLead(){
     phone:(document.getElementById('fPhone').value||'').trim(),
     mode:st.mode,
     domain:st.tag.label+' ('+st.domain.chip.replace(/^[^ ]+ /,'')+')',
+    micro:st.micro?st.micro.label:'',
     lever:LEVERS[st.lever].name,
     lever_opt:st.leverOpt,
     role:st.role?st.role.name:'',
     hypothesis:st.hyp,
     hypothesis_self:(document.getElementById('selfHyp').value||'').trim(),
-    aftertaste:(document.getElementById('afterTaste').value||'').trim(),
+    aftertaste:(function(){var w=(document.getElementById('afterWaste').value||'').trim(),g=(document.getElementById('afterGain').value||'').trim();
+      return (w||g)?('아까움: '+(w||'-')+' / 남음: '+(g||'-')):''})(),
     career_input:st.career, source:SOURCE,
     consent:'동의 '+new Date().toISOString().slice(0,10),
     ts:new Date().toISOString()
@@ -559,24 +629,25 @@ function showSummary(p){
   var dateStr=(today.getMonth()+1)+'월 '+today.getDate()+'일';
   var mainHyp = p.hypothesis_self || p.hypothesis;
   var subHyp = p.hypothesis_self ? '<p class="note" style="margin-top:8px">원래 문장 — "'+p.hypothesis+'"</p>' : '';
-  var exp = (st.tag.exp && st.tag.exp[st.lever]) ? st.tag.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', st.tag.m);
+  var exp = (st.tag.exp && st.tag.exp[st.lever]) ? st.tag.exp[st.lever] : EXP_BASE[st.lever].replace('{m}', mat());
   document.getElementById('summaryCard').innerHTML =
     '<div class="tag">'+dateStr+' · '+esc(p.name)+'의 가설</div>'
     +'<p class="hyp" style="font-size:20px">"'+esc(mainHyp)+'"</p>'
     + subHyp
     +'<p class="role" style="margin-top:10px"><b>'+p.lever+'</b> × <b>'+p.role+'</b></p>'
     +'<p class="exp" style="margin-top:12px"><b>이번 주 실험</b> — '+exp+'</p>'
-    +'<p class="note" style="margin-top:14px; text-align:center">살아나 · 해빗클럽 — havitclub.github.io/havitclub-kiosk/saliana</p>';
+    +'<p class="note" style="margin-top:14px; text-align:center">살아나 · 해빗클럽</p>';
   go('4b');
 }
 function restart(){
-  st={domain:null,tag:null,lever:null,leverOpt:'',role:null,mode:null,career:'',hyp:''};
+  st={domain:null,tag:null,micro:null,lever:null,leverOpt:'',role:null,mode:null,career:'',hyp:''};
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel')});
-  ['b1','b2','b2b','b3'].forEach(function(id){document.getElementById(id).disabled=true});
+  ['b1','b1c','b2','b2b','b3'].forEach(function(id){document.getElementById(id).disabled=true});
   document.getElementById('careerBox').style.display='none';
   document.getElementById('careerInput').value='';
   document.getElementById('selfHyp').value='';
-  document.getElementById('afterTaste').value='';
+  document.getElementById('afterWaste').value='';
+  document.getElementById('afterGain').value='';
   var btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent='가설 저장하기';
   document.getElementById('leadErr').style.display='none';
   go(0);
