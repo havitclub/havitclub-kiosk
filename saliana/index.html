@@ -247,7 +247,7 @@ var LEVERS = {
   L1:{verb:'숨은 이유를 파고들', name:'왜를 파는 타입'},
   L2:{verb:'숨은 패턴을 찾아낼', name:'패턴을 찾는 타입'},
   L3:{verb:'내 손으로 만들어낼', name:'만드는 타입'},
-  L4:{verb:'사람과 부딪히고 나눌', name:'사람 곁 타입'},
+  L4:{verb:'사람과 부딪히고 나눌', name:'사람과 통하는 타입'},
   L5:{verb:'끝까지 모아 꿸', name:'수집가 타입'}
 };
 /* ===== 이입 역할 5종 ===== */
@@ -634,7 +634,7 @@ function showSummary(p){
     '<div class="tag">'+dateStr+' · '+esc(p.name)+'의 가설</div>'
     +'<p class="hyp" style="font-size:20px">"'+esc(mainHyp)+'"</p>'
     + subHyp
-    +'<p class="role" style="margin-top:10px"><b>'+p.lever+'</b> × <b>'+p.role+'</b></p>'
+    +'<p class="role" style="margin-top:10px">스위치 — <b>'+p.lever+'</b> · 자리 — <b>'+p.role+'</b></p>'
     +'<p class="exp" style="margin-top:12px"><b>이번 주 실험</b> — '+exp+'</p>'
     +'<p class="note" style="margin-top:14px; text-align:center">살아나 · 해빗클럽</p>';
   go('4b');
