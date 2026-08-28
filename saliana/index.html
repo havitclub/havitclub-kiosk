@@ -105,7 +105,7 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
   5분 뒤에 <b>네 가설 한 문장</b>과 <b>이번 주에 해볼 실험 하나</b>를 손에 쥐게 돼. 릴스 몇 개 볼 시간이야.<br>
   맞는지는 네가 직접 확인해. 우린 채점 안 해.</p>
   <div class="btnrow"><button class="btn" onclick="go(1)">시작</button></div>
-  <footer>살아나 — 나는 언제 살아나는가 · 해빗클럽</footer>
+  <footer>살아나 — 나는 언제 살아나는가 · 해빗클럽<br><span style="font-size:10px;opacity:.65">© 2026 해빗클럽. 무단 복제·상업적 이용 금지</span></footer>
 </section>
 
 <!-- S1 관심 태그 (24개 한 화면) -->
@@ -230,9 +230,14 @@ footer{margin-top:auto; padding-top:28px; text-align:center; font-size:12px; col
     <div class="big">🌱</div>
     <h2>가설 접수 완료</h2>
     <p class="lead" style="margin-top:8px">이제 이번 주에 진짜 해보는 것만 남았어.<br>다음 주에 어떻게 됐는지 물어볼게.</p>
+    <button class="btn" id="shareBtn" onclick="shareApp()" style="margin-top:16px">친구한테 살아나 공유하기</button>
     <button class="btn ghost" onclick="restart()">처음부터 다시</button>
+    <div class="card" style="margin-top:16px;font-size:13px;line-height:1.7;text-align:left">
+      살아나 서비스에 대해 궁금하거나 추가적인 문의가 있다면 이 번호로 문자 보내주세요.<br>
+      <b>해빗클럽</b> · <a href="sms:01021742430" style="color:var(--accent);font-weight:700;text-decoration:none">010-2174-2430</a> · 양천구 목동서로 349
+    </div>
   </div>
-  <footer>해빗클럽 · 습관이 입시를 이긴다</footer>
+  <footer>해빗클럽 · 습관이 입시를 이긴다<br><span style="font-size:10px;opacity:.65">© 2026 해빗클럽. '살아나'의 무단 복제·배포 및 상업적 이용은 해빗클럽의 사전 허락 없이 금지됩니다.</span></footer>
 </section>
 
 </div>
@@ -651,6 +656,26 @@ function restart(){
   var btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent='가설 저장하기';
   document.getElementById('leadErr').style.display='none';
   go(0);
+}
+function shareApp(){
+  var url='https://havitclub.github.io/havitclub-kiosk/saliana/';
+  var text='나는 언제 살아나는가 — 5분 만에 내 스위치 찾는 앱, 너도 해봐';
+  if(navigator.share){
+    navigator.share({title:'살아나', text:text, url:url}).catch(function(){});
+  }else{
+    var done=function(){
+      var b=document.getElementById('shareBtn');
+      b.textContent='링크 복사됨 — 카톡·문자에 붙여넣어!';
+      setTimeout(function(){b.textContent='친구한테 살아나 공유하기'},2500);
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text+' '+url).then(done).catch(function(){
+        document.getElementById('shareBtn').textContent=url;
+      });
+    }else{
+      document.getElementById('shareBtn').textContent=url;
+    }
+  }
 }
 </script>
 </body>
