@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>해빗클럽 출결 v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+:root{--bg:#0a0f1e;--surface:#111827;--surface2:#1a2235;--line:#1f2a44;--accent:#3b82f6;--accent2:#60a5fa;--success:#10b981;--error:#ef4444;--warn:#f59e0b;--gold:#fbbf24;--green:#34d399;--text:#f1f5f9;--muted:#64748b;--muted2:#94a3b8}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow:hidden;position:relative;font-size:clamp(14px,2.6vmin,26px)}
+body::before{content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:80vw;height:50vh;background:radial-gradient(ellipse,rgba(59,130,246,.18) 0%,transparent 70%);pointer-events:none}
+button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer;touch-action:manipulation}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.screen.on{display:flex}
+/* ---- main ---- */
+#s-main{justify-content:center}
+.wrap{width:100%;max-width:560px;padding:1.2em;display:flex;flex-direction:column;gap:.9em}
+.brand{font-family:'Bebas Neue';font-size:2.2em;letter-spacing:.2em;color:var(--accent2);text-align:center}.brand span{color:var(--text)}
+.clockbox{background:var(--surface);border:1px solid rgba(59,130,246,.2);border-radius:1em;padding:.7em 1em;text-align:center}
+#date{font-size:.85em;color:var(--muted);font-weight:500}
+#time{font-family:'Bebas Neue';font-size:3.4em;letter-spacing:.1em;line-height:1}
+.modes{display:flex;background:var(--surface);border-radius:.9em;padding:.25em;border:1px solid rgba(59,130,246,.15)}
+.mode{flex:1;padding:.75em .2em;border-radius:.7em;color:var(--muted);font-size:.95em;font-weight:800;transition:all .15s}
+.mode.on{background:var(--accent);color:#fff}.mode.out.on{background:var(--warn);color:#111}
+.pinbox{background:var(--surface);border:2px solid rgba(59,130,246,.2);border-radius:1em;padding:1.1em;text-align:center}
+.pinlabel{font-size:.85em;color:var(--muted);margin-bottom:.8em;font-weight:600}
+.dots{display:flex;justify-content:center;gap:1em}
+.dot{width:2.6em;height:2.6em;border-radius:50%;border:2px solid rgba(59,130,246,.3);background:var(--surface2);transition:all .12s}
+.dot.f{background:var(--accent);border-color:var(--accent);transform:scale(1.06)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:.55em}
+.num{background:var(--surface);border:1px solid rgba(59,130,246,.15);border-radius:.85em;height:3.6em;font-size:1.6em;font-weight:800;transition:transform .08s}
+.num:active{transform:scale(.94);background:var(--surface2);border-color:var(--accent)}
+.num.del{font-size:.9em;color:var(--muted)}.num.ok{background:var(--accent);font-size:.9em;font-weight:800}
+/* ---- question screens ---- */
+.qs{justify-content:center;padding:5em 0 6em}
+.qs .top{position:absolute;top:1.6em;left:50%;transform:translateX(-50%);width:100%;max-width:640px;display:flex;justify-content:space-between;align-items:center;padding:0 1.4em}
+.qs .top .b{font-family:'Bebas Neue';font-size:1.3em;letter-spacing:.2em;color:var(--accent2)}.qs .top .b span{color:var(--text)}
+.qs .top .step{font-size:.8em;color:var(--muted);font-weight:700;letter-spacing:.15em}
+.qhead{text-align:center;padding:0 1.2em 1.6em;max-width:640px}
+.qhead h1{font-size:1.9em;font-weight:900;line-height:1.25;letter-spacing:-.02em}
+.qhead h1 em{color:var(--accent2);font-style:normal}
+.qhead p{margin-top:.6em;color:var(--muted2);font-size:.95em;font-weight:500;line-height:1.45}
+.opts{width:100%;max-width:640px;padding:0 1.2em;display:flex;gap:.7em}
+.opt{flex:1;background:var(--surface);border:2px solid var(--line);border-radius:1.1em;padding:1.3em .4em;text-align:center;font-weight:800;font-size:1.05em;transition:all .12s}
+.opt .ic{font-size:2.8em;display:block;margin-bottom:.25em;line-height:1.1}
+.opt.sel{border-color:var(--accent);background:#132a55;box-shadow:0 0 0 .25em rgba(59,130,246,.25)}
+.chips{width:100%;max-width:640px;padding:0 1.2em;display:flex;flex-wrap:wrap;gap:.6em;justify-content:center}
+.chip{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:.75em 1.4em;font-weight:800;font-size:1.05em;transition:all .12s}
+.chip.sel{background:var(--accent);border-color:var(--accent)}
+.calls{width:100%;max-width:640px;padding:0 1.2em;display:flex;flex-direction:column;gap:.55em}
+.call{background:var(--surface);border:2px solid var(--line);border-radius:.9em;padding:.85em 1.1em;font-weight:800;font-size:1.05em;display:flex;align-items:center;gap:.8em;text-align:left;transition:all .12s}
+.call .ic{font-size:1.6em;width:1.6em;text-align:center}
+.call .sub{display:block;font-size:.72em;color:var(--muted);font-weight:500;margin-top:.1em}
+.call.solo{background:#0f1a2e;border-style:dashed;color:#cbd5e1;justify-content:center}
+.call.sel{border-color:var(--accent);background:#132a55}
+.qfoot{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:640px;display:flex;justify-content:space-between;align-items:center;padding:1.2em 1.4em 1.6em}
+.skip{font-size:.85em;color:#475569;border:1px solid #334155;border-radius:999px;padding:.5em 1.1em}
+.next{background:var(--accent);color:#fff;font-weight:900;font-size:1em;padding:.7em 2em;border-radius:999px}
+.next.dim{opacity:.35}
+.tbar{position:fixed;left:0;bottom:0;height:4px;background:var(--accent);width:0;transition:width .2s linear;opacity:.7}
+/* ---- cheer ---- */
+#s-cheer{justify-content:center;text-align:center;padding:2em 1.2em}
+.cname{position:absolute;top:1.6em;font-size:.95em;color:var(--muted2);font-weight:700}.cname b{color:#fff}
+.big{font-family:'Bebas Neue';font-size:7.5em;line-height:.9;letter-spacing:.02em}
+.big small{font-size:.32em;font-family:'Noto Sans KR';font-weight:900;letter-spacing:0;vertical-align:1em;margin-left:.3em}
+.gold .big{color:var(--gold);text-shadow:0 0 .3em rgba(251,191,36,.45)}
+.green .big{color:var(--green);text-shadow:0 0 .3em rgba(52,211,153,.4)}
+.blue .big{color:var(--accent2)}
+.white .big{color:var(--text)}
+.ch2{font-size:1.55em;font-weight:900;margin-top:.5em;letter-spacing:-.02em;line-height:1.3;max-width:20em}
+.cline{margin-top:.7em;font-size:1.05em;color:var(--muted2);font-weight:500;line-height:1.5}.cline b{color:var(--text)}
+.stats{display:flex;gap:.7em;margin-top:1.4em;flex-wrap:wrap;justify-content:center}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:.9em;padding:.8em 1.1em;min-width:7em}
+.stat .v{font-family:'Bebas Neue';font-size:2.2em;letter-spacing:.05em;line-height:1}
+.stat .l{font-size:.72em;color:var(--muted);font-weight:700;margin-top:.15em}
+.ticks{display:flex;gap:.4em;margin-top:1.2em;flex-wrap:wrap;justify-content:center}
+.ticks div{width:2.3em;height:2.3em;border-radius:.55em;background:var(--surface2);border:2px solid #334155;display:flex;align-items:center;justify-content:center;font-weight:900;color:#475569}
+.ticks .on{background:var(--green);border-color:var(--green);color:#052e16}
+.ticks .today{outline:.22em solid rgba(52,211,153,.4);outline-offset:.12em}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+/* ---- overlay (loading/warn/error) ---- */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.show{opacity:1;pointer-events:all}
+.card{background:var(--surface);border-radius:1.4em;padding:2em;text-align:center;max-width:22em;width:90%;border:2px solid transparent;transform:scale(.92);transition:transform .25s}
+.overlay.show .card{transform:scale(1)}
+.card.warning{border-color:var(--warn)}.card.success{border-color:var(--success)}.card.error{border-color:var(--error)}.card.loading{border-color:var(--accent)}
+.card .ic{font-size:1.6em;margin-bottom:.6em;line-height:1.4;font-weight:800}
+.card .sub{font-size:.9em;color:var(--muted);line-height:1.5}
+.spinner{width:2.4em;height:2.4em;border:3px solid rgba(59,130,246,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .8em}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btns{display:flex;gap:.6em;margin-top:1.3em;justify-content:center;flex-wrap:wrap}
+.btns button{padding:.7em 1.3em;border-radius:.8em;font-size:.9em;font-weight:800}
+.b-yes{background:var(--accent);color:#fff}.b-no{background:var(--surface2);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.b-sw{background:var(--warn);color:#111}
+/* ---- config ---- */
+.cfg-toggle{position:fixed;bottom:.8em;right:.8em;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:.5em;padding:.35em .7em;font-size:.65em;color:var(--muted);z-index:20}
+.cfg{position:fixed;bottom:3em;right:.8em;background:var(--surface2);border:1px solid rgba(59,130,246,.3);border-radius:.8em;padding:1em;width:min(340px,92vw);display:none;z-index:200;font-size:.8em}
+.cfg.open{display:block}
+.cfg label{font-size:.85em;color:var(--muted);display:block;margin-bottom:.25em}
+.cfg input{width:100%;background:var(--bg);border:1px solid rgba(59,130,246,.3);border-radius:.5em;padding:.6em;color:var(--text);font-size:.9em;margin-bottom:.7em;user-select:text;-webkit-user-select:text}
+.cfg .save{background:var(--accent);border-radius:.5em;padding:.6em;color:#fff;width:100%;font-weight:700}
+.cfg .note{font-size:.8em;color:var(--muted);margin-top:.6em;line-height:1.4}
+.demo-badge{position:fixed;top:.6em;left:.6em;font-size:.6em;background:var(--warn);color:#111;padding:.2em .6em;border-radius:.4em;font-weight:900;z-index:20;display:none}
+</style>
+</head>
+<body>
+
+<!-- ===== MAIN ===== -->
+<div class="screen on" id="s-main">
+  <div class="wrap">
+    <div class="brand">HAVIT<span>CLUB</span></div>
+    <div class="clockbox"><div id="date"></div><div id="time">00:00</div></div>
+    <div class="modes">
+      <button class="mode on" id="m-등원" onclick="setMode('등원')">🏃 등원</button>
+      <button class="mode out" id="m-외출" onclick="setMode('외출')">🚶 외출</button>
+      <button class="mode out" id="m-복귀" onclick="setMode('복귀')">↩️ 복귀</button>
+      <button class="mode" id="m-하원" onclick="setMode('하원')">🏠 하원</button>
+    </div>
+    <div class="pinbox">
+      <div class="pinlabel">번호 4자리 — 누르면 바로 시작</div>
+      <div class="dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
+    </div>
+    <div class="numpad">
+      <button class="num" onclick="inp('1')">1</button><button class="num" onclick="inp('2')">2</button><button class="num" onclick="inp('3')">3</button>
+      <button class="num" onclick="inp('4')">4</button><button class="num" onclick="inp('5')">5</button><button class="num" onclick="inp('6')">6</button>
+      <button class="num" onclick="inp('7')">7</button><button class="num" onclick="inp('8')">8</button><button class="num" onclick="inp('9')">9</button>
+      <button class="num del" onclick="del()">⌫ 지우기</button><button class="num" onclick="inp('0')">0</button><button class="num ok" onclick="confirmPin()">확인 ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Q1 컨디션 ===== -->
+<div class="screen qs" id="s-q1">
+  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">1 / 3</div></div>
+  <div class="qhead"><h1 id="q1h"></h1><p id="q1p"></p></div>
+  <div class="opts">
+    <button class="opt" onclick="pickCond('방전',this)"><span class="ic">🪫</span>방전</button>
+    <button class="opt" onclick="pickCond('버틸 만함',this)"><span class="ic">🔋</span>버틸 만함</button>
+    <button class="opt" onclick="pickCond('풀충전',this)"><span class="ic">⚡</span>풀충전</button>
+  </div>
+  <div class="qfoot"><span></span><button class="skip" onclick="goQ2()">건너뛰기</button></div>
+</div>
+
+<!-- ===== Q2 주력 ===== -->
+<div class="screen qs" id="s-q2">
+  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">2 / 3</div></div>
+  <div class="qhead"><h1 id="q2h"></h1><p id="q2p"></p></div>
+  <div class="chips" id="chips"></div>
+  <div class="qfoot"><button class="skip" onclick="goQ3()">건너뛰기</button><button class="next dim" id="q2next" onclick="goQ3()">다음 →</button></div>
+</div>
+
+<!-- ===== Q3 코치콜 ===== -->
+<div class="screen qs" id="s-q3">
+  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">3 / 3</div></div>
+  <div class="qhead"><h1 id="q3h"></h1><p id="q3p"></p></div>
+  <div class="calls" id="calls"></div>
+  <div class="qfoot"><span></span><button class="skip" onclick="finishCheckin()">건너뛰기</button></div>
+</div>
+
+<!-- ===== CHEER ===== -->
+<div class="screen" id="s-cheer">
+  <div class="cname" id="cname"></div>
+  <div class="big" id="cbig"></div>
+  <div class="ch2" id="ch2"></div>
+  <div class="cline" id="cline"></div>
+  <div class="stats" id="cstats"></div>
+  <div class="ticks" id="cticks"></div>
+</div>
+<canvas id="confetti"></canvas>
+<div class="tbar" id="tbar"></div>
+
+<!-- ===== overlay ===== -->
+<div class="overlay" id="ov"><div class="card" id="ovcard"><div class="ic" id="ovic"></div><div class="sub" id="ovsub"></div><div class="btns" id="ovbtns" style="display:none"></div></div></div>
+
+<div class="demo-badge" id="demo">DEMO</div>
+<div class="cfg-toggle" onclick="document.getElementById('cfg').classList.toggle('open')">⚙ 설정</div>
+<div class="cfg" id="cfg">
+  <label>출결 Webhook (등원/하원)</label><input id="c-att">
+  <label>외출 Webhook (외출/복귀)</label><input id="c-out">
+  <label>체크인 Webhook (컨디션·주력·코치콜) — 비우면 로컬 저장만</label><input id="c-chk">
+  <label>출결 조회 API (GET ?student=)</label><input id="c-get">
+  <button class="save" onclick="saveCfg()">저장</button>
+  <div class="note">데모: URL에 <b>?demo=1</b> 붙이면 웹훅 없이 가짜 데이터로 전 화면 테스트. 체크인 로컬 로그: localStorage <b>hc2_checkin_log</b></div>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+var DEMO = /[?&]demo=1/.test(location.search);
+var CFG = {
+  att: localStorage.getItem('habitclub_webhook') || 'https://havit.app.n8n.cloud/webhook/attendance',
+  out: localStorage.getItem('habitclub_outing_webhook') || 'https://havit.app.n8n.cloud/webhook/outing',
+  chk: localStorage.getItem('hc2_checkin_webhook') || '',
+  get: localStorage.getItem('hc2_get_api') || 'https://havit.app.n8n.cloud/webhook/attendance'
+};
+['att','out','chk','get'].forEach(function(k){document.getElementById('c-'+k).value=CFG[k];});
+function saveCfg(){
+  CFG.att=v('c-att');CFG.out=v('c-out');CFG.chk=v('c-chk');CFG.get=v('c-get');
+  localStorage.setItem('habitclub_webhook',CFG.att);localStorage.setItem('habitclub_outing_webhook',CFG.out);
+  localStorage.setItem('hc2_checkin_webhook',CFG.chk);localStorage.setItem('hc2_get_api',CFG.get);
+  document.getElementById('cfg').classList.remove('open');
+  function v(id){return document.getElementById(id).value.trim();}
+}
+if(DEMO)document.getElementById('demo').style.display='block';
+
+/* ================= COPY (문안 v1) ================= */
+var COPY = {
+  q1: {h:'{n}, 오늘 배터리 <em>몇 %</em>?', p:['방전인데 왔으면 이미 절반은 한 거임','충전기는 안 빌려줌. 대신 앉는 자리는 줌','배터리 낮다고 성능 낮은 건 아님. 폰이나 그렇지']},
+  q2: {h:'{n}, 오늘 <em>뭐 잡을</em> 거야?', p:['고른 순간부터 계획임. 말은 무섭다','하나만 골라도 됨. 다 고르는 토요일도 있고','안 고르면 코치가 고름. 그게 더 무섭지']},
+  q3: {h:'{n}, 오늘 <em>코칭</em> 필요해?', p:['안 눌러도 필요해 보이면 부름. 그게 코치 일','부르는 게 실력임. 참는 게 아니고','이건 의사 확인. 판정은 코치가']},
+  subjects: ['수학','영어','국어','과학','사회','숙제','수행·시험','독서'],
+  calls: [
+    {k:'없음', ic:'🙅', t:'오늘은 혼자 감 — 알아서 함', s:'', solo:true},
+    {k:'수학', ic:'🧮', t:'수학 막힘', s:'풀이 봐줘'},
+    {k:'개념', ic:'🧪', t:'개념이 안 잡힘', s:'과목은 만나서'},
+    {k:'수행', ic:'📝', t:'수행·시험 도움 필요', s:'일정·자료·전략'},
+    {k:'상담', ic:'💬', t:'머리 좀 복잡함', s:'잠깐 얘기하자'}
+  ],
+  streak: {3:'{n}, 3일. 우연 아님', 5:'5일이면 습관이라 불러도 됨', 10:'10일. 이제 안 오면 이상한 사람', 20:'20일. 코치보다 출근 잘함', 30:'30일. 이건 그냥 생활임', other:'오늘도 왔네. 그게 다임'},
+  promise: '{n}, {days} 약속 {k}번째. 오기로 한 날 오는 게 제일 어려운 거임',
+  welcome: {first:'{n}, 오늘 첫 등원. 번호 외웠으면 반은 됨', back:'{n}, 다시 왔네. 그게 제일 어려운 거임', rare:'{n}, 오래 걸렸다. 자리는 그대로임', plain:'{n}, 왔네. 오늘도 한 판'},
+  depart: {normal:'{n}, 오늘 순공 {t}. 폰은 몇 번 봤어?', near:'최고 기록에서 {d}분 모자람. 다음엔 넘지?', best:'개인 최고 갱신. 어제의 너 패배', short:'짧아도 왔음. 0분보다 무한히 큼', noarr:'{n}, 등원 기록이 없어서 순공은 못 셈. 그래도 왔다 감'},
+  milestone: '이번 달 순공 {h}시간. 누가 시켰어? 네가 했어'
+};
+var MS_HOURS=[10,20,30,40,50,60,80,100];
+var MS_STREAK=[3,5,10,20,30];
+function rot(arr){var d=new Date();return arr[(d.getDate()+d.getMonth())%arr.length];}
+function fill(s,m){return s.replace(/\{(\w+)\}/g,function(_,k){return m[k]!=null?m[k]:'';});}
+
+/* ================= STATE ================= */
+var pin='', mode='등원', busy=false;
+var ctx={code:'',name:'',first:'',time:'',cond:null,subj:[],call:null,records:null};
+var qTimer=null, qStart=0;
+
+/* ================= CLOCK ================= */
+function clock(){var n=new Date(),D=['일','월','화','수','목','금','토'];
+  document.getElementById('date').textContent=n.getFullYear()+'년 '+(n.getMonth()+1)+'월 '+n.getDate()+'일 '+D[n.getDay()]+'요일';
+  document.getElementById('time').textContent=p2(n.getHours())+':'+p2(n.getMinutes());}
+function p2(x){return x<10?'0'+x:''+x;}
+setInterval(clock,1000);clock();
+
+/* ================= LOCAL RECORDS (당일 중복 경고 — 기존 로직 유지) ================= */
+function todayKey(){var n=new Date();return 'hc_att_'+n.getFullYear()+'-'+p2(n.getMonth()+1)+'-'+p2(n.getDate());}
+function todayStr(){var n=new Date();return n.getFullYear()+'-'+p2(n.getMonth()+1)+'-'+p2(n.getDate());}
+function todayRecs(c){try{return (JSON.parse(localStorage.getItem(todayKey())||'{}'))[c]||[];}catch(e){return [];}}
+function saveRec(c,m,t){try{var k=todayKey(),d=JSON.parse(localStorage.getItem(k)||'{}');(d[c]=d[c]||[]).push({mode:m,time:t});localStorage.setItem(k,JSON.stringify(d));}catch(e){}}
+(function clean(){var k=todayKey();for(var i=localStorage.length-1;i>=0;i--){var key=localStorage.key(i);if(key&&key.indexOf('hc_att_')===0&&key!==k)localStorage.removeItem(key);}})();
+var W={
+  dbl_arr:["옥? 아까 등원했는데? 🤨","또 등원? 하원 아니야? 🫣","분신술? 이미 왔잖아 😏"],
+  no_arr:["옥? 등원 안 했는데? 👻","먼저 등원부터~ 😎","순서: 등원 → 하원 📋"],
+  dbl_dep:["옥? 아까 하원했는데? 🤨","또 하원? 등원 아니야? 🫣"],
+  dbl_out:["또 외출? 복귀 먼저 아니야? 🤔","아직 밖인 걸로 아는데~ 🚶"],
+  out_no_arr:["등원도 안 했는데 외출? 👻","순서: 등원 → 외출 📋"],
+  out_after_dep:["하원했다며? 다시 온 거면 등원! 🏃"],
+  ret_no_out:["외출 기록이 없는데? 👀","혹시 등원 아니야? 🤔"]
+};
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function check(c,m){var r=todayRecs(c),l=r.length?r[r.length-1]:null;
+  if(m==='등원'){if(l&&l.mode==='등원')return {warn:1,msg:pick(W.dbl_arr),last:l.time,sw:'하원'};}
+  if(m==='하원'){if(!l)return {warn:1,msg:pick(W.no_arr),sw:'등원'};if(l.mode==='하원')return {warn:1,msg:pick(W.dbl_dep),last:l.time,sw:'등원'};}
+  if(m==='외출'){if(!l)return {warn:1,msg:pick(W.out_no_arr),sw:'등원'};if(l.mode==='외출')return {warn:1,msg:pick(W.dbl_out),last:l.time,sw:'복귀'};if(l.mode==='하원')return {warn:1,msg:pick(W.out_after_dep),last:l.time,sw:'등원'};}
+  if(m==='복귀'){if(!l||l.mode!=='외출')return {warn:1,msg:pick(W.ret_no_out),last:l?l.time:null,sw:l?'외출':'등원'};}
+  return {warn:0};}
+
+/* ================= MAIN INPUT ================= */
+function setMode(m){mode=m;['등원','외출','복귀','하원'].forEach(function(k){document.getElementById('m-'+k).classList.toggle('on',k===m);});}
+function inp(d){if(pin.length>=4||busy)return;pin+=d;dots();if(pin.length===4)setTimeout(confirmPin,180);}
+function del(){if(busy)return;pin=pin.slice(0,-1);dots();}
+function dots(){for(var i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('f',i<pin.length);}
+function resetMain(){pin='';dots();busy=false;show('s-main');}
+function confirmPin(){if(pin.length!==4||busy)return;busy=true;var c=pin,m=mode,st=check(c,m);
+  if(st.warn){showWarn(st,m,function(){send(c,m);},function(){setMode(st.sw);send(c,st.sw);},function(){resetMain();});return;}
+  send(c,m);}
+
+/* ================= OVERLAY ================= */
+function ov(type,ic,sub,btns){var o=document.getElementById('ov'),card=document.getElementById('ovcard');card.className='card '+type;
+  document.getElementById('ovic').innerHTML=type==='loading'?'<div class="spinner"></div>'+ic:ic;document.getElementById('ovsub').textContent=sub||'';
+  var b=document.getElementById('ovbtns');b.style.display=btns?'flex':'none';b.innerHTML=btns||'';o.classList.add('show');}
+function ovHide(){document.getElementById('ov').classList.remove('show');}
+function showWarn(st,m,yes,sw,no){var J={'등원':'등원으로','하원':'하원으로','외출':'외출로','복귀':'복귀로'};
+  ov('warning',st.msg,st.last?'이전 기록: '+st.last:'','<button class="b-sw" id="w-sw">🔄 '+(J[st.sw]||st.sw)+'</button><button class="b-yes" id="w-yes">'+m+' 맞아</button><button class="b-no" id="w-no">취소</button>');
+  document.getElementById('w-sw').onclick=function(){ovHide();sw();};document.getElementById('w-yes').onclick=function(){ovHide();yes();};document.getElementById('w-no').onclick=function(){ovHide();no();};}
+
+/* ================= SEND ATTENDANCE (기존 웹훅 그대로) ================= */
+/* 이름 캐시: 한 번 성공하면 다음부터 웹훅 응답 전에 이름 표시 */
+function nameCache(){try{return JSON.parse(localStorage.getItem('hc2_names')||'{}');}catch(e){return {};}}
+function cacheName(c,n){if(!n||/^학번/.test(n))return;try{var m=nameCache();m[c]=n;localStorage.setItem('hc2_names',JSON.stringify(m));}catch(e){}}
+var postDone=null; // 등원 POST 완료 Promise
+function applyName(n){ctx.name=n;ctx.first=firstName(n);var f=ctx.first||'너';
+  var q1=document.getElementById('q1h'),q2=document.getElementById('q2h'),q3=document.getElementById('q3h');
+  q1.innerHTML=fill(COPY.q1.h,{n:f});q2.innerHTML=fill(COPY.q2.h,{n:f});q3.innerHTML=fill(COPY.q3.h,{n:f});}
+function send(code,m){var n=new Date();
+  var payload={student_code:code,mode:m,timestamp:n.toISOString(),date:todayStr(),time:p2(n.getHours())+':'+p2(n.getMinutes())};
+  var url=(m==='외출'||m==='복귀')?CFG.out:CFG.att;
+  var cached=nameCache()[code]||'';
+  ctx={code:code,name:cached||('학번 '+code),first:firstName(cached),time:payload.time,cond:null,subj:[],call:null,records:null,mode:m};
+  var req=DEMO?new Promise(function(r){setTimeout(function(){r({name:demoName(code)});},2500);})
+    :fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json().catch(function(){return {};});});
+  var onData=function(data){saveRec(code,m,payload.time);if(data.name){cacheName(code,data.name);if(data.name!==ctx.name){applyName(data.name);}}
+    if(!ctx.name||/^학번/.test(ctx.name))applyName(data.name||('학번 '+code));return data;};
+  var onFail=function(){ov('error','❌ 연결 오류','Webhook URL을 확인해주세요');setTimeout(function(){ovHide();resetMain();},2000);return null;};
+  if(m==='등원'){
+    // 응답 기다리지 않고 바로 질문 시작 — 웹훅 5초 지연을 질문 시간(≈8초×3)에 묻는다
+    postDone=req.then(onData).then(function(d){prefetch();return d;}).catch(function(){return null;});
+    if(cached)prefetch();
+    startQ1();return;}
+  if(m==='하원'){ov('loading','','처리 중...');
+    var early=cached?loadRecords(cached):null; // 캐시된 이름으로 GET 먼저 발사
+    req.then(onData).then(function(){ovHide();cheerDepart(early&&cached===ctx.name?early:null);}).catch(onFail);return;}
+  ov('loading','','처리 중...');
+  req.then(onData).then(function(){ov('success','✅ '+ctx.name,m+' 완료 · '+payload.time);setTimeout(function(){ovHide();resetMain();},1600);}).catch(onFail);
+}
+function firstName(n){if(!n)return '';n=String(n).replace(/\(.*\)/,'').trim();return n.length>=3?n.slice(1):n;}
+
+/* ================= CHECK-IN QUESTIONS ================= */
+var Q_TIMEOUT=8000;
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');}
+function armTimer(fn){clearTimer();qStart=Date.now();var bar=document.getElementById('tbar');bar.style.width='0';
+  qTimer=setInterval(function(){var p=Math.min(1,(Date.now()-qStart)/Q_TIMEOUT);bar.style.width=(p*100)+'%';if(p>=1){clearTimer();fn();}},100);}
+function clearTimer(){if(qTimer)clearInterval(qTimer);qTimer=null;document.getElementById('tbar').style.width='0';}
+function touchTimer(fn){armTimer(fn);}
+
+function startQ1(){var n=ctx.first||'너';document.getElementById('q1h').innerHTML=fill(COPY.q1.h,{n:n});document.getElementById('q1p').textContent=rot(COPY.q1.p);
+  document.querySelectorAll('#s-q1 .opt').forEach(function(b){b.classList.remove('sel');});show('s-q1');armTimer(goQ2);}
+function pickCond(v,el){ctx.cond=v;document.querySelectorAll('#s-q1 .opt').forEach(function(b){b.classList.remove('sel');});el.classList.add('sel');clearTimer();setTimeout(goQ2,350);}
+function goQ2(){clearTimer();var n=ctx.first||'너';document.getElementById('q2h').innerHTML=fill(COPY.q2.h,{n:n});document.getElementById('q2p').textContent=rot(COPY.q2.p);
+  var box=document.getElementById('chips');box.innerHTML='';ctx.subj=[];document.getElementById('q2next').classList.add('dim');
+  COPY.subjects.forEach(function(s){var b=document.createElement('button');b.className='chip';b.textContent=s;b.onclick=function(){b.classList.toggle('sel');var i=ctx.subj.indexOf(s);if(i>=0)ctx.subj.splice(i,1);else ctx.subj.push(s);document.getElementById('q2next').classList.toggle('dim',ctx.subj.length===0);touchTimer(goQ3);};box.appendChild(b);});
+  show('s-q2');armTimer(goQ3);}
+function goQ3(){clearTimer();var n=ctx.first||'너';document.getElementById('q3h').innerHTML=fill(COPY.q3.h,{n:n});document.getElementById('q3p').textContent=rot(COPY.q3.p);
+  var box=document.getElementById('calls');box.innerHTML='';
+  COPY.calls.forEach(function(c){var b=document.createElement('button');b.className='call'+(c.solo?' solo':'');b.innerHTML='<span class="ic">'+c.ic+'</span><span>'+c.t+(c.s?'<span class="sub">'+c.s+'</span>':'')+'</span>';
+    b.onclick=function(){ctx.call=c.k;document.querySelectorAll('#s-q3 .call').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');clearTimer();setTimeout(finishCheckin,350);};box.appendChild(b);});
+  show('s-q3');armTimer(finishCheckin);}
+function finishCheckin(){clearTimer();
+  var payload={student_code:ctx.code,name:ctx.name,date:todayStr(),time:ctx.time,condition:ctx.cond,subjects:ctx.subj,coach_call:ctx.call,skipped:!ctx.cond&&!ctx.subj.length&&!ctx.call};
+  try{var log=JSON.parse(localStorage.getItem('hc2_checkin_log')||'[]');log.push(payload);if(log.length>300)log=log.slice(-300);localStorage.setItem('hc2_checkin_log',JSON.stringify(log));}catch(e){}
+  var sendChk=function(){payload.name=ctx.name;if(CFG.chk&&!DEMO&&!payload.skipped){fetch(CFG.chk,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){});}};
+  show('s-cheer');setCheer('white','',ctx.name+' · '+ctx.time+' 등원','','',[]);
+  (postDone||Promise.resolve({})).then(function(d){if(d===null){ov('error','❌ 등원 기록 실패','다시 등원 눌러줘');setTimeout(function(){ovHide();resetMain();},2200);return;}sendChk();cheerArrive();});}
+
+/* ================= DATA: GET API ================= */
+var pre=null,preName='';
+function prefetch(){if(!ctx.name||/^학번/.test(ctx.name))return;if(preName===ctx.name&&pre)return;preName=ctx.name;pre=loadRecords(ctx.name);}
+function fetchMonth(name,y,m){
+  if(DEMO)return Promise.resolve(demoRecords(y,m));
+  var u=CFG.get+'?student='+encodeURIComponent(name)+'&year='+y+'&month='+m;
+  return fetch(u).then(function(r){return r.text();}).then(function(t){if(t.charAt(0)==='=')t=t.slice(1);var j=JSON.parse(t);return Array.isArray(j)?j:[];}).catch(function(){return [];});}
+function loadRecords(name){var n=new Date(),y=n.getFullYear(),m=n.getMonth()+1,py=m===1?y-1:y,pm=m===1?12:m-1;
+  if(!name||/^학번/.test(name))return Promise.resolve({cur:[],prev:[],ok:false});
+  return Promise.all([fetchMonth(name,y,m),fetchMonth(name,py,pm)]).then(function(r){return {cur:r[0],prev:r[1],ok:true};});}
+function toMin(t){if(!t)return null;var p=String(t).split(':'),h=parseInt(p[0]);return isNaN(h)?null:h*60+(parseInt(p[1])||0);}
+function parseStudy(s){if(!s)return 0;s=String(s).split('(')[0];var m=0,h=s.match(/(\d+)\s*시간/),mi=s.match(/(\d+)\s*분/);if(h)m+=parseInt(h[1])*60;if(mi)m+=parseInt(mi[1]);var c=s.match(/^(\d+):(\d+)$/);if(c)m=parseInt(c[1])*60+parseInt(c[2]);return m;}
+function outMin(r){var o=parseInt(r&&r.outing_minutes);return isNaN(o)?0:o;}
+function studyMin(r){var n=parseStudy(r.study_time);if(n>0)return n;var a=toMin(r.arrival),d=toMin(r.departure);if(a!=null&&d!=null){var x=d-a-outMin(r);if(x>0&&x<720)return x;}return 0;}
+function attended(r){return r&&r.date&&r.status!=='결석';}
+function fmt(m){if(!m||m<=0)return '0분';var h=Math.floor(m/60),x=m%60;return h>0?(x>0?h+'시간 '+x+'분':h+'시간'):x+'분';}
+function fmtHM(m){var h=Math.floor(m/60),x=m%60;return h+':'+p2(x);}
+function dstr(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+
+/* ---- streak analysis (마스터 시간표 없이 최근 4주로 추정) ---- */
+function analyze(recs){var set={};recs.cur.concat(recs.prev).forEach(function(r){if(attended(r))set[r.date]=1;});
+  var today=new Date();today.setHours(0,0,0,0);var ts=dstr(today);set[ts]=1;
+  var total=Object.keys(set).length;
+  // last 28 days excluding today
+  var wd=[0,0,0,0,0,0,0],cnt=0;for(var i=1;i<=28;i++){var d=new Date(today);d.setDate(d.getDate()-i);if(set[dstr(d)]){cnt++;wd[d.getDay()]++;}}
+  var perWeek=cnt/4;
+  var out={total:total,perWeek:perWeek,mode:'welcome'};
+  if(total<=1)return out;
+  if(cnt===0){out.mode='rare';return out;}
+  if(perWeek>=3.5){out.mode='daily';var s=0,d=new Date(today);
+    while(true){var k=dstr(d);if(set[k]){s++;}else if(d.getDay()===0||d.getDay()===6){/* 주말 미등원은 안 끊음 */}else break;d.setDate(d.getDate()-1);if(s>200)break;}
+    out.streak=s;}
+  else{var U=[];for(var w=0;w<7;w++)if(wd[w]>=2)U.push(w);
+    if(!U.length){out.mode='light';return out;}
+    if(U.indexOf(today.getDay())<0)U.push(today.getDay());
+    out.days=U.slice().sort().map(function(w){return ['일','월','화','수','목','금','토'][w];}).join('·');
+    var s2=0,d2=new Date(today),guard=0;
+    while(guard++<120){if(U.indexOf(d2.getDay())>=0){if(set[dstr(d2)])s2++;else break;}d2.setDate(d2.getDate()-1);}
+    out.streak=s2;out.mode='promise';
+    var y=today.getFullYear(),m=today.getMonth(),dim=new Date(y,m+1,0).getDate(),plan=0,done=0,ticks=[];
+    for(var dd=1;dd<=dim;dd++){var x=new Date(y,m,dd);if(U.indexOf(x.getDay())<0)continue;plan++;var hit=!!set[dstr(x)];if(dd<=today.getDate()){if(hit)done++;ticks.push({on:hit,today:dd===today.getDate()});}else ticks.push({on:false});}
+    out.plan=plan;out.done=done;out.ticks=ticks;}
+  // month count
+  var mc=0;recs.cur.forEach(function(r){if(attended(r)&&r.date!==ts)mc++;});out.monthCount=mc+1;
+  return out;}
+
+/* ================= CHEER: ARRIVE ================= */
+function cheerArrive(){show('s-cheer');setCheer('white','',ctx.name+' · '+ctx.time+' 등원','','',[]);
+  ((preName===ctx.name&&pre)?pre:loadRecords(ctx.name)).then(function(recs){var n=ctx.first||'너';
+    if(!recs.ok){setCheer('white','<span style="font-size:.5em">어서 와</span>',ctx.name+' · '+ctx.time+' 등원',fill(COPY.welcome.plain,{n:n}),'',[]);return end(3200);}
+    var a=analyze(recs);
+    if(a.mode==='daily'){var big=a.streak,ms=MS_STREAK.indexOf(big)>=0,line=COPY.streak[big]||COPY.streak.other;var next=MS_STREAK.filter(function(x){return x>big;})[0];
+      setCheer(ms?'gold':'blue',big+'<small>일 연속</small>',ctx.name+' · '+ctx.time+' 등원',fill(line,{n:n}),'이번 달 <b>'+a.monthCount+'회</b> 등원'+(next?' · 다음 마일스톤 <b>'+next+'일</b>':''),[]);
+      countUp('cbig',big,'<small>일 연속</small>');if(ms)confetti(big>=10?2:1);return end(ms?4200:3200);}
+    if(a.mode==='promise'){var b2=a.streak;
+      setCheer('green',b2+'<small>번 연속 약속 지킴</small>',ctx.name+' · '+ctx.time+' 등원',fill(COPY.promise,{n:n,days:a.days,k:b2}),'이번 달 예정 <b>'+a.plan+'회</b> 중 <b>'+a.done+'회</b> 완료'+(a.plan-a.done>0?' · 남은 약속 '+(a.plan-a.done)+'번':' · 이번 달 약속 전부 지킴'),[]);
+      ticks(a.ticks);countUp('cbig',b2,'<small>번 연속 약속 지킴</small>');if(b2>0&&b2%4===0)confetti(1);return end(3800);}
+    var w=a.mode==='rare'?COPY.welcome.rare:(a.total<=1?COPY.welcome.first:(a.mode==='light'?COPY.welcome.back:COPY.welcome.plain));
+    setCheer('white','<span style="font-size:.5em">어서 와</span>',ctx.name+' · '+ctx.time+' 등원',fill(w,{n:n}),a.monthCount?'이번 달 <b>'+a.monthCount+'회</b> 등원':'',[]);end(3200);
+  });}
+
+/* ================= CHEER: DEPART ================= */
+function cheerDepart(early){show('s-cheer');setCheer('blue','',ctx.name+' · '+ctx.time+' 하원','','',[]);
+  (early||loadRecords(ctx.name)).then(function(recs){var n=ctx.first||'너',ts=todayStr();
+    if(!recs.ok){setCheer('white','<span style="font-size:.5em">잘 가</span>',ctx.name+' · '+ctx.time+' 하원',fill(COPY.depart.noarr,{n:n}),'',[]);return end(3000);}
+    var todayRec=null,prevTotal=0,best=0;
+    recs.cur.forEach(function(r){if(!attended(r))return;if(r.date===ts){todayRec=r;return;}var m=studyMin(r);prevTotal+=m;if(m>best)best=m;});
+    // 오늘 순공 = 지금 − 등원 − 외출 (클라이언트 계산)
+    var arr=todayRec?toMin(todayRec.arrival):null;
+    if(arr==null){var loc=todayRecs(ctx.code).filter(function(x){return x.mode==='등원';});if(loc.length)arr=toMin(loc[0].time);}
+    var now=new Date(),nowM=now.getHours()*60+now.getMinutes();
+    var out=todayRec?outMin(todayRec):0;
+    if(!out){var lr=todayRecs(ctx.code),o=null;lr.forEach(function(x){if(x.mode==='외출')o=toMin(x.time);if(x.mode==='복귀'&&o!=null){out+=Math.max(0,toMin(x.time)-o);o=null;}});}
+    var today=(arr!=null)?Math.max(0,nowM-arr-out):0;
+    if(arr==null){setCheer('white','<span style="font-size:.5em">잘 가</span>',ctx.name+' · '+ctx.time+' 하원',fill(COPY.depart.noarr,{n:n}),'',[]);return end(3000);}
+    var newTotal=prevTotal+today;
+    var ms=MS_HOURS.filter(function(h){return prevTotal<h*60&&newTotal>=h*60;})[0];
+    var stats=[{v:fmtHM(newTotal),l:'이달 누적'},{v:fmtHM(Math.max(best,today)),l:'개인 최고'}];
+    var line, cls='blue';
+    if(ms){cls='gold';var nx=MS_HOURS.filter(function(h){return h>ms;})[0];
+      setCheer(cls,ms+'<small>시간 돌파</small>',ctx.name+' · '+ctx.time+' 하원',fill(COPY.milestone,{h:ms}),'오늘 <b>'+fmt(today)+'</b>'+(nx?' · 다음 <b>'+nx+'시간</b>까지 '+fmt(nx*60-newTotal):''),stats);
+      countUp('cbig',ms,'<small>시간 돌파</small>');confetti(2);return end(4500);}
+    if(today<30)line=COPY.depart.short;
+    else if(best>0&&today>best){line=COPY.depart.best;cls='gold';confetti(1);}
+    else if(best>0&&best-today<=45)line=COPY.depart.near.replace('{d}',best-today);
+    else line=COPY.depart.normal;
+    var h=Math.floor(today/60),mm=today%60,bigHtml=h>0?h+'<small>시간 '+mm+'분</small>':mm+'<small>분</small>';
+    if(best>0)stats.push({v:(today-best>=0?'+':'-')+Math.abs(today-best)+'<span style="font-size:.5em">분</span>',l:'최고 대비'});
+    setCheer(cls,bigHtml,ctx.name+' · '+ctx.time+' 하원',fill(line,{n:n,t:fmt(today)}),'',stats);
+    if(h>0)countUp('cbig',h,'<small>시간 '+mm+'분</small>');else countUp('cbig',mm,'<small>분</small>');
+    end(cls==='gold'?4200:3400);
+  });}
+
+/* ================= CHEER helpers ================= */
+function setCheer(cls,big,name,h2,line,stats){var s=document.getElementById('s-cheer');s.className='screen on '+cls;
+  document.getElementById('cbig').innerHTML=big;document.getElementById('cname').innerHTML=name.replace(ctx.name,'<b>'+ctx.name+'</b>');
+  document.getElementById('ch2').textContent=h2;document.getElementById('cline').innerHTML=line;
+  document.getElementById('cstats').innerHTML=stats.map(function(x){return '<div class="stat"><div class="v">'+x.v+'</div><div class="l">'+x.l+'</div></div>';}).join('');
+  document.getElementById('cticks').innerHTML='';}
+function ticks(arr){document.getElementById('cticks').innerHTML=(arr||[]).slice(0,14).map(function(t){return '<div class="'+(t.on?'on':'')+(t.today?' today':'')+'">'+(t.on?'✓':'')+'</div>';}).join('');}
+function countUp(id,target,suffix){var el=document.getElementById(id),t0=Date.now(),dur=Math.min(900,200+target*40);
+  (function f(){var p=Math.min(1,(Date.now()-t0)/dur),e=1-Math.pow(1-p,3);el.innerHTML=Math.round(target*e)+suffix;if(p<1)requestAnimationFrame(f);})();}
+var endT=null;function end(ms){if(endT)clearTimeout(endT);endT=setTimeout(function(){stopConfetti();resetMain();},ms);}
+document.getElementById('s-cheer').addEventListener('click',function(){if(endT){clearTimeout(endT);stopConfetti();resetMain();}});
+
+/* ================= CONFETTI ================= */
+var cv=document.getElementById('confetti'),cx=cv.getContext('2d'),parts=[],cAnim=null;
+function confetti(level){cv.width=innerWidth;cv.height=innerHeight;var n=level>=2?220:110,cols=['#fbbf24','#60a5fa','#34d399','#f472b6','#f1f5f9','#f59e0b'];
+  for(var i=0;i<n;i++)parts.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,r:4+Math.random()*6,c:cols[i%cols.length],a:Math.random()*6.28,va:(Math.random()-.5)*.3});
+  if(!cAnim)tick();}
+function tick(){cx.clearRect(0,0,cv.width,cv.height);parts=parts.filter(function(p){return p.y<cv.height+30;});
+  parts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=p.va;p.vy+=.03;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);cx.restore();});
+  if(parts.length)cAnim=requestAnimationFrame(tick);else{cAnim=null;cx.clearRect(0,0,cv.width,cv.height);}}
+function stopConfetti(){parts=[];}
+
+/* ================= DEMO DATA ================= */
+function demoName(c){var N={'1111':'박시윤','2222':'김도윤','3333':'이서준','4444':'신시우'};return N[c]||'데모 '+c;}
+function demoRecords(y,m){var n=new Date(),out=[],dim=new Date(y,m,0).getDate(),isCur=(y===n.getFullYear()&&m===n.getMonth()+1),last=isCur?n.getDate()-1:dim;
+  var c=ctx.code,prof=c==='2222'?[2,4]:(c==='3333'?[1,2,3,4,5,6]:(c==='4444'?null:[1,2,3,4,5]));
+  if(!prof)return [];
+  for(var d=1;d<=last;d++){var x=new Date(y,m-1,d),w=x.getDay();if(prof.indexOf(w)<0)continue;if(c==='1111'&&d%9===0)continue;
+    var st=90+((d*37)%150),o=(d%4===0)?20:0;out.push({date:dstr(x),arrival:'16:10',departure:fmtHM(16*60+10+st+o),study_time:fmt(st),outing_minutes:o,status:'등원'});}
+  if(isCur&&c!=='4444'){var t=new Date();out.push({date:dstr(t),arrival:p2(Math.max(0,t.getHours()-2))+':'+p2(t.getMinutes()),status:'등원'});}
+  return out;}
+</script>
+</body>
+</html>
