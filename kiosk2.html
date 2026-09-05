@@ -192,7 +192,7 @@ var DEMO = /[?&]demo=1/.test(location.search);
 var CFG = {
   att: localStorage.getItem('habitclub_webhook') || 'https://havit.app.n8n.cloud/webhook/attendance',
   out: localStorage.getItem('habitclub_outing_webhook') || 'https://havit.app.n8n.cloud/webhook/outing',
-  chk: localStorage.getItem('hc2_checkin_webhook') || '',
+  chk: localStorage.getItem('hc2_checkin_webhook') || 'https://havit.app.n8n.cloud/webhook/checkin',
   get: localStorage.getItem('hc2_get_api') || 'https://havit.app.n8n.cloud/webhook/attendance'
 };
 ['att','out','chk','get'].forEach(function(k){document.getElementById('c-'+k).value=CFG[k];});
