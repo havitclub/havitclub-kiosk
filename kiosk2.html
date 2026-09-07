@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="color-scheme" content="only light">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -10,7 +11,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 :root{--bg:#0a0f1e;--surface:#111827;--surface2:#1a2235;--line:#1f2a44;--accent:#3b82f6;--accent2:#60a5fa;--success:#10b981;--error:#ef4444;--warn:#f59e0b;--gold:#fbbf24;--green:#34d399;--text:#f1f5f9;--muted:#64748b;--muted2:#94a3b8}
-html,body{height:100%}
+html,body{height:100%;color-scheme:only light}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow:hidden;position:relative;font-size:clamp(14px,2.6vmin,26px)}
 body::before{content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:80vw;height:50vh;background:radial-gradient(ellipse,rgba(59,130,246,.18) 0%,transparent 70%);pointer-events:none}
 button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer;touch-action:manipulation}
@@ -106,7 +107,7 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 .demo-badge{position:fixed;top:.6em;left:.6em;font-size:.6em;background:var(--warn);color:#111;padding:.2em .6em;border-radius:.4em;font-weight:900;z-index:20;display:none}
 
 /* ---- idle leaderboard (cream + neon) ---- */
-#idle{position:fixed;inset:0;z-index:80;background:#f4efe6;color:#141414;display:none;flex-direction:column;padding:1.8em 1.4em 1.4em;font-size:1.22em;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+#idle{position:fixed;inset:0;z-index:80;color-scheme:only light;-webkit-forced-color-adjust:none;forced-color-adjust:none;background:#f4efe6 !important;color:#141414;display:none;flex-direction:column;padding:1.8em 1.4em 1.4em;font-size:1.22em;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
 #idle.on{display:flex}
 #idle .hd{display:flex;justify-content:space-between;align-items:center}
 #idle .brand{font-family:'Bebas Neue';font-size:1.7em;letter-spacing:.2em;color:#141414}#idle .brand b{color:#ff4d1f}
@@ -115,7 +116,7 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 #idle h1 em{font-style:normal;background:#c8ff3d;padding:0 .15em}
 #idle .sub{font-size:.95em;margin-top:.55em;color:#555;font-weight:700}
 #idle .rows{margin-top:1.1em;display:flex;flex-direction:column;gap:.5em;position:relative}
-#idle .row{display:flex;align-items:center;gap:.9em;background:#fff;border:2px solid #141414;border-radius:.7em;padding:.7em 1em;box-shadow:.25em .25em 0 #141414;transition:transform .6s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+#idle .row{display:flex;align-items:center;gap:.9em;background:#fff !important;border:2px solid #141414;border-radius:.7em;padding:.7em 1em;box-shadow:.25em .25em 0 #141414;transition:transform .6s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
 #idle .row.top{background:#c8ff3d}
 #idle .row.flash{animation:flash 1.2s}
 @keyframes flash{0%{background:#ff4d1f;color:#fff}100%{}}
@@ -126,7 +127,7 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 #idle .live{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#ff4d1f;box-shadow:0 0 0 .2em rgba(255,77,31,.25);animation:pulse 1.2s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 .45em rgba(255,77,31,.08)}}
 #idle .tiles{display:grid;grid-template-columns:1fr 1fr;gap:.7em;margin-top:1.2em}
-#idle .tile{background:#fff;border:2px solid #141414;border-radius:.7em;padding:.85em;box-shadow:.25em .25em 0 #141414}
+#idle .tile{background:#fff !important;border:2px solid #141414;border-radius:.7em;padding:.85em;box-shadow:.25em .25em 0 #141414}
 #idle .tile .v{font-family:'Bebas Neue';font-size:3em;line-height:1;font-variant-numeric:tabular-nums}#idle .tile .l{font-size:.85em;font-weight:900;margin-top:.15em;color:#333}
 #idle .tile.hi{background:#ff4d1f;color:#fff}#idle .tile.hi .l{color:#ffe1d6}
 #idle .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:.85em;font-weight:900;padding-top:1em}
