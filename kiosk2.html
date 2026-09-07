@@ -116,7 +116,7 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 #idle h1 em{font-style:normal;background:#c8ff3d;padding:0 .15em}
 #idle .sub{font-size:.95em;margin-top:.55em;color:#555;font-weight:700}
 #idle .rows{margin-top:.8em;display:flex;flex-direction:column;gap:.4em;position:relative}
-#idle .row{display:flex;align-items:center;gap:.9em;background:#fff !important;border:2px solid #141414;border-radius:.7em;padding:.35em 1em;box-shadow:.25em .25em 0 #141414;transition:transform .6s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+#idle .row{display:flex;align-items:center;gap:.9em;background:#fff !important;border:2px solid #141414;border-radius:.7em;padding:.42em 1em;box-shadow:.25em .25em 0 #141414;transition:transform .6s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
 #idle .row.top{background:#c8ff3d}
 #idle .row.flash{animation:flash 1.2s}
 @keyframes flash{0%{background:#ff4d1f;color:#fff}100%{}}
@@ -535,10 +535,9 @@ function idleRender(){var d=IDLE.data,el=document.getElementById('ipanel');el.cl
   if(!d){el.innerHTML='<h1>잠깐, 계산 중</h1><div class="empty">순공 데이터 불러오는 중…</div>';return;}
   var monthLabel=parseInt(d.monthStart.slice(5,7))+'월';
   if(IDLE.panel===0){
-    var all=(d.top||[]).slice(0,20),rows=all.slice(0,5),rest=all.slice(5);
-    el.innerHTML='<div class="sticker">폰 본 시간 제외</div><h1>이달<br>순공 <em>TOP 20</em></h1><div class="sub">'+monthLabel+' 1일 ~ 지금. 앉아 있는 사람은 지금도 오르는 중.</div>'+
-      (rows.length?'<div class="rows" id="irows">'+rows.map(function(s,i){return '<div class="row'+(i===0?' top':'')+'" data-i="'+s.i+'"><div class="rk">'+(i+1)+'</div><div class="nm">'+s.i+(s.live?'<span class="live"></span>':'')+'</div><div class="val">'+hm(s.month+liveMin(s))+'</div><div class="bar"></div></div>';}).join('')+'</div>':'<div class="empty">이달 기록 아직 없음. 첫 줄은 네 거.</div>')+
-      (rest.length?'<div class="mini" id="imini">'+rest.map(function(s,i){return '<div class="mrow" data-i="'+s.i+'"><span class="mrk">'+(i+6)+'</span><span class="mnm">'+s.i+(s.live?'<span class="live"></span>':'')+'</span><span class="mval">'+hm(s.month+liveMin(s))+'</span></div>';}).join('')+'</div>':'');
+    var rows=(d.top||[]).slice(0,10);
+    el.innerHTML='<div class="sticker">폰 본 시간 제외</div><h1>이달<br>순공 <em>TOP 10</em></h1><div class="sub">'+monthLabel+' 1일 ~ 지금. 앉아 있는 사람은 지금도 오르는 중.</div>'+
+      (rows.length?'<div class="rows" id="irows">'+rows.map(function(s,i){return '<div class="row'+(i===0?' top':'')+'" data-i="'+s.i+'"><div class="rk">'+(i+1)+'</div><div class="nm">'+s.i+(s.live?'<span class="live"></span>':'')+'</div><div class="val">'+hm(s.month+liveMin(s))+'</div><div class="bar"></div></div>';}).join('')+'</div>':'<div class="empty">이달 기록 아직 없음. 첫 줄은 네 거.</div>');
   } else if(IDLE.panel===1){
     var pres=(d.present||[]);
     el.innerHTML='<div class="tiles"><div class="tile hi"><div class="v" id="ipres">'+pres.length+'</div><div class="l">지금 공부 중</div></div><div class="tile"><div class="v" id="iroom">'+hm(d.roomTodayMin||0)+'</div><div class="l">오늘 이 방 순공 합</div></div><div class="tile"><div class="v">'+(d.attendedToday||0)+'</div><div class="l">오늘 등원</div></div><div class="tile"><div class="v">'+(d.calls||0)+'</div><div class="l">오늘 코치 부름</div></div></div>'+
@@ -550,7 +549,7 @@ function idleRender(){var d=IDLE.data,el=document.getElementById('ipanel');el.cl
       (mv.length?'<div class="rows">'+mv.map(function(m,i){return '<div class="row'+(i===0?' top':'')+'"><div class="rk">↑</div><div class="nm">'+m.i+'</div><div class="val">+'+hm(m.delta)+'</div></div>';}).join('')+'</div>':'<div class="empty">아직 지난주보다 늘어난 사람 없음. 오늘 앉으면 바뀜.</div>');
   }}
 function idleTick(){var d=IDLE.data;if(!d)return;var n=new Date();document.getElementById('iclock').textContent=p2(n.getHours())+':'+p2(n.getMinutes());
-  if(IDLE.panel===0){var allr=(d.top||[]).slice(0,20).map(function(s){return {s:s,v:s.month+liveMin(s)};}).sort(function(a,b){return b.v-a.v;});var rows=allr.slice(0,5);var mini=document.getElementById('imini');if(mini){allr.slice(5).forEach(function(r){var e=mini.querySelector('[data-i="'+r.s.i+'"]');if(e)e.querySelector('.mval').textContent=r.s.live?hms(r.v):hm(r.v);});}
+  if(IDLE.panel===0){var rows=(d.top||[]).slice(0,12).map(function(s){return {s:s,v:s.month+liveMin(s)};}).sort(function(a,b){return b.v-a.v;}).slice(0,10);
     var box=document.getElementById('irows');if(!box)return;var order=rows.map(function(r){return r.s.i;}).join(',');
     if(IDLE.lastRank&&IDLE.lastRank!==order){ /* 추월 발생: 재렌더 + 플래시 */ var prev=IDLE.lastRank.split(',');idleRender();rows.forEach(function(r,i){if(prev.indexOf(r.s.i)!==i){var e=box.querySelector('[data-i="'+r.s.i+'"]');if(e)e.classList.add('flash');}});}
     IDLE.lastRank=order;var max=rows.length?rows[0].v:1;
