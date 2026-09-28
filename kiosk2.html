@@ -239,6 +239,7 @@ var CFG = {
   chk: localStorage.getItem('hc2_checkin_webhook') || 'https://havit.app.n8n.cloud/webhook/checkin',
   get: localStorage.getItem('hc2_get_api') || 'https://havit.app.n8n.cloud/webhook/attendance',
   lb: localStorage.getItem('hc2_lb_api') || 'https://havit.app.n8n.cloud/webhook/leaderboard',
+  data: 'https://havitclub.github.io/havitclub-kiosk/data/kiosk.json',
   idleSec: parseInt(localStorage.getItem('hc2_idle_sec')||'60')
 };
 ['att','out','chk','get','lb'].forEach(function(k){document.getElementById('c-'+k).value=CFG[k];});document.getElementById('c-idle').value=CFG.idleSec;
@@ -390,8 +391,14 @@ function finishCheckin(){clearTimer();
 /* ================= DATA: GET API ================= */
 var pre=null,preName='';
 function prefetch(){if(!ctx.name||/^학번/.test(ctx.name))return;if(preName===ctx.name&&pre)return;preName=ctx.name;pre=loadRecords(ctx.name);}
+var STATIC={p:null,at:0,ttl:5*60*1000};
+function staticData(force){if(!force&&STATIC.p&&Date.now()-STATIC.at<STATIC.ttl)return STATIC.p;STATIC.at=Date.now();
+  STATIC.p=fetch(CFG.data+'?t='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).catch(function(){STATIC.at=0;return null;});return STATIC.p;}
 function fetchMonth(name,y,m){
   if(DEMO)return Promise.resolve(demoRecords(y,m));
+  var key=y+'-'+(m<10?'0'+m:m);
+  return staticData().then(function(d){var mo=d&&d.attendance&&d.attendance.months;if(mo&&mo[key])return mo[key][name]||[];return fetchMonthApi(name,y,m);});}
+function fetchMonthApi(name,y,m){
   var u=CFG.get+'?student='+encodeURIComponent(name)+'&year='+y+'&month='+m;
   return fetch(u).then(function(r){return r.text();}).then(function(t){if(t.charAt(0)==='=')t=t.slice(1);var j=JSON.parse(t);return Array.isArray(j)?j:[];}).catch(function(){return [];});}
 function loadRecords(name){var n=new Date(),y=n.getFullYear(),m=n.getMonth()+1,py=m===1?y-1:y,pm=m===1?12:m-1;
@@ -522,7 +529,7 @@ function liveMin(s){if(!s.live)return 0;var now=kstNowMin();var x=now-s.live.sta
 function hm(m){m=Math.max(0,m);var h=Math.floor(m/60),x=Math.floor(m%60);return h+':'+p2(x);}
 function hms(m){m=Math.max(0,m);var h=Math.floor(m/60),x=Math.floor(m%60),sec=Math.floor((m*60)%60);return h+':'+p2(x)+':'+p2(sec);}
 function idleFetch(){if(DEMO){IDLE.data=demoLB();return Promise.resolve();}
-  return fetch(CFG.lb+'?t='+Date.now()).then(function(r){return r.text();}).then(function(t){if(t.charAt(0)==='=')t=t.slice(1);var j=JSON.parse(t);if(Array.isArray(j))j=j[0];IDLE.data=j;IDLE.lastFetch=Date.now();}).catch(function(){});}
+  return staticData(true).then(function(d){if(d&&d.leaderboard){IDLE.data=d.leaderboard;IDLE.lastFetch=Date.now();}}).catch(function(){});}
 function idleShow(){IDLE.on=true;IDLE.panel=0;document.getElementById('idle').classList.add('on');
   (Date.now()-IDLE.lastFetch>4*60*1000?idleFetch():Promise.resolve()).then(function(){idleRender();});
   idleRotArm();
