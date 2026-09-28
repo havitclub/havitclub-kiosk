@@ -58,6 +58,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;col
 <div id="app"><div class="loading">로딩 중...</div></div>
 <script>
 var N8N='https://havit.app.n8n.cloud/webhook/attendance';
+var STATIC_URL='https://havitclub.github.io/havitclub-kiosk/data/kiosk.json';var STATIC_P=null;
+function staticData(){if(STATIC_P)return STATIC_P;STATIC_P=fetch(STATIC_URL+'?t='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).catch(function(){return null;});return STATIC_P;}
 var params=new URLSearchParams(location.search);
 var STUDENT=(params.get('student')||'').trim();
 var today=new Date();
@@ -74,7 +76,8 @@ function minsToStr(m){if(!ok(m)||m<=0)return'-';var h=Math.floor(m/60),mn=m%60;i
 function parseStudyMins(s){if(!ok(s))return 0;s=s.split('(')[0];var m=0,rh=/(\d+)\s*시간/,rm=/(\d+)\s*분/;var h=s.match(rh);if(h)m+=parseInt(h[1])*60;var mi=s.match(rm);if(mi)m+=parseInt(mi[1]);var c=s.match(/^(\d+):(\d+)$/);if(c)m=parseInt(c[1])*60+parseInt(c[2]);return m;}
 function outMins(rec){var o=parseInt(rec&&rec.outing_minutes);return isNaN(o)?0:o;}
 function studyMins(rec){var n=parseStudyMins(rec.study_time);if(n>0)return n;var a=toMins(rec.arrival),d=toMins(rec.departure);if(a!==null&&d!==null){var diff=d-a-outMins(rec);if(diff>0&&diff<720)return diff;}return 0;}
-function fetchData(y,m){var url=N8N+'?student='+encodeURIComponent(STUDENT)+'&year='+y+'&month='+m;return fetch(url).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.text();}).then(function(t){if(t.charAt(0)==='=')t=t.slice(1);return JSON.parse(t);});}
+function fetchData(y,m){var key=y+'-'+(m<10?'0'+m:m);return staticData().then(function(d){var mo=d&&d.attendance&&d.attendance.months;if(mo&&mo[key])return mo[key][STUDENT]||[];return fetchDataApi(y,m);});}
+function fetchDataApi(y,m){var url=N8N+'?student='+encodeURIComponent(STUDENT)+'&year='+y+'&month='+m;return fetch(url).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.text();}).then(function(t){if(t.charAt(0)==='=')t=t.slice(1);return JSON.parse(t);});}
 function render(records,isError){
   var app=document.getElementById('app');
   recordMap={};
