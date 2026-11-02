@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- kiosk3 v0.5 2026-11-02: Q2 삭제·약속 거울·외출/복귀 문구(노션 정본). 원본 kiosk2.html을 n8n 유틸이 변환해 생성 -->
 <title>해빗클럽 출결 v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&family=Bebas+Neue&family=Black+Han+Sans&display=swap" rel="stylesheet">
 <style>
@@ -65,6 +66,9 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 .tbar{position:fixed;left:0;bottom:0;height:4px;background:var(--accent);width:0;transition:width .2s linear;opacity:.7}
 /* ---- cheer ---- */
 #s-cheer{justify-content:center;text-align:center;padding:2em 1.2em}
+#s-cheer .mirror{margin:.6em auto 0;max-width:92%;font-size:1.05em;font-weight:800;line-height:1.45;color:#141414;background:rgba(255,255,255,.88);border:2px solid #141414;border-radius:.7em;padding:.55em .9em;display:none}
+#s-cheer .mirror.on{display:block}
+#s-cheer .mirror small{display:block;font-size:.78em;font-weight:700;color:#555;margin-top:.25em}
 .cname{position:absolute;top:1.6em;font-size:.95em;color:var(--muted2);font-weight:700}.cname b{color:#fff}
 .big{font-family:'Bebas Neue';font-size:7.5em;line-height:.9;letter-spacing:.02em}
 .big small{font-size:.32em;font-family:'Noto Sans KR';font-weight:900;letter-spacing:0;vertical-align:1em;margin-left:.3em}
@@ -171,27 +175,19 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 
 <!-- ===== Q1 컨디션 ===== -->
 <div class="screen qs" id="s-q1">
-  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">1 / 3</div></div>
+  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">1 / 2</div></div>
   <div class="qhead"><h1 id="q1h"></h1><p id="q1p"></p></div>
   <div class="opts">
     <button class="opt" onclick="pickCond('방전',this)"><span class="ic">🪫</span>방전</button>
     <button class="opt" onclick="pickCond('버틸 만함',this)"><span class="ic">🔋</span>버틸 만함</button>
     <button class="opt" onclick="pickCond('풀충전',this)"><span class="ic">⚡</span>풀충전</button>
   </div>
-  <div class="qfoot"><span></span><button class="skip" onclick="goQ2()">건너뛰기</button></div>
-</div>
-
-<!-- ===== Q2 주력 ===== -->
-<div class="screen qs" id="s-q2">
-  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">2 / 3</div></div>
-  <div class="qhead"><h1 id="q2h"></h1><p id="q2p"></p></div>
-  <div class="chips" id="chips"></div>
-  <div class="qfoot"><button class="skip" onclick="goQ3()">건너뛰기</button><button class="next dim" id="q2next" onclick="goQ3()">다음 →</button></div>
+  <div class="qfoot"><span></span><button class="skip" onclick="goQ3()">건너뛰기</button></div>
 </div>
 
 <!-- ===== Q3 코치콜 ===== -->
 <div class="screen qs" id="s-q3">
-  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">3 / 3</div></div>
+  <div class="top"><div class="b">HAVIT<span>CLUB</span></div><div class="step">2 / 2</div></div>
   <div class="qhead"><h1 id="q3h"></h1><p id="q3p"></p></div>
   <div class="calls" id="calls"></div>
   <div class="qfoot"><span></span><button class="skip" onclick="finishCheckin()">건너뛰기</button></div>
@@ -202,6 +198,7 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
   <div class="cname" id="cname"></div>
   <div class="big" id="cbig"></div>
   <div class="ch2" id="ch2"></div>
+  <div class="mirror" id="cmirror"></div>
   <div class="cline" id="cline"></div>
   <div class="stats" id="cstats"></div>
   <div class="ticks" id="cticks"></div>
@@ -222,7 +219,7 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 <div class="cfg" id="cfg">
   <label>출결 Webhook (등원/하원)</label><input id="c-att">
   <label>외출 Webhook (외출/복귀)</label><input id="c-out">
-  <label>체크인 Webhook (컨디션·주력·코치콜) — 비우면 로컬 저장만</label><input id="c-chk">
+  <label>체크인 Webhook (컨디션·코치콜) — 비우면 로컬 저장만</label><input id="c-chk">
   <label>출결 조회 API (GET ?student=)</label><input id="c-get">
   <label>리더보드 API (GET)</label><input id="c-lb">
   <label>대기화면 전환 초 (0=끔)</label><input id="c-idle">
@@ -255,9 +252,7 @@ if(DEMO)document.getElementById('demo').style.display='block';
 /* ================= COPY (문안 v1) ================= */
 var COPY = {
   q1: {h:'{n}, 오늘 배터리 <em>몇 %</em>?', p:['방전인데 왔으면 이미 절반은 한 거임','충전기는 안 빌려줌. 대신 앉는 자리는 줌','배터리 낮다고 성능 낮은 건 아님. 폰이나 그렇지']},
-  q2: {h:'{n}, 오늘 <em>뭐 잡을</em> 거야?', p:['고른 순간부터 계획임. 말은 무섭다','하나만 골라도 됨. 다 고르는 토요일도 있고','안 고르면 코치가 고름. 그게 더 무섭지']},
   q3: {h:'{n}, 오늘 <em>코칭</em> 필요해?', p:['안 눌러도 필요해 보이면 부름. 그게 코치 일','부르는 게 실력임. 참는 게 아니고','이건 의사 확인. 판정은 코치가']},
-  subjects: ['수학','영어','국어','과학','사회','숙제','수행·시험','독서'],
   calls: [
     {k:'없음', ic:'🙅', t:'오늘은 혼자 감 — 알아서 함', s:'', solo:true},
     {k:'수학', ic:'🧮', t:'수학 막힘', s:'풀이 봐줘'},
@@ -275,6 +270,43 @@ var MS_HOURS=[10,20,30,40,50,60,80,100];
 var MS_STREAK=[3,5,10,20,30];
 function rot(arr){var d=new Date();return arr[(d.getDate()+d.getMonth())%arr.length];}
 function fill(s,m){return s.replace(/\{(\w+)\}/g,function(_,k){return m[k]!=null?m[k]:'';});}
+
+/* ================= 문구(노션 정본 → kiosk.json.messages, 없으면 기본값) + 약속(마스터 시간표 → kiosk.json.promise) ================= */
+var MSG_DEF={
+  arrive_ontime:['약속 {p} · 도착 {a}. 말한 대로 온 게 제일 어려운 거임'],
+  arrive_early:['약속 {p}인데 {a}에 왔음. {m}분 먼저. 이게 습관임'],
+  arrive_late_small:['약속 {p} · 도착 {a} (+{m}분). 다음엔 그 전에'],
+  arrive_late_big:['약속 {p} · 도착 {a} (+{m}분). 약속이 틀렸거나 내가 틀렸거나 — 코치랑 한 번 맞추자'],
+  arrive_noplan:['오늘은 약속 없는 날인데 왔네. 이런 건 아무도 안 시킴'],
+  arrive_tally:['이달 약속 지킴 {k}/{N}'],
+  out:['{n}, {t} 외출. 밥·산책은 <b>60분 안에 복귀</b>가 원칙 — 목표 {due}'],
+  back_fast:['벌써 왔어? {m}분. 자리가 그리웠구나'],
+  back_ok:['{m}분 만에 복귀. 깔끔'],
+  back_over:['{m}분 — 60분 넘었네. 다음엔 안에서 끝내자'],
+  back_unknown:['복귀. 다시 앉자']
+};
+var MSGS=null;
+function msg(key,vars){var arr=(MSGS&&MSGS[key]&&MSGS[key].length)?MSGS[key]:(MSG_DEF[key]||['']);return fill(pick(arr),vars||{});}
+var DAYKEY=['sun','mon','tue','wed','thu','fri','sat'];
+function demoPromise(){return {red:false,mon:'16:00',tue:'16:00',wed:'16:00',thu:'16:00',fri:'16:00',sat:'10:00',sun:'',dep:'21:00'};}
+function getPromise(name){
+  if(DEMO)return Promise.resolve(demoPromise());
+  return staticData().then(function(d){if(d&&d.messages)MSGS=d.messages;var p=d&&d.promise;return (p&&p[name])?p[name]:null;}).catch(function(){return null;});}
+function promiseDays(pr){var U=[];if(!pr)return U;DAYKEY.forEach(function(k,i){if(pr[k])U.push(i);});return U;}
+function addMin(hm,plus){var m=toMin(hm);if(m==null)return '';m=(m+plus)%1440;return p2(Math.floor(m/60))+':'+p2(m%60);}
+function mirrorArrive(pr,recs){var el=document.getElementById('cmirror');el.className='mirror';el.innerHTML='';
+  if(!pr)return; var n=ctx.first||'너',today=new Date(),k=DAYKEY[today.getDay()],p=pr[k];
+  var key,m=0;
+  if(!p){key='arrive_noplan';}
+  else{var d=toMin(ctx.time)-toMin(p);m=Math.abs(d);key=d<-10?'arrive_early':(d<=10?'arrive_ontime':(d<=30?'arrive_late_small':'arrive_late_big'));}
+  var html=msg(key,{n:n,p:p,a:ctx.time,m:m});
+  var y=today.getFullYear(),mo=today.getMonth(),N=0,K=0,byDate={};
+  (recs&&recs.cur||[]).forEach(function(r){if(attended(r))byDate[r.date]=r;});
+  for(var dd=1;dd<=today.getDate();dd++){var x=new Date(y,mo,dd),pk=pr[DAYKEY[x.getDay()]];if(!pk)continue;N++;
+    var arr=(dd===today.getDate())?ctx.time:(byDate[dstr(x)]&&byDate[dstr(x)].arrival);
+    if(arr&&toMin(arr)!=null&&toMin(arr)-toMin(pk)<=10)K++;}
+  if(N>0)html+='<small>'+msg('arrive_tally',{k:K,N:N})+'</small>';
+  el.innerHTML=html;el.className='mirror on';}
 
 /* ================= STATE ================= */
 var pin='', mode='등원', busy=false;
@@ -336,8 +368,8 @@ function nameCache(){try{return JSON.parse(localStorage.getItem('hc2_names')||'{
 function cacheName(c,n){if(!n||/^학번/.test(n))return;try{var m=nameCache();m[c]=n;localStorage.setItem('hc2_names',JSON.stringify(m));}catch(e){}}
 var postDone=null; // 등원 POST 완료 Promise
 function applyName(n){ctx.name=n;ctx.first=firstName(n);var f=ctx.first||'너';
-  var q1=document.getElementById('q1h'),q2=document.getElementById('q2h'),q3=document.getElementById('q3h');
-  q1.innerHTML=fill(COPY.q1.h,{n:f});q2.innerHTML=fill(COPY.q2.h,{n:f});q3.innerHTML=fill(COPY.q3.h,{n:f});}
+  var q1=document.getElementById('q1h'),q3=document.getElementById('q3h');
+  q1.innerHTML=fill(COPY.q1.h,{n:f});q3.innerHTML=fill(COPY.q3.h,{n:f});}
 function send(code,m){var n=new Date();
   var payload={student_code:code,mode:m,timestamp:n.toISOString(),date:todayStr(),time:p2(n.getHours())+':'+p2(n.getMinutes())};
   var url=(m==='외출'||m==='복귀')?CFG.out:CFG.att;
@@ -356,8 +388,14 @@ function send(code,m){var n=new Date();
   if(m==='하원'){ov('loading','','처리 중...');
     var early=cached?loadRecords(cached):null; // 캐시된 이름으로 GET 먼저 발사
     req.then(onData).then(function(){ovHide();cheerDepart(early&&cached===ctx.name?early:null);}).catch(onFail);return;}
+  // 외출/복귀 — 치어업 화면으로 메시지(2026-11-02)
+  var lastOut=null;if(m==='복귀'){var lr=todayRecs(code);for(var i=lr.length-1;i>=0;i--){if(lr[i].mode==='외출'){lastOut=lr[i].time;break;}if(lr[i].mode==='복귀'||lr[i].mode==='등원')break;}}
   ov('loading','','처리 중...');
-  req.then(onData).then(function(){ov('success','✅ '+ctx.name,m+' 완료 · '+payload.time);setTimeout(function(){ovHide();resetMain();},1600);}).catch(onFail);
+  req.then(onData).then(function(){ovHide();var n=ctx.first||'너';getPromise(ctx.name).then(function(){
+    if(m==='외출'){setCheer('white','🚶',ctx.name+' · '+payload.time+' 외출',msg('out',{n:n,t:payload.time,due:addMin(payload.time,60)}),'',[]);return end(5000);}
+    var el=lastOut!=null?Math.max(0,toMin(payload.time)-toMin(lastOut)):null;
+    var key=el==null?'back_unknown':(el<=30?'back_fast':(el<=60?'back_ok':'back_over'));
+    setCheer(el!=null&&el>60?'blue':'green',el!=null?el+'<small>분 만에 복귀</small>':'↩️',ctx.name+' · '+payload.time+' 복귀',msg(key,{n:n,m:el}),'',[]);end(4500);});}).catch(onFail);
 }
 function firstName(n){if(!n)return '';n=String(n).replace(/\(.*\)/,'').trim();return n.length>=3?n.slice(1):n;}
 
@@ -370,12 +408,9 @@ function clearTimer(){if(qTimer)clearInterval(qTimer);qTimer=null;document.getEl
 function touchTimer(fn){armTimer(fn);}
 
 function startQ1(){var n=ctx.first||'너';document.getElementById('q1h').innerHTML=fill(COPY.q1.h,{n:n});document.getElementById('q1p').textContent=rot(COPY.q1.p);
-  document.querySelectorAll('#s-q1 .opt').forEach(function(b){b.classList.remove('sel');});show('s-q1');armTimer(goQ2);}
-function pickCond(v,el){ctx.cond=v;document.querySelectorAll('#s-q1 .opt').forEach(function(b){b.classList.remove('sel');});el.classList.add('sel');clearTimer();setTimeout(goQ2,350);}
-function goQ2(){clearTimer();var n=ctx.first||'너';document.getElementById('q2h').innerHTML=fill(COPY.q2.h,{n:n});document.getElementById('q2p').textContent=rot(COPY.q2.p);
-  var box=document.getElementById('chips');box.innerHTML='';ctx.subj=[];document.getElementById('q2next').classList.add('dim');
-  COPY.subjects.forEach(function(s){var b=document.createElement('button');b.className='chip';b.textContent=s;b.onclick=function(){b.classList.toggle('sel');var i=ctx.subj.indexOf(s);if(i>=0)ctx.subj.splice(i,1);else ctx.subj.push(s);document.getElementById('q2next').classList.toggle('dim',ctx.subj.length===0);touchTimer(goQ3);};box.appendChild(b);});
-  show('s-q2');armTimer(goQ3);}
+  document.querySelectorAll('#s-q1 .opt').forEach(function(b){b.classList.remove('sel');});show('s-q1');armTimer(goQ3);}
+function pickCond(v,el){ctx.cond=v;document.querySelectorAll('#s-q1 .opt').forEach(function(b){b.classList.remove('sel');});el.classList.add('sel');clearTimer();setTimeout(goQ3,350);}
+function goQ2(){goQ3();} /* Q2 주력 질문 삭제(2026-11-02) */
 function goQ3(){clearTimer();var n=ctx.first||'너';document.getElementById('q3h').innerHTML=fill(COPY.q3.h,{n:n});document.getElementById('q3p').textContent=rot(COPY.q3.p);
   var box=document.getElementById('calls');box.innerHTML='';
   COPY.calls.forEach(function(c){var b=document.createElement('button');b.className='call'+(c.solo?' solo':'');b.innerHTML='<span class="ic">'+c.ic+'</span><span>'+c.t+(c.s?'<span class="sub">'+c.s+'</span>':'')+'</span>';
@@ -414,7 +449,7 @@ function fmtHM(m){var h=Math.floor(m/60),x=m%60;return h+':'+p2(x);}
 function dstr(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
 
 /* ---- streak analysis (마스터 시간표 없이 최근 4주로 추정) ---- */
-function analyze(recs){var set={};recs.cur.concat(recs.prev).forEach(function(r){if(attended(r))set[r.date]=1;});
+function analyze(recs,PU){var set={};recs.cur.concat(recs.prev).forEach(function(r){if(attended(r))set[r.date]=1;});
   var today=new Date();today.setHours(0,0,0,0);var ts=dstr(today);set[ts]=1;
   var total=Object.keys(set).length;
   // last 28 days excluding today
@@ -423,10 +458,10 @@ function analyze(recs){var set={};recs.cur.concat(recs.prev).forEach(function(r)
   var out={total:total,perWeek:perWeek,mode:'welcome'};
   if(total<=1)return out;
   if(cnt===0){out.mode='rare';return out;}
-  if(perWeek>=3.5){out.mode='daily';var s=0,d=new Date(today);
+  if(perWeek>=3.5&&!(PU&&PU.length&&PU.length<=5)){out.mode='daily';var s=0,d=new Date(today);
     while(true){var k=dstr(d);if(set[k]){s++;}else if(d.getDay()===0||d.getDay()===6){/* 주말 미등원은 안 끊음 */}else break;d.setDate(d.getDate()-1);if(s>200)break;}
     out.streak=s;}
-  else{var U=[];for(var w=0;w<7;w++)if(wd[w]>=2)U.push(w);
+  else{var U=(PU&&PU.length)?PU.slice():[];if(!U.length)for(var w=0;w<7;w++)if(wd[w]>=2)U.push(w);
     if(!U.length){out.mode='light';return out;}
     if(U.indexOf(today.getDay())<0)U.push(today.getDay());
     out.days=U.slice().sort().map(function(w){return ['일','월','화','수','목','금','토'][w];}).join('·');
@@ -442,17 +477,18 @@ function analyze(recs){var set={};recs.cur.concat(recs.prev).forEach(function(r)
 
 /* ================= CHEER: ARRIVE ================= */
 function cheerArrive(){show('s-cheer');setCheer('white','',ctx.name+' · '+ctx.time+' 등원','','',[]);
-  ((preName===ctx.name&&pre)?pre:loadRecords(ctx.name)).then(function(recs){var n=ctx.first||'너';
-    if(!recs.ok){setCheer('white','<span style="font-size:.5em">어서 와</span>',ctx.name+' · '+ctx.time+' 등원',fill(COPY.welcome.plain,{n:n}),'',[]);return end(3200);}
-    var a=analyze(recs);
+  Promise.all([((preName===ctx.name&&pre)?pre:loadRecords(ctx.name)),getPromise(ctx.name)]).then(function(res){var recs=res[0],pr=res[1],n=ctx.first||'너';
+    if(!recs.ok){setCheer('white','<span style="font-size:.5em">어서 와</span>',ctx.name+' · '+ctx.time+' 등원',fill(COPY.welcome.plain,{n:n}),'',[]);mirrorArrive(pr,recs);return end(pr?5000:3200);}
+    var a=analyze(recs,promiseDays(pr));
+    function done(ms){mirrorArrive(pr,recs);var __e=end;return __e(pr?Math.max(ms,6000):ms);}
     if(a.mode==='daily'){var big=a.streak,ms=MS_STREAK.indexOf(big)>=0,line=COPY.streak[big]||COPY.streak.other;var next=MS_STREAK.filter(function(x){return x>big;})[0];
       setCheer(ms?'gold':'blue',big+'<small>일 연속</small>',ctx.name+' · '+ctx.time+' 등원',fill(line,{n:n}),'이번 달 <b>'+a.monthCount+'회</b> 등원'+(next?' · 다음 마일스톤 <b>'+next+'일</b>':''),[]);
-      countUp('cbig',big,'<small>일 연속</small>');if(ms)confetti(big>=10?2:1);return end(ms?6000:5000);}
+      countUp('cbig',big,'<small>일 연속</small>');if(ms)confetti(big>=10?2:1);return done(ms?6000:5000);}
     if(a.mode==='promise'){var b2=a.streak;
       setCheer('green',b2+'<small>번 연속 약속 지킴</small>',ctx.name+' · '+ctx.time+' 등원',fill(COPY.promise,{n:n,days:a.days,k:b2}),'이번 달 예정 <b>'+a.plan+'회</b> 중 <b>'+a.done+'회</b> 완료'+(a.plan-a.done>0?' · 남은 약속 '+(a.plan-a.done)+'번':' · 이번 달 약속 전부 지킴'),[]);
-      ticks(a.ticks);countUp('cbig',b2,'<small>번 연속 약속 지킴</small>');if(b2>0&&b2%4===0)confetti(1);return end(5000);}
+      ticks(a.ticks);countUp('cbig',b2,'<small>번 연속 약속 지킴</small>');if(b2>0&&b2%4===0)confetti(1);return done(5000);}
     var w=a.mode==='rare'?COPY.welcome.rare:(a.total<=1?COPY.welcome.first:(a.mode==='light'?COPY.welcome.back:COPY.welcome.plain));
-    setCheer('white','<span style="font-size:.5em">어서 와</span>',ctx.name+' · '+ctx.time+' 등원',fill(w,{n:n}),a.monthCount?'이번 달 <b>'+a.monthCount+'회</b> 등원':'',[]);end(5000);
+    setCheer('white','<span style="font-size:.5em">어서 와</span>',ctx.name+' · '+ctx.time+' 등원',fill(w,{n:n}),a.monthCount?'이번 달 <b>'+a.monthCount+'회</b> 등원':'',[]);done(5000);
   });}
 
 /* ================= CHEER: DEPART ================= */
@@ -490,9 +526,9 @@ function cheerDepart(early){show('s-cheer');setCheer('blue','',ctx.name+' · '+c
 /* ================= CHEER helpers ================= */
 function setCheer(cls,big,name,h2,line,stats){var s=document.getElementById('s-cheer');s.className='screen on '+cls;
   document.getElementById('cbig').innerHTML=big;document.getElementById('cname').innerHTML=name.replace(ctx.name,'<b>'+ctx.name+'</b>');
-  document.getElementById('ch2').textContent=h2;document.getElementById('cline').innerHTML=line;
+  document.getElementById('ch2').innerHTML=h2;document.getElementById('cline').innerHTML=line;
   document.getElementById('cstats').innerHTML=stats.map(function(x){return '<div class="stat"><div class="v">'+x.v+'</div><div class="l">'+x.l+'</div></div>';}).join('');
-  document.getElementById('cticks').innerHTML='';}
+  document.getElementById('cticks').innerHTML='';document.getElementById('cmirror').className='mirror';document.getElementById('cmirror').innerHTML='';}
 function ticks(arr){document.getElementById('cticks').innerHTML=(arr||[]).slice(0,14).map(function(t){return '<div class="'+(t.on?'on':'')+(t.today?' today':'')+'">'+(t.on?'✓':'')+'</div>';}).join('');}
 function countUp(id,target,suffix){var el=document.getElementById(id),t0=Date.now(),dur=Math.min(900,200+target*40);
   (function f(){var p=Math.min(1,(Date.now()-t0)/dur),e=1-Math.pow(1-p,3);el.innerHTML=Math.round(target*e)+suffix;if(p<1)requestAnimationFrame(f);})();}
