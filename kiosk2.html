@@ -391,7 +391,7 @@ function send(code,m){var n=new Date();
   // 외출/복귀 — 치어업 화면으로 메시지(2026-11-02)
   var lastOut=null;if(m==='복귀'){var lr=todayRecs(code);for(var i=lr.length-1;i>=0;i--){if(lr[i].mode==='외출'){lastOut=lr[i].time;break;}if(lr[i].mode==='복귀'||lr[i].mode==='등원')break;}}
   ov('loading','','처리 중...');
-  req.then(onData).then(function(){ovHide();var n=ctx.first||'너';getPromise(ctx.name).then(function(){
+  req.then(onData).then(function(){ovHide();var n=ctx.first||'너';getPromise(ctx.name).then(function(){show('s-cheer');
     if(m==='외출'){setCheer('white','🚶',ctx.name+' · '+payload.time+' 외출',msg('out',{n:n,t:payload.time,due:addMin(payload.time,60)}),'',[]);return end(5000);}
     var el=lastOut!=null?Math.max(0,toMin(payload.time)-toMin(lastOut)):null;
     var key=el==null?'back_unknown':(el<=30?'back_fast':(el<=60?'back_ok':'back_over'));
