@@ -579,7 +579,7 @@ function liveMin(s){if(!s.live)return 0;var now=kstNowMin();var x=now-s.live.sta
 function hm(m){m=Math.max(0,m);var h=Math.floor(m/60),x=Math.floor(m%60);return h+':'+p2(x);}
 function hms(m){m=Math.max(0,m);var h=Math.floor(m/60),x=Math.floor(m%60),sec=Math.floor((m*60)%60);return h+':'+p2(x)+':'+p2(sec);}
 function idleFetch(){if(DEMO){IDLE.data=demoLB();return Promise.resolve();}
-  return staticData(true).then(function(d){if(d&&d.leaderboard){IDLE.data=d.leaderboard;IDLE.lastFetch=Date.now();}}).catch(function(){});}
+  return staticData(true).then(function(d){if(d&&d.leaderboard){IDLE.data=d.leaderboard;IDLE.data.bestToday=d.bestToday||[];IDLE.data.promiseStreak=d.promiseStreak||[];IDLE.data.streakTol=d.streakTol||10;IDLE.lastFetch=Date.now();}}).catch(function(){});}
 function idleShow(){IDLE.on=true;IDLE.panel=0;document.getElementById('idle').classList.add('on');
   (Date.now()-IDLE.lastFetch>4*60*1000?idleFetch():Promise.resolve()).then(function(){idleRender();});
   idleRotArm();
@@ -595,29 +595,44 @@ function idleRender(){var d=IDLE.data,el=document.getElementById('ipanel');el.cl
     var rows=(d.top||[]).slice(0,10);
     el.innerHTML='<div class="sticker">폰 본 시간 제외</div><h1>이달<br>순공 <em>TOP 10</em></h1><div class="sub">'+monthLabel+' 1일 ~ 지금. 앉아 있는 사람은 지금도 오르는 중.</div>'+
       (rows.length?'<div class="rows" id="irows">'+rows.map(function(s,i){return '<div class="row'+(i===0?' top':'')+'" data-i="'+s.i+'"><div class="rk">'+(i+1)+'</div><div class="nm">'+s.i+(s.live?'<span class="live"></span>':'')+'</div><div class="val">'+hm(s.month+liveMin(s))+'</div><div class="bar"></div></div>';}).join('')+'</div>':'<div class="empty">이달 기록 아직 없음. 첫 줄은 네 거.</div>');
-  } else if(IDLE.panel===1){
+  } else if(IDLE.panel===1){idleBest(d,el);
+  } else if(IDLE.panel===2){idleStreak(d,el);
+  } else if(IDLE.panel===101){
     var pres=(d.present||[]);
     el.innerHTML='<div class="tiles"><div class="tile hi"><div class="v" id="ipres">'+pres.length+'</div><div class="l">지금 공부 중</div></div><div class="tile"><div class="v" id="iroom">'+hm(d.roomTodayMin||0)+'</div><div class="l">오늘 이 방 순공 합</div></div><div class="tile"><div class="v">'+(d.attendedToday||0)+'</div><div class="l">오늘 등원</div></div><div class="tile"><div class="v">'+(d.calls||0)+'</div><div class="l">오늘 코치 부름</div></div></div>'+
       '<h1 style="font-size:2.1em">지금 <em>이 방</em></h1><div class="sub">초 단위로 뛰는 건 진짜라서 그럼.</div>'+
       (pres.length?'<div class="rows" id="irows">'+pres.slice(0,6).map(function(s){return '<div class="row" data-i="'+s.i+'"><div class="nm">'+s.i+'<span class="live"></span></div><div class="val">'+hms(s.today+liveMin(s))+'</div></div>';}).join('')+'</div>':'<div class="empty">지금은 아무도 없음. 네가 1번.</div>');
-  } else {
+  } else if(IDLE.panel===102){
     var mv=(d.movers||[]).slice(0,3);
     el.innerHTML='<h1>이번 주<br>역전의 <em>명수</em></h1><div class="sub">지난주 같은 요일까지보다 제일 많이 늘어난 사람. 1등보다 무서움.</div>'+
       (mv.length?'<div class="rows">'+mv.map(function(m,i){return '<div class="row'+(i===0?' top':'')+'"><div class="rk">↑</div><div class="nm">'+m.i+'</div><div class="val">+'+hm(m.delta)+'</div></div>';}).join('')+'</div>':'<div class="empty">아직 지난주보다 늘어난 사람 없음. 오늘 앉으면 바뀜.</div>');
   }}
+/* ---- 패널 1: 오늘 자기 기록 긬 사람 / 패널 2: 약속 시간 내 도착 연속 (2026-11-04) ---- */
+function bestRows(d){return (d.bestToday||[]).map(function(s){return {s:s,v:s.today+liveMin(s)};}).filter(function(r){return r.v>r.s.prevBest;}).sort(function(a,b){return (b.v-b.s.prevBest)-(a.v-a.s.prevBest);}).slice(0,6);}
+function idleBest(d,el){var rows=bestRows(d);
+  el.innerHTML='<div class="sticker">최근 두 달 기준</div><h1>오늘<br>자기 기록 <em>긬 사람</em></h1><div class="sub">남 이기는 건 운. 어제의 나를 이기는 건 실력.</div>'+
+    (rows.length?'<div class="rows" id="irows">'+rows.map(function(r,i){return '<div class="row'+(i===0?' top':'')+'" data-i="'+r.s.i+'"><div class="rk">↑</div><div class="nm">'+r.s.i+(r.s.live?'<span class="live"></span>':'')+'<small style="font-size:.5em;font-weight:800;color:#666;letter-spacing:0">이전 최고 '+hm(r.s.prevBest)+'</small></div><div class="val">'+(r.s.live?hms(r.v):hm(r.v))+'</div><div class="bar" style="width:100%"></div></div>';}).join('')+'</div>':'<div class="empty">오늘은 아직 없음. 지금 앉아 있는 사람 중 한 명이 깔 차례.</div>');
+  IDLE.lastRank=rows.map(function(r){return r.s.i;}).join(',');}
+function idleBestTick(d){var rows=bestRows(d);var order=rows.map(function(r){return r.s.i;}).join(',');
+  if(order!==IDLE.lastRank){idleRender();return;}
+  var box=document.getElementById('irows');if(!box)return;rows.forEach(function(r){var e=box.querySelector('[data-i="'+r.s.i+'"]');if(e&&r.s.live)e.querySelector('.val').textContent=hms(r.v);});}
+function idleStreak(d,el){var rows=(d.promiseStreak||[]).slice(0,5);
+  el.innerHTML='<div class="sticker">약속 +'+(d.streakTol||10)+'분 안</div><h1>약속 시간에<br>온 <em>연속</em></h1><div class="sub">약속한 요일, 약속한 시간 안에 도착. 늦거나 빠지면 0부터.</div>'+
+    (rows.length?'<div class="rows">'+rows.map(function(s,i){return '<div class="row'+(i===0?' top':'')+'"><div class="rk">'+(i+1)+'</div><div class="nm">'+s.i+'</div><div class="val">'+s.streak+'<span style="font-size:.5em;font-family:\'Noto Sans KR\';font-weight:900"> 연속</span></div></div>';}).join('')+'</div>':'<div class="empty">지금 이어지고 있는 연속 없음. 다음 약속부터 1.</div>');}
 function idleTick(){var d=IDLE.data;if(!d)return;var n=new Date();document.getElementById('iclock').textContent=p2(n.getHours())+':'+p2(n.getMinutes());
   if(IDLE.panel===0){var rows=(d.top||[]).slice(0,12).map(function(s){return {s:s,v:s.month+liveMin(s)};}).sort(function(a,b){return b.v-a.v;}).slice(0,10);
     var box=document.getElementById('irows');if(!box)return;var order=rows.map(function(r){return r.s.i;}).join(',');
     if(IDLE.lastRank&&IDLE.lastRank!==order){ /* 추월 발생: 재렌더 + 플래시 */ var prev=IDLE.lastRank.split(',');idleRender();rows.forEach(function(r,i){if(prev.indexOf(r.s.i)!==i){var e=box.querySelector('[data-i="'+r.s.i+'"]');if(e)e.classList.add('flash');}});}
     IDLE.lastRank=order;var max=rows.length?rows[0].v:1;
     rows.forEach(function(r){var e=box.querySelector('[data-i="'+r.s.i+'"]');if(!e)return;e.querySelector('.val').textContent=r.s.live?hms(r.v):hm(r.v);e.querySelector('.bar').style.width=Math.round(100*r.v/Math.max(1,max))+'%';});
-  } else if(IDLE.panel===1){var box=document.getElementById('irows');(d.present||[]).forEach(function(s){var e=box&&box.querySelector('[data-i="'+s.i+'"]');if(e)e.querySelector('.val').textContent=hms(s.today+liveMin(s));});
+  } else if(IDLE.panel===1){idleBestTick(d);
+  } else if(IDLE.panel===101){var box=document.getElementById('irows');(d.present||[]).forEach(function(s){var e=box&&box.querySelector('[data-i="'+s.i+'"]');if(e)e.querySelector('.val').textContent=hms(s.today+liveMin(s));});
     var extra=0,sm=d.serverMin||kstNowMin();(d.present||[]).forEach(function(s){if(!s.live)return;var atServer=Math.max(0,sm-s.live.start-s.live.outAcc-(s.live.outNow!=null?Math.max(0,sm-s.live.outNow):0));extra+=liveMin(s)-atServer;});var ir=document.getElementById('iroom');if(ir)ir.textContent=hm((d.roomTodayMin||0)+extra);}
 }
 function demoLB(){var now=kstNowMin();return {generatedAt:new Date().toISOString(),serverMin:now,today:todayStr(),monthStart:todayStr().slice(0,8)+'01',
   top:[{i:'ㅎㅅㅇ',month:2300,days:12,today:120,live:{start:now-125,outAcc:0,outNow:null}},{i:'ㅂㅅㅇ',month:1925,days:11,today:0,live:null},{i:'ㄱㅊ',month:1630,days:9,today:60,live:{start:now-61,outAcc:0,outNow:null}},{i:'ㅊㅇ',month:1440,days:8,today:0,live:null},{i:'ㅈㅇㅇ',month:1335,days:7,today:0,live:null},{i:'ㅇㅈㅁ',month:1320,days:6,today:0,live:{start:now-3,outAcc:0,outNow:null}}].concat(['ㄱㅇㅎ','ㅈㅅㄱ','ㅇㅅㅇ','ㅁㅅㅎ','ㅈㅊㅇ','ㅎㄱㅂ','ㅇㅂㅊ','ㅂㅈㅇ','ㅈㅇㅊ','ㄱㅊㅇ','ㅇㄴㅇ','ㅈㄷㅎ','ㅈㅇㅈ','ㅊㅇ2'].map(function(n,i){return {i:n,month:1200-i*70,days:5,today:0,live:null};})),
   movers:[{i:'ㅇㅈㅁ',delta:280},{i:'ㄱㅇㅎ',delta:195},{i:'ㅈㅅㄱ',delta:170}],
-  present:[{i:'ㅎㅅㅇ',today:120,live:{start:now-125,outAcc:0,outNow:null}},{i:'ㄱㅊ',today:60,live:{start:now-61,outAcc:0,outNow:null}},{i:'ㅇㅈㅁ',today:0,live:{start:now-3,outAcc:0,outNow:null}}],attendedToday:18,calls:6,roomTodayMin:2490,cached:false};}
+  present:[{i:'ㅎㅅㅇ',today:120,live:{start:now-125,outAcc:0,outNow:null}},{i:'ㄱㅊ',today:60,live:{start:now-61,outAcc:0,outNow:null}},{i:'ㅇㅈㅁ',today:0,live:{start:now-3,outAcc:0,outNow:null}}],attendedToday:18,calls:6,roomTodayMin:2490,cached:false,streakTol:10,bestToday:[{i:'ㅎㅅㅇ',today:120,live:{start:now-125,outAcc:0,outNow:null},prevBest:230,baseDays:19},{i:'ㄱㅊ',today:0,live:{start:now-61,outAcc:0,outNow:null},prevBest:55,baseDays:12},{i:'ㅂㅅㅇ',today:260,live:null,prevBest:240,baseDays:20}],promiseStreak:[{i:'ㅇㅇㄹ',streak:4},{i:'ㅈㅎㅇ',streak:3},{i:'ㅈㅇㅇ',streak:2},{i:'ㅂㅈㅇ',streak:2},{i:'ㄱㅇㅎ',streak:1}]};}
 var _qi=/[?&]idle=(\d+)/.exec(location.search);if(_qi)CFG.idleSec=parseInt(_qi[1]);
 idleArm();
 </script>
