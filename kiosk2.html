@@ -607,30 +607,18 @@ function idleRender(){var d=IDLE.data,el=document.getElementById('ipanel');el.cl
     el.innerHTML='<h1>이번 주<br>역전의 <em>명수</em></h1><div class="sub">지난주 같은 요일까지보다 제일 많이 늘어난 사람. 1등보다 무서움.</div>'+
       (mv.length?'<div class="rows">'+mv.map(function(m,i){return '<div class="row'+(i===0?' top':'')+'"><div class="rk">↑</div><div class="nm">'+m.i+'</div><div class="val">+'+hm(m.delta)+'</div></div>';}).join('')+'</div>':'<div class="empty">아직 지난주보다 늘어난 사람 없음. 오늘 앉으면 바뀜.</div>');
   }}
-/* ---- 패널 1: 오늘 자기 기록 깬 사람 / 패널 2: 약속 시간 내 도착 연속 (2026-11-04) ---- */
+/* ---- 패널 1: 최고 순공 기록 갈아치운 사람 / 패널 2: 나랑 한 약속 지키는 중 (2026-11-04) ---- */
 function bestRows(d){return (d.bestToday||[]).map(function(s){return {s:s,v:s.today+liveMin(s)};}).filter(function(r){return r.v>r.s.prevBest;}).sort(function(a,b){return (b.v-b.s.prevBest)-(a.v-a.s.prevBest);}).slice(0,6);}
 function idleBest(d,el){var rows=bestRows(d);
-  el.innerHTML='<div class="sticker">최근 두 달 기준</div><h1>오늘<br>자기 기록 <em>깬 사람</em></h1><div class="sub">남 이기는 건 운. 어제의 나를 이기는 건 실력.</div>'+
-    (rows.length?'<div class="rows" id="irows">'+rows.map(function(r,i){return '<div class="row'+(i===0?' top':'')+'" data-i="'+r.s.i+'"><div class="rk">↑</div><div class="nm">'+r.s.i+(r.s.live?'<span class="live"></span>':'')+'<small style="font-size:.5em;font-weight:800;color:#666;letter-spacing:0">이전 최고 '+hm(r.s.prevBest)+'</small></div><div class="val">'+(r.s.live?hms(r.v):hm(r.v))+'</div><div class="bar" style="width:100%"></div></div>';}).join('')+'</div>':'<div class="empty">오늘은 아직 없음. 지금 앉아 있는 사람 중 한 명이 깔 차례.</div>');
+  el.innerHTML='<div class="sticker">최근 두 달 기준</div><h1>최고 순공 기록<br><em>갈아치운 사람</em></h1><div class="sub">상대는 지난 두 달의 나. 오늘 이겼음.</div>'+
+    (rows.length?'<div class="rows" id="irows">'+rows.map(function(r,i){return '<div class="row'+(i===0?' top':'')+'" data-i="'+r.s.i+'"><div class="rk">↑</div><div class="nm">'+r.s.i+(r.s.live?'<span class="live"></span>':'')+'<small style="font-size:.5em;font-weight:800;color:#666;letter-spacing:0">이전 최고 '+hm(r.s.prevBest)+'</small></div><div class="val">'+(r.s.live?hms(r.v):hm(r.v))+'</div><div class="bar" style="width:100%"></div></div>';}).join('')+'</div>':'<div class="empty">오늘은 아직 없음. 지금 앉아 있는 사람 중에서 나올 예정.</div>');
   IDLE.lastRank=rows.map(function(r){return r.s.i;}).join(',');}
 function idleBestTick(d){var rows=bestRows(d);var order=rows.map(function(r){return r.s.i;}).join(',');
   if(order!==IDLE.lastRank){idleRender();return;}
   var box=document.getElementById('irows');if(!box)return;rows.forEach(function(r){var e=box.querySelector('[data-i="'+r.s.i+'"]');if(e&&r.s.live)e.querySelector('.val').textContent=hms(r.v);});}
 function idleStreak(d,el){var rows=(d.promiseStreak||[]).slice(0,5);
-  el.innerHTML='<div class="sticker">약속 +'+(d.streakTol||10)+'분 안</div><h1>약속 시간에<br>온 <em>연속</em></h1><div class="sub">약속한 요일, 약속한 시간 안에 도착. 늦거나 빠지면 0부터.</div>'+
-    (rows.length?'<div class="rows">'+rows.map(function(s,i){return '<div class="row'+(i===0?' top':'')+'"><div class="rk">'+(i+1)+'</div><div class="nm">'+s.i+'</div><div class="val">'+s.streak+'<span style="font-size:.5em;font-family:\'Noto Sans KR\';font-weight:900"> 연속</span></div></div>';}).join('')+'</div>':'<div class="empty">지금 이어지고 있는 연속 없음. 다음 약속부터 1.</div>');}
-/* ---- 패널 1: 오늘 자기 기록 깬 사람 / 패널 2: 약속 시간 내 도착 연속 (2026-11-04) ---- */
-function bestRows(d){return (d.bestToday||[]).map(function(s){return {s:s,v:s.today+liveMin(s)};}).filter(function(r){return r.v>r.s.prevBest;}).sort(function(a,b){return (b.v-b.s.prevBest)-(a.v-a.s.prevBest);}).slice(0,6);}
-function idleBest(d,el){var rows=bestRows(d);
-  el.innerHTML='<div class="sticker">최근 두 달 기준</div><h1>오늘<br>자기 기록 <em>깬 사람</em></h1><div class="sub">남 이기는 건 운. 어제의 나를 이기는 건 실력.</div>'+
-    (rows.length?'<div class="rows" id="irows">'+rows.map(function(r,i){return '<div class="row'+(i===0?' top':'')+'" data-i="'+r.s.i+'"><div class="rk">↑</div><div class="nm">'+r.s.i+(r.s.live?'<span class="live"></span>':'')+'<small style="font-size:.5em;font-weight:800;color:#666;letter-spacing:0">이전 최고 '+hm(r.s.prevBest)+'</small></div><div class="val">'+(r.s.live?hms(r.v):hm(r.v))+'</div><div class="bar" style="width:100%"></div></div>';}).join('')+'</div>':'<div class="empty">오늘은 아직 없음. 지금 앉아 있는 사람 중 한 명이 깰 차례.</div>');
-  IDLE.lastRank=rows.map(function(r){return r.s.i;}).join(',');}
-function idleBestTick(d){var rows=bestRows(d);var order=rows.map(function(r){return r.s.i;}).join(',');
-  if(order!==IDLE.lastRank){idleRender();return;}
-  var box=document.getElementById('irows');if(!box)return;rows.forEach(function(r){var e=box.querySelector('[data-i="'+r.s.i+'"]');if(e&&r.s.live)e.querySelector('.val').textContent=hms(r.v);});}
-function idleStreak(d,el){var rows=(d.promiseStreak||[]).slice(0,5);
-  el.innerHTML='<div class="sticker">약속 +'+(d.streakTol||10)+'분 안</div><h1>약속 시간에<br>온 <em>연속</em></h1><div class="sub">약속한 요일, 약속한 시간 안에 도착. 늦거나 빠지면 0부터.</div>'+
-    (rows.length?'<div class="rows">'+rows.map(function(s,i){return '<div class="row'+(i===0?' top':'')+'"><div class="rk">'+(i+1)+'</div><div class="nm">'+s.i+'</div><div class="val">'+s.streak+'<span style="font-size:.5em;font-family:\'Noto Sans KR\';font-weight:900"> 연속</span></div></div>';}).join('')+'</div>':'<div class="empty">지금 이어지고 있는 연속 없음. 다음 약속부터 1.</div>');}
+  el.innerHTML='<div class="sticker">약속 +'+(d.streakTol||10)+'분 안</div><h1>나랑 한 약속<br><em>지키는 중</em></h1><div class="sub">정한 요일, 정한 시간에 문 연 연속 횟수. 한 번 늦으면 다시 0.</div>'+
+    (rows.length?'<div class="rows">'+rows.map(function(s,i){return '<div class="row'+(i===0?' top':'')+'"><div class="rk">'+(i+1)+'</div><div class="nm">'+s.i+'</div><div class="val">'+s.streak+'<span style="font-size:.5em;font-family:\'Noto Sans KR\';font-weight:900"> 연속</span></div></div>';}).join('')+'</div>':'<div class="empty">이어지는 약속 아직 없음. 다음 약속부터 1.</div>');}
 function idleTick(){var d=IDLE.data;if(!d)return;var n=new Date();document.getElementById('iclock').textContent=p2(n.getHours())+':'+p2(n.getMinutes());
   if(IDLE.panel===0){var rows=(d.top||[]).slice(0,12).map(function(s){return {s:s,v:s.month+liveMin(s)};}).sort(function(a,b){return b.v-a.v;}).slice(0,10);
     var box=document.getElementById('irows');if(!box)return;var order=rows.map(function(r){return r.s.i;}).join(',');
